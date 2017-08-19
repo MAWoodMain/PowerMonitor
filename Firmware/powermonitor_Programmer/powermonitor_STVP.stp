@@ -16,5 +16,5 @@ File0=D:\Libraries\Programming\New IDEA\PowerMonitor\Firmware\Debug\powermonitor
 ProgramEvenIfBlank=0
 [OPTION BYTE]
 Count=1
-File0=d:\libraries\programming\new idea\powermonitor\firmware\powermonitor_Programmer\powermonitor_STVP_OPTION BYTE.hex
+File0=D:\Libraries\Programming\New IDEA\PowerMonitor\Firmware\powermonitor_Programmer\powermonitor_STVP_OPTION BYTE.hex
 ProgramEvenIfBlank=0
