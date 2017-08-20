@@ -54,137 +54,167 @@
 3473  003a 97            	ld	xl,a
 3476  003b 5b03          	addw	sp,#3
 3477  003d 81            	ret
-3515                     .const:	section	.text
-3516  0000               L41:
-3517  0000 0000b960      	dc.l	47456
-3518                     ; 24 main()
-3518                     ; 25 {
-3519                     	switch	.text
-3520  003e               _main:
-3522  003e 5204          	subw	sp,#4
-3523       00000004      OFST:	set	4
-3526                     ; 26 	unsigned long i = 0;
-3528  0040 ae0000        	ldw	x,#0
-3529  0043 1f03          	ldw	(OFST-1,sp),x
-3530  0045 ae0000        	ldw	x,#0
-3531  0048 1f01          	ldw	(OFST-3,sp),x
-3532                     ; 28 	CLK_CKDIVR = 0x00;
-3534  004a 725f50c0      	clr	_CLK_CKDIVR
-3535                     ; 30 	UART_INIT();
-3537  004e ad3d          	call	_UART_INIT
-3539                     ; 31 	USART1_DR = 'x';
-3541  0050 35785231      	mov	_USART1_DR,#120
-3542  0054 2009          	jra	L3732
-3543  0056               L1732:
-3544                     ; 36 		while(i < 47456) i++;
-3546  0056 96            	ldw	x,sp
-3547  0057 1c0001        	addw	x,#OFST-3
-3548  005a a601          	ld	a,#1
-3549  005c cd0000        	call	c_lgadc
-3551  005f               L3732:
-3554  005f 96            	ldw	x,sp
-3555  0060 1c0001        	addw	x,#OFST-3
-3556  0063 cd0000        	call	c_ltor
-3558  0066 ae0000        	ldw	x,#L41
-3559  0069 cd0000        	call	c_lcmp
-3561  006c 25e8          	jrult	L1732
-3562                     ; 37 		sendChar('x');
-3564  006e a678          	ld	a,#120
-3565  0070 ad8e          	call	_sendChar
-3568  0072 2009          	jra	L1042
-3569  0074               L7732:
-3570                     ; 39 		while(i > 0) i--;
-3572  0074 96            	ldw	x,sp
-3573  0075 1c0001        	addw	x,#OFST-3
-3574  0078 a601          	ld	a,#1
-3575  007a cd0000        	call	c_lgsbc
-3577  007d               L1042:
-3580  007d 96            	ldw	x,sp
-3581  007e 1c0001        	addw	x,#OFST-3
-3582  0081 cd0000        	call	c_lzmp
-3584  0084 26ee          	jrne	L7732
-3585                     ; 41 		sendChar('x');
-3587  0086 a678          	ld	a,#120
-3588  0088 cd0000        	call	_sendChar
-3591  008b 20d2          	jra	L3732
-3622                     ; 47 void UART_INIT()
-3622                     ; 48 {
-3623                     	switch	.text
-3624  008d               _UART_INIT:
-3628                     ; 50 	CLK_PCKENR1 |= 0x20;
-3630  008d 721a50c3      	bset	_CLK_PCKENR1,#5
-3631                     ; 53 	PC_DDR |= 0xFF;
-3633  0091 c6500c        	ld	a,_PC_DDR
-3634  0094 aaff          	or	a,#255
-3635  0096 c7500c        	ld	_PC_DDR,a
-3636                     ; 54 	PC_CR1 |= 0xFF;
-3638  0099 c6500d        	ld	a,_PC_CR1
-3639  009c aaff          	or	a,#255
-3640  009e c7500d        	ld	_PC_CR1,a
-3641                     ; 57 	USART1_CR2 = USART_CR2_TEN;
-3643  00a1 35085235      	mov	_USART1_CR2,#8
-3644                     ; 60 	USART1_CR3 &= ~(USART_CR3_STOP1 | USART_CR3_STOP2);
-3646  00a5 c65236        	ld	a,_USART1_CR3
-3647  00a8 a4cf          	and	a,#207
-3648  00aa c75236        	ld	_USART1_CR3,a
-3649                     ; 63 	USART1_BRR2 = 0x03; 
-3651  00ad 35035233      	mov	_USART1_BRR2,#3
-3652                     ; 64 	USART1_BRR1 = 0x68;
-3654  00b1 35685232      	mov	_USART1_BRR1,#104
-3655                     ; 65 	USART1_PSCR |= 0x01;
-3657  00b5 7210523a      	bset	_USART1_PSCR,#0
-3658                     ; 66 }
-3661  00b9 81            	ret
-3694                     ; 68 void RTC_INIT()
-3694                     ; 69 {
-3695                     	switch	.text
-3696  00ba               _RTC_INIT:
-3700                     ; 71 	CLK_PCKENR2 |= 0x04;
-3702  00ba 721450c4      	bset	_CLK_PCKENR2,#2
-3703                     ; 72 	CLK_CRTCR |= 0x02;
-3705  00be 721250c1      	bset	_CLK_CRTCR,#1
-3706                     ; 75 	RTC_WPR = 0xCA;
-3708  00c2 35ca5159      	mov	_RTC_WPR,#202
-3709                     ; 76 	RTC_WPR = 0x53;
-3711  00c6 35535159      	mov	_RTC_WPR,#83
-3712                     ; 79 	if ((RTC_ISR1 & 0x40) == 0)
-3714  00ca c6514c        	ld	a,_RTC_ISR1
-3715  00cd a540          	bcp	a,#64
-3716  00cf 260b          	jrne	L5242
-3717                     ; 82     RTC_ISR1 = 0x80;
-3719  00d1 3580514c      	mov	_RTC_ISR1,#128
-3721  00d5               L3342:
-3722                     ; 85     while ((RTC_ISR1 & 0x40) == 0);
-3724  00d5 c6514c        	ld	a,_RTC_ISR1
-3725  00d8 a540          	bcp	a,#64
-3726  00da 27f9          	jreq	L3342
-3727  00dc               L5242:
-3728                     ; 88 	RTC_TR1 = 0x00;
-3730  00dc 725f5140      	clr	_RTC_TR1
-3731                     ; 89 	RTC_TR2 = 0x30;
-3733  00e0 35305141      	mov	_RTC_TR2,#48
-3734                     ; 90 	RTC_TR3 = 0x57;
-3736  00e4 35575142      	mov	_RTC_TR3,#87
-3737                     ; 92 	RTC_DR1 = 0x19;
-3739  00e8 35195144      	mov	_RTC_DR1,#25
-3740                     ; 93 	RTC_DR2 = 0xC8;
-3742  00ec 35c85145      	mov	_RTC_DR2,#200
-3743                     ; 94 	RTC_DR3 = 0x17;
-3745  00f0 35175146      	mov	_RTC_DR3,#23
-3746                     ; 96 	RTC_ISR1 &= ~0x80;
-3748  00f4 721f514c      	bres	_RTC_ISR1,#7
-3749                     ; 97 }
-3752  00f8 81            	ret
-3765                     	xdef	_main
-3766                     	xdef	_uart_write
-3767                     	xdef	_sendChar
-3768                     	xdef	_UART_INIT
-3769                     	xdef	_RTC_INIT
-3770                     	xref	_strlen
-3771                     	xref.b	c_y
-3790                     	xref	c_lzmp
-3791                     	xref	c_lgsbc
-3792                     	xref	c_lcmp
-3793                     	xref	c_ltor
-3794                     	xref	c_lgadc
-3795                     	end
+3522                     .const:	section	.text
+3523  0000               L41:
+3524  0000 0000b960      	dc.l	47456
+3525                     ; 24 main()
+3525                     ; 25 {
+3526                     	switch	.text
+3527  003e               _main:
+3529  003e 5204          	subw	sp,#4
+3530       00000004      OFST:	set	4
+3533                     ; 26 	unsigned long i = 0;
+3535  0040 ae0000        	ldw	x,#0
+3536  0043 1f03          	ldw	(OFST-1,sp),x
+3537  0045 ae0000        	ldw	x,#0
+3538  0048 1f01          	ldw	(OFST-3,sp),x
+3539                     ; 28 	CLK_CKDIVR = 0x00;
+3541  004a 725f50c0      	clr	_CLK_CKDIVR
+3542                     ; 29 	UART_INIT();
+3544  004e ad6b          	call	_UART_INIT
+3546                     ; 30 	uart_write("UART Initialised");
+3548  0050 ae0014        	ldw	x,#L5632
+3549  0053 adba          	call	_uart_write
+3551                     ; 31 	RTC_INIT();
+3553  0055 cd00e4        	call	_RTC_INIT
+3555                     ; 32 	uart_write("RTC Initialised");
+3557  0058 ae0004        	ldw	x,#L7632
+3558  005b adb2          	call	_uart_write
+3560  005d 2009          	jra	L7732
+3561  005f               L5732:
+3562                     ; 36 		while(i < 47456) i++;
+3564  005f 96            	ldw	x,sp
+3565  0060 1c0001        	addw	x,#OFST-3
+3566  0063 a601          	ld	a,#1
+3567  0065 cd0000        	call	c_lgadc
+3569  0068               L7732:
+3572  0068 96            	ldw	x,sp
+3573  0069 1c0001        	addw	x,#OFST-3
+3574  006c cd0000        	call	c_ltor
+3576  006f ae0000        	ldw	x,#L41
+3577  0072 cd0000        	call	c_lcmp
+3579  0075 25e8          	jrult	L5732
+3581  0077 2009          	jra	L5042
+3582  0079               L3042:
+3583                     ; 37 		while(i > 0) i--;
+3585  0079 96            	ldw	x,sp
+3586  007a 1c0001        	addw	x,#OFST-3
+3587  007d a601          	ld	a,#1
+3588  007f cd0000        	call	c_lgsbc
+3590  0082               L5042:
+3593  0082 96            	ldw	x,sp
+3594  0083 1c0001        	addw	x,#OFST-3
+3595  0086 cd0000        	call	c_lzmp
+3597  0089 26ee          	jrne	L3042
+3598                     ; 38 		sendChar(RTC_TR1 & 0x7F);
+3600  008b c65140        	ld	a,_RTC_TR1
+3601  008e a47f          	and	a,#127
+3602  0090 cd0000        	call	_sendChar
+3604                     ; 39 		sendChar(RTC_TR2 & 0x7F);
+3606  0093 c65141        	ld	a,_RTC_TR2
+3607  0096 a47f          	and	a,#127
+3608  0098 cd0000        	call	_sendChar
+3610                     ; 40 		sendChar(RTC_TR3 & 0x3F);
+3612  009b c65142        	ld	a,_RTC_TR3
+3613  009e a43f          	and	a,#63
+3614  00a0 cd0000        	call	_sendChar
+3616                     ; 41 		sendChar(RTC_DR1 & 0x3F);
+3618  00a3 c65144        	ld	a,_RTC_DR1
+3619  00a6 a43f          	and	a,#63
+3620  00a8 cd0000        	call	_sendChar
+3622                     ; 42 		sendChar(RTC_DR2 & 0x1F);
+3624  00ab c65145        	ld	a,_RTC_DR2
+3625  00ae a41f          	and	a,#31
+3626  00b0 cd0000        	call	_sendChar
+3628                     ; 43 		sendChar(RTC_DR3 & 0xFF);
+3630  00b3 c65146        	ld	a,_RTC_DR3
+3631  00b6 cd0000        	call	_sendChar
+3634  00b9 20ad          	jra	L7732
+3664                     ; 49 void UART_INIT()
+3664                     ; 50 {
+3665                     	switch	.text
+3666  00bb               _UART_INIT:
+3670                     ; 52 	CLK_PCKENR1 |= 0x20;
+3672  00bb 721a50c3      	bset	_CLK_PCKENR1,#5
+3673                     ; 55 	PC_DDR |= 0xFF;
+3675  00bf c6500c        	ld	a,_PC_DDR
+3676  00c2 aaff          	or	a,#255
+3677  00c4 c7500c        	ld	_PC_DDR,a
+3678                     ; 56 	PC_CR1 |= 0xFF;
+3680  00c7 c6500d        	ld	a,_PC_CR1
+3681  00ca aaff          	or	a,#255
+3682  00cc c7500d        	ld	_PC_CR1,a
+3683                     ; 59 	USART1_CR2 = USART_CR2_TEN;
+3685  00cf 35085235      	mov	_USART1_CR2,#8
+3686                     ; 62 	USART1_CR3 &= ~(USART_CR3_STOP1 | USART_CR3_STOP2);
+3688  00d3 c65236        	ld	a,_USART1_CR3
+3689  00d6 a4cf          	and	a,#207
+3690  00d8 c75236        	ld	_USART1_CR3,a
+3691                     ; 65 	USART1_BRR2 = 0x05; 
+3693  00db 35055233      	mov	_USART1_BRR2,#5
+3694                     ; 66 	USART1_BRR1 = 0x04;
+3696  00df 35045232      	mov	_USART1_BRR1,#4
+3697                     ; 67 }
+3700  00e3 81            	ret
+3734                     ; 69 void RTC_INIT()
+3734                     ; 70 {
+3735                     	switch	.text
+3736  00e4               _RTC_INIT:
+3740                     ; 72 	CLK_PCKENR2 |= 0x04;
+3742  00e4 721450c4      	bset	_CLK_PCKENR2,#2
+3743                     ; 74 	CLK_CRTCR |= 0x01;
+3745  00e8 721050c1      	bset	_CLK_CRTCR,#0
+3746                     ; 77 	RTC_WPR = 0xCA;
+3748  00ec 35ca5159      	mov	_RTC_WPR,#202
+3749                     ; 78 	RTC_WPR = 0x53;
+3751  00f0 35535159      	mov	_RTC_WPR,#83
+3752                     ; 81 	if ((RTC_ISR1 & 0x40) == 0)
+3754  00f4 c6514c        	ld	a,_RTC_ISR1
+3755  00f7 a540          	bcp	a,#64
+3756  00f9 260b          	jrne	L1342
+3757                     ; 84     RTC_ISR1 = 0x80;
+3759  00fb 3580514c      	mov	_RTC_ISR1,#128
+3761  00ff               L7342:
+3762                     ; 87     while ((RTC_ISR1 & 0x40) == 0);
+3764  00ff c6514c        	ld	a,_RTC_ISR1
+3765  0102 a540          	bcp	a,#64
+3766  0104 27f9          	jreq	L7342
+3767  0106               L1342:
+3768                     ; 90 	RTC_TR1 = 0x00;
+3770  0106 725f5140      	clr	_RTC_TR1
+3771                     ; 91 	RTC_TR2 = 0x30;
+3773  010a 35305141      	mov	_RTC_TR2,#48
+3774                     ; 92 	RTC_TR3 = 0x57;
+3776  010e 35575142      	mov	_RTC_TR3,#87
+3777                     ; 94 	RTC_DR1 = 0x19;
+3779  0112 35195144      	mov	_RTC_DR1,#25
+3780                     ; 95 	RTC_DR2 = 0xC8;
+3782  0116 35c85145      	mov	_RTC_DR2,#200
+3783                     ; 96 	RTC_DR3 = 0x17;
+3785  011a 35175146      	mov	_RTC_DR3,#23
+3786                     ; 98 	RTC_ISR1 =0x00;
+3788  011e 725f514c      	clr	_RTC_ISR1
+3789                     ; 99 	RTC_ISR2 =0x00;
+3791  0122 725f514d      	clr	_RTC_ISR2
+3792                     ; 100 	RTC_WPR = 0xFF; 
+3794  0126 35ff5159      	mov	_RTC_WPR,#255
+3795                     ; 101 }
+3798  012a 81            	ret
+3811                     	xdef	_main
+3812                     	xdef	_uart_write
+3813                     	xdef	_sendChar
+3814                     	xdef	_UART_INIT
+3815                     	xdef	_RTC_INIT
+3816                     	xref	_strlen
+3817                     	switch	.const
+3818  0004               L7632:
+3819  0004 52544320496e  	dc.b	"RTC Initialised",0
+3820  0014               L5632:
+3821  0014 554152542049  	dc.b	"UART Initialised",0
+3822                     	xref.b	c_y
+3842                     	xref	c_lzmp
+3843                     	xref	c_lgsbc
+3844                     	xref	c_lcmp
+3845                     	xref	c_ltor
+3846                     	xref	c_lgadc
+3847                     	end

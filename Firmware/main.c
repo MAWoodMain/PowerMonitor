@@ -26,19 +26,21 @@ main()
 	unsigned long i = 0;
 	
 	CLK_CKDIVR = 0x00;
-	
 	UART_INIT();
-	USART1_DR = 'x';
-	//RTC_INIT();
+	uart_write("UART Initialised");
+	RTC_INIT();
+	uart_write("RTC Initialised");
 
 
 	do {
 		while(i < 47456) i++;
-		sendChar('x');
-		//PB_ODR |= 0x01;
 		while(i > 0) i--;
-		//PB_ODR &= ~0x01;
-		sendChar('x');
+		sendChar(RTC_TR1 & 0x7F);
+		sendChar(RTC_TR2 & 0x7F);
+		sendChar(RTC_TR3 & 0x3F);
+		sendChar(RTC_DR1 & 0x3F);
+		sendChar(RTC_DR2 & 0x1F);
+		sendChar(RTC_DR3 & 0xFF);
 		
 	} while(1);
 
@@ -60,15 +62,16 @@ void UART_INIT()
 	USART1_CR3 &= ~(USART_CR3_STOP1 | USART_CR3_STOP2);
 	
 	// 9600 baud
-	USART1_BRR2 = 0x03; 
-	USART1_BRR1 = 0x68;
+	USART1_BRR2 = 0x05; 
+	USART1_BRR1 = 0x04;
 }
 
 void RTC_INIT()
 {
 	// Enable peripheral
 	CLK_PCKENR2 |= 0x04;
-	CLK_CRTCR |= 0x02;
+	// Select RTC clock source
+	CLK_CRTCR |= 0x01;
 	
 	// Disable write protection
 	RTC_WPR = 0xCA;
@@ -92,5 +95,7 @@ void RTC_INIT()
 	RTC_DR2 = 0xC8;
 	RTC_DR3 = 0x17;
 	// Clear init bit
-	RTC_ISR1 &= ~0x80;
+	RTC_ISR1 =0x00;
+	RTC_ISR2 =0x00;
+	RTC_WPR = 0xFF; 
 }
