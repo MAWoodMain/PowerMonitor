@@ -37,6 +37,7 @@ public class SerialTest
         //serial.open(SerialPort.getDefaultPort(),921600,8,1,1,0);
         serial.open(config);
         Thread.sleep(10000);
+        serial.close();
     }
 
     public static void main(String[] args) throws IOException, InterruptedException

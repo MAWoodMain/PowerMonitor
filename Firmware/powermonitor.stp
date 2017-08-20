@@ -74,7 +74,7 @@ String.6.0=2017,8,19,17,25,55
 String.100.0=$(TargetFName)
 String.101.0=
 String.102.0=
-String.103.0=.\;stm8l15x_stdperiph_driver\inc;
+String.103.0=.\;
 
 [Root.Config.0.Settings.2]
 String.2.0=
@@ -155,7 +155,7 @@ String.6.0=2017,8,19,17,25,55
 String.100.0=$(TargetFName)
 String.101.0=
 String.102.0=
-String.103.0=.\;stm8l15x_stdperiph_driver\inc;
+String.103.0=.\;
 
 [Root.Config.1.Settings.2]
 String.2.0=
@@ -217,7 +217,7 @@ String.6.0=2017,8,19,17,25,55
 [Root.Source Files]
 ElemType=Folder
 PathName=Source Files
-Child=Root.Source Files.main.c
+Child=Root.Source Files.calcvi.c
 Next=Root.Include Files
 Config.0=Root.Source Files.Config.0
 Config.1=Root.Source Files.Config.1
@@ -282,19 +282,34 @@ String.6.0=2017,8,19,17,25,55
 String.2.0=Performing Custom Build on $(InputFile)
 String.6.0=2017,8,19,17,25,55
 
+[Root.Source Files.calcvi.c]
+ElemType=File
+PathName=calcvi.c
+Next=Root.Source Files.main.c
+
 [Root.Source Files.main.c]
 ElemType=File
 PathName=main.c
+Next=Root.Source Files.rtc.c
+
+[Root.Source Files.rtc.c]
+ElemType=File
+PathName=rtc.c
 Next=Root.Source Files.stm8_interrupt_vector.c
 
 [Root.Source Files.stm8_interrupt_vector.c]
 ElemType=File
 PathName=stm8_interrupt_vector.c
+Next=Root.Source Files.uart.c
+
+[Root.Source Files.uart.c]
+ElemType=File
+PathName=uart.c
 
 [Root.Include Files]
 ElemType=Folder
 PathName=Include Files
-Child=Root.Include Files.stm8l051f3.h
+Child=Root.Include Files.calcvi.h
 Config.0=Root.Include Files.Config.0
 Config.1=Root.Include Files.Config.1
 
@@ -358,16 +373,120 @@ String.6.0=2017,8,19,17,25,55
 String.2.0=Performing Custom Build on $(InputFile)
 String.6.0=2017,8,19,17,25,55
 
+[Root.Include Files.calcvi.h]
+ElemType=File
+PathName=calcvi.h
+Next=Root.Include Files.rtc.h
+
+[Root.Include Files.rtc.h]
+ElemType=File
+PathName=rtc.h
+Next=Root.Include Files.stm8l051f3.h
+
 [Root.Include Files.stm8l051f3.h]
 ElemType=File
 PathName=stm8l051f3.h
-Next=Root.Include Files.stm8l15x_stdperiph_driver\inc\stm8l15x.h
+Next=Root.Include Files.uart.h
 
-[Root.Include Files.stm8l15x_stdperiph_driver\inc\stm8l15x.h]
+[Root.Include Files.uart.h]
 ElemType=File
-PathName=stm8l15x_stdperiph_driver\inc\stm8l15x.h
-Next=Root.Include Files.stm8l15x_stdperiph_driver\inc\stm8l15x_rtc.h
+PathName=uart.h
 
-[Root.Include Files.stm8l15x_stdperiph_driver\inc\stm8l15x_rtc.h]
+[Root.adc.c]
 ElemType=File
-PathName=stm8l15x_stdperiph_driver\inc\stm8l15x_rtc.h
+PathName=adc.c
+Next=Root.adc.h
+Config.0=Root.adc.c.Config.0
+Config.1=Root.adc.c.Config.1
+
+[Root.adc.c.Config.0]
+Settings.0.0=Root.adc.c.Config.0.Settings.0
+Settings.0.1=Root.adc.c.Config.0.Settings.1
+Settings.0.2=Root.adc.c.Config.0.Settings.2
+
+[Root.adc.c.Config.1]
+Settings.1.0=Root.adc.c.Config.1.Settings.0
+Settings.1.1=Root.adc.c.Config.1.Settings.1
+Settings.1.2=Root.adc.c.Config.1.Settings.2
+
+[Root.adc.c.Config.0.Settings.0]
+String.6.0=2017,8,20,18,58,45
+String.8.0=Debug
+Int.0=0
+Int.1=0
+
+[Root.adc.c.Config.0.Settings.1]
+String.2.0=Performing Custom Build on $(InputFile)
+String.3.0=
+String.4.0=
+String.5.0=
+String.6.0=2017,8,19,17,25,55
+
+[Root.adc.c.Config.0.Settings.2]
+String.2.0=Compiling $(InputFile)...
+String.3.0=cxstm8 -istm8l15x_stdperiph_driver\inc  -customDbg -customDebCompat -customOpt-no -customLst -l +mods0 -customC-pp $(ToolsetIncOpts) -cl$(IntermPath) -co$(IntermPath) $(InputFile) 
+String.4.0=$(IntermPath)$(InputName).$(ObjectExt)
+String.5.0=$(IntermPath)$(InputName).ls
+String.6.0=2017,8,19,17,25,55
+String.8.0=Debug
+
+[Root.adc.c.Config.1.Settings.0]
+String.6.0=2017,8,20,18,58,45
+String.8.0=Release
+Int.0=0
+Int.1=0
+
+[Root.adc.c.Config.1.Settings.1]
+String.2.0=Performing Custom Build on $(InputFile)
+String.3.0=
+String.4.0=
+String.5.0=
+String.6.0=2017,8,19,17,25,55
+
+[Root.adc.c.Config.1.Settings.2]
+String.2.0=Compiling $(InputFile)...
+String.3.0=cxstm8 -istm8l15x_stdperiph_driver\inc  +mods0 -customC-pp $(ToolsetIncOpts) -cl$(IntermPath) -co$(IntermPath) $(InputFile) 
+String.4.0=$(IntermPath)$(InputName).$(ObjectExt)
+String.5.0=$(IntermPath)$(InputName).ls
+String.6.0=2017,8,19,17,25,55
+String.8.0=Release
+
+[Root.adc.h]
+ElemType=File
+PathName=adc.h
+Config.0=Root.adc.h.Config.0
+Config.1=Root.adc.h.Config.1
+
+[Root.adc.h.Config.0]
+Settings.0.0=Root.adc.h.Config.0.Settings.0
+Settings.0.1=Root.adc.h.Config.0.Settings.1
+
+[Root.adc.h.Config.1]
+Settings.1.0=Root.adc.h.Config.1.Settings.0
+Settings.1.1=Root.adc.h.Config.1.Settings.1
+
+[Root.adc.h.Config.0.Settings.0]
+String.6.0=2017,8,20,18,58,45
+String.8.0=Debug
+Int.0=0
+Int.1=0
+
+[Root.adc.h.Config.0.Settings.1]
+String.2.0=Performing Custom Build on $(InputFile)
+String.3.0=
+String.4.0=
+String.5.0=
+String.6.0=2017,8,19,17,25,55
+
+[Root.adc.h.Config.1.Settings.0]
+String.6.0=2017,8,20,18,58,45
+String.8.0=Release
+Int.0=0
+Int.1=0
+
+[Root.adc.h.Config.1.Settings.1]
+String.2.0=Performing Custom Build on $(InputFile)
+String.3.0=
+String.4.0=
+String.5.0=
+String.6.0=2017,8,19,17,25,55
