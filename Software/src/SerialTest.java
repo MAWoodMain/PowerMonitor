@@ -13,7 +13,7 @@ public class SerialTest
     {
         SerialConfig config = new SerialConfig();
         config.device(SerialPort.getDefaultPort())
-            .baud(Baud._9600)
+            .baud(Baud._230400)
             .dataBits(DataBits._8)
             .stopBits(StopBits._1)
             .parity(Parity.NONE)
@@ -24,13 +24,16 @@ public class SerialTest
         serial.addListener(e -> {
             try
             {
-                System.out.println("Received: " + Arrays.toString(e.getBytes()));
+                System.out.print("Received: ");
+                for(byte b:e.getBytes()) System.out.printf("%02x", b);
+                System.out.println();
             } catch (IOException e1)
             {
                 e1.printStackTrace();
             }
         });
 
+        //serial.open(SerialPort.getDefaultPort(),921600,8,1,1,0);
         serial.open(config);
         Thread.sleep(10000);
     }
