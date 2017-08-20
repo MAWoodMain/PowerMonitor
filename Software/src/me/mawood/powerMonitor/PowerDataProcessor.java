@@ -16,18 +16,35 @@ import static java.lang.Thread.sleep;
 
 public class PowerDataProcessor  implements SerialDataEventListener, Runnable
 {
-    private enum MetricType{REAL, APPARENT};
+    private enum MetricType{Real, Apparent}
     private final String basetopic    = "emon";
     private final String clientId     = "PMon10";
     private final String topic        = basetopic+"/"+clientId;
 
-    private String content      = "test message";
+    private String content ;
     private int qos             = 2;
     private String broker       = "tcp://localhost:1883";
     private MemoryPersistence persistence = new MemoryPersistence();
     private MqttClient powerMonitorADCMQQTClient;
     private volatile boolean msgArrived;
     private volatile SerialDataEvent serialDataEvent;
+    private class ClampParameters
+    {
+        int clampNumber;
+        float scaleFactor;
+        String units;
+        int maxCurrent;
+        int burdenResistor;
+        ClampParameters(int cn, float sf, String u, int mc, int br)
+        {
+            clampNumber = cn;
+            scaleFactor = sf;
+            units = u;
+            burdenResistor = br;
+            maxCurrent = mc;
+        }
+    }
+    private ClampParameters[] cp = new ClampParameters[10];
 
     PowerDataProcessor()
     {
@@ -35,6 +52,16 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable
         // bind listener to serial port
         // set up stream definitions
         // make connection to MQTT broker
+        cp[0]= new ClampParameters(0,1.0f,"V",0,0);
+        cp[1]= new ClampParameters(1,1.0f,"W",100, 10);
+        cp[2]= new ClampParameters(2,1.0f,"W",20, 93);
+        cp[3]= new ClampParameters(3,1.0f,"W",20, 93);
+        cp[4]= new ClampParameters(4,1.0f,"W",20, 93);
+        cp[5]= new ClampParameters(5,1.0f,"W",20, 93);
+        cp[6]= new ClampParameters(6,1.0f,"W",30, 62);
+        cp[7]= new ClampParameters(7,1.0f,"W",30, 62);
+        cp[8]= new ClampParameters(8,1.0f,"W",5, 372);
+        cp[9]= new ClampParameters(9,1.0f,"W",5, 372);
         try {
             powerMonitorADCMQQTClient = new MqttClient(broker, clientId, persistence);
             MqttConnectOptions connOpts = new MqttConnectOptions();
@@ -81,13 +108,9 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable
         System.exit(0);
     }
 
-    private String makeMetricLable(MetricType mt, int clampNbr)
+    private int getScaledMetric(byte[] bytes, MetricType mt, int clamp)
     {
-        return topic+"/"+mt.toString()+" "+clampNbr ;
-    }
-
-    private int getMetric(byte[] bytes, MetricType mt, int clamp)
-    {
+        //TODO extract data and scale based on clamps
         return 0;
     }
 
@@ -96,6 +119,7 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable
     {
         int nbrSerialBytes = 0;
         byte[] serialBytes = null;
+        String subTopic;
         try
         {
             while (true)
@@ -103,6 +127,7 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable
                 if (msgArrived)
                 {
                     msgArrived = false;
+                    //TODO  Check for sequence gaps, fill if necessary
                     try
                     {
                         serialBytes = serialDataEvent.getBytes();
@@ -114,24 +139,22 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable
                     }
                     for (MetricType mt : MetricType.values() )
                     {
+                        subTopic = topic+"/"+mt.toString();
                         for (int clamp = 0; clamp<10; clamp++)
                         {
-                            content = makeMetricLable(mt,clamp)+getMetric(serialBytes,mt, clamp);
+                            content = clamp+ " " + getScaledMetric(serialBytes,mt, clamp);
+                            // publish to broker
+                            try
+                            {
+                                MqttMessage message = new MqttMessage(content.getBytes());
+                                message.setQos(qos);
+                                powerMonitorADCMQQTClient.publish(subTopic, message);
+                                //System.out.println("Message published");
+                            } catch (MqttException me)
+                            {
+                                handleMQTTException(me);
+                            }
                         }
-                    }
-                    // unwrap the data
-                    // Check for sequence gaps, fill if necessary
-                    // extract data and scale based on clamps
-                    // publish to broker
-                    try
-                    {
-                        MqttMessage message = new MqttMessage(content.getBytes());
-                        message.setQos(qos);
-                        powerMonitorADCMQQTClient.publish(topic, message);
-                        System.out.println("Message published");
-                    } catch (MqttException me)
-                    {
-                        handleMQTTException(me);
                     }
 
                 }
