@@ -122,5 +122,7 @@ public class STM8PowerMonitor
         {
             e.printStackTrace();
         }
+        pDP.run();
+        System.exit(0);
     }
 }

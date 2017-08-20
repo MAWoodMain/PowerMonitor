@@ -19,11 +19,7 @@ class SerialStreamer
                 .flowControl(FlowControl.NONE);
 
         serial = SerialFactory.createInstance();
-
         serial.addListener(listener);
-
         serial.open(config);
-        Thread.sleep(10000);
     }
-
 }

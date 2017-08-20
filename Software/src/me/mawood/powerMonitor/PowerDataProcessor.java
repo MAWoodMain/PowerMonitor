@@ -11,8 +11,10 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import java.io.IOException;
 import java.util.Arrays;
 
+import static java.lang.Thread.sleep;
 
-public class PowerDataProcessor  implements SerialDataEventListener
+
+public class PowerDataProcessor  implements SerialDataEventListener, Runnable
 {
     private final String basetopic    = "emon";
     private final String clientId     = "PMon10ADC";
@@ -23,6 +25,8 @@ public class PowerDataProcessor  implements SerialDataEventListener
     private String broker       = "tcp://localhost:1883";
     private MemoryPersistence persistence = new MemoryPersistence();
     private MqttClient powerMonitorADCMQQTClient;
+    private volatile boolean msgArrived;
+    private volatile SerialDataEvent serialDataEvent;
 
     PowerDataProcessor()
     {
@@ -46,28 +50,8 @@ public class PowerDataProcessor  implements SerialDataEventListener
     @Override
     public void dataReceived(SerialDataEvent serialDataEvent)
     {
-        try
-        {
-            System.out.println("Received: " + Arrays.toString(serialDataEvent.getBytes()));
-        } catch (IOException e1)
-        {
-            e1.printStackTrace();
-        }
-        // unwrap the data
-        // Check for sequence gaps, fill if necessary
-        // extract data and scale based on clamps
-        // publish to broker
-        try {
-            MqttMessage message = new MqttMessage(content.getBytes());
-            message.setQos(qos);
-            powerMonitorADCMQQTClient.publish(topic, message);
-            System.out.println("Message published");
-            powerMonitorADCMQQTClient.disconnect();
-            System.out.println("Disconnected");
-            System.exit(0);
-        } catch(MqttException me) {
-            handleMQTTException(me);
-        }
+        this.serialDataEvent = serialDataEvent;
+        msgArrived = true;
 
     }
     private void handleMQTTException(MqttException me)
@@ -79,16 +63,57 @@ public class PowerDataProcessor  implements SerialDataEventListener
         System.out.println("excep "+me);
         me.printStackTrace();
     }
-    public void shutdownDataProcessing()
+    private void shutdownDataProcessing()
     {
         try
         {
             powerMonitorADCMQQTClient.disconnect();
+            System.out.println("Disconnected");
         } catch (MqttException me)
         {
             handleMQTTException(me);
         }
         System.out.println("PowerDataProcessor Disconnected");
         System.exit(0);
+    }
+    @Override
+    public void run()
+    {
+        try
+        {
+            while (true)
+            {
+                if (msgArrived)
+                {
+                    try
+                    {
+                        System.out.println("Received: " + Arrays.toString(serialDataEvent.getBytes()));
+                    } catch (IOException e1)
+                    {
+                        e1.printStackTrace();
+                    }
+                    // unwrap the data
+                    // Check for sequence gaps, fill if necessary
+                    // extract data and scale based on clamps
+                    // publish to broker
+                    try
+                    {
+                        MqttMessage message = new MqttMessage(content.getBytes());
+                        message.setQos(qos);
+                        powerMonitorADCMQQTClient.publish(topic, message);
+                        System.out.println("Message published");
+                    } catch (MqttException me)
+                    {
+                        handleMQTTException(me);
+                    }
+
+                }
+                sleep(100);
+            }
+        }catch (InterruptedException e)
+        {
+            shutdownDataProcessing();
+            System.out.println("Data Processing Intterupted, exiting");
+        }
     }
 }
