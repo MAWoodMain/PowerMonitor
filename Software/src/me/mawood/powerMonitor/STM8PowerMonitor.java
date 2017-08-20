@@ -113,17 +113,19 @@ public class STM8PowerMonitor
 
     public static void main(String[] args) throws IOException, I2CFactory.UnsupportedBusNumberException
     {
-        STM8PowerMonitor sPM = new STM8PowerMonitor();
-        PowerDataSubscriber pDS = new PowerDataSubscriber();
-        PowerDataProcessor pDP = new PowerDataProcessor();
         try
         {
-            SerialStreamer Ss = new SerialStreamer(pDP);
+            STM8PowerMonitor sPM = new STM8PowerMonitor();
+            PowerDataSubscriber pDS = new PowerDataSubscriber();
+            PowerDataProcessor pDP = new PowerDataProcessor();
+            SerialStreamer serialStreamer= new SerialStreamer(pDP); // bind listener to serial port and start serial
+            pDP.run();
+            serialStreamer.close();
+            System.exit(0);
         } catch (InterruptedException e)
         {
             e.printStackTrace();
         }
-        pDP.run();
-        System.exit(0);
+
     }
 }

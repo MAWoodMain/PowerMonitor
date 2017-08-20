@@ -2,10 +2,7 @@ package me.mawood.powerMonitor;
 
 import com.pi4j.io.serial.SerialDataEvent;
 import com.pi4j.io.serial.SerialDataEventListener;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import java.io.IOException;
@@ -13,8 +10,7 @@ import java.util.Arrays;
 
 import static java.lang.Thread.sleep;
 
-
-public class PowerDataProcessor  implements SerialDataEventListener, Runnable
+public class PowerDataProcessor  implements SerialDataEventListener, Runnable, MqttCallback
 {
     private enum MetricType{Real, Apparent}
     private final String basetopic    = "emon";
@@ -25,9 +21,13 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable
     private int qos             = 2;
     private String broker       = "tcp://localhost:1883";
     private MemoryPersistence persistence = new MemoryPersistence();
-    private MqttClient powerMonitorADCMQQTClient;
+    private MqttClient publisherClientPMOn10;
+    private MqttConnectOptions connOpts;
+    private long nbrMessagesSentOK;
+
     private volatile boolean msgArrived;
     private volatile SerialDataEvent serialDataEvent;
+
     private class ClampParameters
     {
         int clampNumber;
@@ -48,10 +48,8 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable
 
     PowerDataProcessor()
     {
+        nbrMessagesSentOK =0;
         // set up clamp configuration
-        // bind listener to serial port
-        // set up stream definitions
-        // make connection to MQTT broker
         cp[0]= new ClampParameters(0,1.0f,"V",0,0);
         cp[1]= new ClampParameters(1,1.0f,"W",100, 10);
         cp[2]= new ClampParameters(2,1.0f,"W",20, 93);
@@ -63,17 +61,47 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable
         cp[8]= new ClampParameters(8,1.0f,"W",5, 372);
         cp[9]= new ClampParameters(9,1.0f,"W",5, 372);
         try {
-            powerMonitorADCMQQTClient = new MqttClient(broker, clientId, persistence);
-            MqttConnectOptions connOpts = new MqttConnectOptions();
+            // set up MQTT stream definitions
+            publisherClientPMOn10 = new MqttClient(broker, clientId, persistence);
+            connOpts = new MqttConnectOptions();
             connOpts.setCleanSession(true);
             System.out.println("Connecting PowerDataProcessor to broker: "+broker);
-            powerMonitorADCMQQTClient.connect(connOpts);
+            // make connection to MQTT broker
+            publisherClientPMOn10.connect(connOpts);
             System.out.println("PowerDataProcessor Connected");
 
         } catch(MqttException me) {
             handleMQTTException(me);
         }
 
+    }
+    @Override
+    public void connectionLost(Throwable throwable)
+    {
+        System.out.println("Subscriber connection lost!");
+        // code to reconnect to the broker
+        try
+        {
+            publisherClientPMOn10.connect(connOpts);
+        } catch (MqttException me)
+        {
+            handleMQTTException(me);
+            System.exit(1);
+        }
+    }
+    @Override
+    public void messageArrived(String s, MqttMessage mqttMessage) throws Exception
+    {
+        System.out.println("-------------------------------------------------");
+        System.out.println("| Topic:" + s);
+        System.out.println("| Message: " + new String(mqttMessage.getPayload()));
+        System.out.println("-------------------------------------------------");
+
+    }
+    @Override
+    public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken)
+    {
+        nbrMessagesSentOK++;
     }
 
     @Override
@@ -98,14 +126,14 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable
     {
         try
         {
-            powerMonitorADCMQQTClient.disconnect();
+            publisherClientPMOn10.disconnect();
             System.out.println("Disconnected");
         } catch (MqttException me)
         {
             handleMQTTException(me);
         }
         System.out.println("PowerDataProcessor Disconnected");
-        System.exit(0);
+        System.out.println(nbrMessagesSentOK+ " messages sent successfully");
     }
 
     private int getScaledMetric(byte[] bytes, MetricType mt, int clamp)
@@ -148,7 +176,7 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable
                             {
                                 MqttMessage message = new MqttMessage(content.getBytes());
                                 message.setQos(qos);
-                                powerMonitorADCMQQTClient.publish(subTopic, message);
+                                publisherClientPMOn10.publish(subTopic, message);
                                 //System.out.println("Message published");
                             } catch (MqttException me)
                             {

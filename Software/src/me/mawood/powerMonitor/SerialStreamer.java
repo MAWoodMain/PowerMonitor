@@ -22,4 +22,14 @@ class SerialStreamer
         serial.addListener(listener);
         serial.open(config);
     }
+    void close()
+    {
+        try
+        {
+            serial.close();
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
 }
