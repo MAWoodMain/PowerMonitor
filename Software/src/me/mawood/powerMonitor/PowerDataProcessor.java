@@ -16,8 +16,9 @@ import static java.lang.Thread.sleep;
 
 public class PowerDataProcessor  implements SerialDataEventListener, Runnable
 {
+    private enum MetricType{REAL, APPARENT};
     private final String basetopic    = "emon";
-    private final String clientId     = "PMon10ADC";
+    private final String clientId     = "PMon10";
     private final String topic        = basetopic+"/"+clientId;
 
     private String content      = "test message";
@@ -47,6 +48,7 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable
         }
 
     }
+
     @Override
     public void dataReceived(SerialDataEvent serialDataEvent)
     {
@@ -54,6 +56,7 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable
         msgArrived = true;
 
     }
+
     private void handleMQTTException(MqttException me)
     {
         System.out.println("reason "+me.getReasonCode());
@@ -63,6 +66,7 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable
         System.out.println("excep "+me);
         me.printStackTrace();
     }
+
     private void shutdownDataProcessing()
     {
         try
@@ -76,6 +80,17 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable
         System.out.println("PowerDataProcessor Disconnected");
         System.exit(0);
     }
+
+    private String makeMetricLable(MetricType mt, int clampNbr)
+    {
+        return topic+"/"+mt.toString()+" "+clampNbr ;
+    }
+
+    private int getMetric(byte[] bytes, MetricType mt, int clamp)
+    {
+        return 0;
+    }
+
     @Override
     public void run()
     {
@@ -96,6 +111,13 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable
                     } catch (IOException e1)
                     {
                         e1.printStackTrace();
+                    }
+                    for (MetricType mt : MetricType.values() )
+                    {
+                        for (int clamp = 0; clamp<10; clamp++)
+                        {
+                            content = makeMetricLable(mt,clamp)+getMetric(serialBytes,mt, clamp);
+                        }
                     }
                     // unwrap the data
                     // Check for sequence gaps, fill if necessary
