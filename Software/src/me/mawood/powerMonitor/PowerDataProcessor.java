@@ -27,7 +27,8 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
     private MqttClient publisherClientPMOn10;
     private MqttConnectOptions connOpts;
     private long nbrMessagesSentOK;
-
+    private boolean stop;
+    private int nbrSerialBytes;
     private volatile boolean msgArrived;
     private volatile SerialDataEvent serialDataEvent;
 
@@ -52,6 +53,7 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
     PowerDataProcessor()
     {
         nbrMessagesSentOK =0;
+        stop = false;
         // set up clamp configuration
         cp[0]= new ClampParameters(0,1.0f,"V",0,0);
         cp[1]= new ClampParameters(1,1.0f,"W",100, 10);
@@ -144,8 +146,8 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
         final int serialOffsetClamps = 10;
         final int sizeOfDouble = 8;
         double rawValue;
-        byte[] bytes8 = new byte[8];
-
+        byte[] bytes8;
+        if (nbrSerialBytes < serialOffsetClamps+sizeOfDouble*10) return 0; //message too short
         if (mt==MetricType.Real)
         {
             bytes8 = Arrays.copyOfRange(bytes, serialOffsetClamps, serialOffsetClamps+sizeOfDouble);
@@ -162,12 +164,11 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
     @Override
     public void run()
     {
-        int nbrSerialBytes = 0;
         byte[] serialBytes = null;
         String subTopic;
         try
         {
-            while (true)
+            while (!stop)
             {
                 if (msgArrived)
                 {
@@ -187,6 +188,7 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
                         subTopic = topic+"/"+mt.toString();
                         for (int clamp = 0; clamp<10; clamp++)
                         {
+                            //clamp is the key
                             content = clamp+ " " + getScaledMetric(serialBytes,mt, clamp);
                             // publish to broker
                             try
@@ -210,5 +212,9 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
             shutdownDataProcessing();
             System.out.println("Data Processing Intterupted, exiting");
         }
+    }
+    public void stop()
+    {
+        stop = true;
     }
 }
