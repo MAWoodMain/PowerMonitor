@@ -79,15 +79,20 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable
     @Override
     public void run()
     {
+        int nbrSerialBytes = 0;
+        byte[] serialBytes = null;
         try
         {
             while (true)
             {
                 if (msgArrived)
                 {
+                    msgArrived = false;
                     try
                     {
-                        System.out.println("Received: " + Arrays.toString(serialDataEvent.getBytes()));
+                        serialBytes = serialDataEvent.getBytes();
+                        nbrSerialBytes = serialDataEvent.length();
+                        System.out.println("Received: " + Arrays.toString(serialBytes));
                     } catch (IOException e1)
                     {
                         e1.printStackTrace();
