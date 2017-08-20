@@ -39,7 +39,7 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
         String units;
         int maxCurrent;
         int burdenResistor;
-        ClampParameters(int clamp, float scale, String units, int maxCurrent, int burdenResistor)
+        ClampParameters(int clamp, double scale, String units, int maxCurrent, int burdenResistor)
         {
             this.clampNumber = clamp;
             this.scaleFactor = scale;
@@ -55,16 +55,16 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
         nbrMessagesSentOK =0;
         stop = false;
         // set up clamp configuration
-        cp[0]= new ClampParameters(0,1.0f,"V",0,0);
-        cp[1]= new ClampParameters(1,1.0f,"W",100, 10);
-        cp[2]= new ClampParameters(2,1.0f,"W",20, 93);
-        cp[3]= new ClampParameters(3,1.0f,"W",20, 93);
-        cp[4]= new ClampParameters(4,1.0f,"W",20, 93);
-        cp[5]= new ClampParameters(5,1.0f,"W",20, 93);
-        cp[6]= new ClampParameters(6,1.0f,"W",30, 62);
-        cp[7]= new ClampParameters(7,1.0f,"W",30, 62);
-        cp[8]= new ClampParameters(8,1.0f,"W",5, 372);
-        cp[9]= new ClampParameters(9,1.0f,"W",5, 372);
+        cp[0]= new ClampParameters(0,1.0,"V",0,0);
+        cp[1]= new ClampParameters(1,1.0,"W",100, 10);
+        cp[2]= new ClampParameters(2,1.0,"W",20, 93);
+        cp[3]= new ClampParameters(3,1.0,"W",20, 93);
+        cp[4]= new ClampParameters(4,1.0,"W",20, 93);
+        cp[5]= new ClampParameters(5,1.0,"W",20, 93);
+        cp[6]= new ClampParameters(6,1.0,"W",30, 62);
+        cp[7]= new ClampParameters(7,1.0,"W",30, 62);
+        cp[8]= new ClampParameters(8,1.0,"W",5, 372);
+        cp[9]= new ClampParameters(9,1.0,"W",5, 372);
         try {
             // set up MQTT stream definitions
             publisherClientPMOn10 = new MqttClient(broker, clientId, persistence);
@@ -158,7 +158,7 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
             bytes8 = Arrays.copyOfRange(bytes, serialOffsetClamps+sizeOfDouble, serialOffsetClamps+sizeOfDouble+sizeOfDouble);
             rawValue = ByteBuffer.wrap(bytes8).getDouble();
         }
-        return rawValue*cp[clamp].scaleFactor;
+        return rawValue*cp[clamp].scaleFactor*cp[clamp].maxCurrent;
     }
 
     @Override
