@@ -8,6 +8,9 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import java.io.IOException;
 import java.util.Arrays;
 
+import java.nio.ByteBuffer;
+
+import java.nio.ByteBuffer;
 import static java.lang.Thread.sleep;
 
 public class PowerDataProcessor  implements SerialDataEventListener, Runnable, MqttCallback
@@ -18,7 +21,7 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
     private final String topic        = basetopic+"/"+clientId;
 
     private String content ;
-    private int qos             = 2;
+    private int qos             = 2; //The message is always delivered exactly once
     private String broker       = "tcp://localhost:1883";
     private MemoryPersistence persistence = new MemoryPersistence();
     private MqttClient publisherClientPMOn10;
@@ -31,17 +34,17 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
     private class ClampParameters
     {
         int clampNumber;
-        float scaleFactor;
+        double scaleFactor;
         String units;
         int maxCurrent;
         int burdenResistor;
-        ClampParameters(int cn, float sf, String u, int mc, int br)
+        ClampParameters(int clamp, float scale, String units, int maxCurrent, int burdenResistor)
         {
-            clampNumber = cn;
-            scaleFactor = sf;
-            units = u;
-            burdenResistor = br;
-            maxCurrent = mc;
+            this.clampNumber = clamp;
+            this.scaleFactor = scale;
+            this.units = units;
+            this.burdenResistor = burdenResistor;
+            this.maxCurrent = maxCurrent;
         }
     }
     private ClampParameters[] cp = new ClampParameters[10];
@@ -136,10 +139,24 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
         System.out.println(nbrMessagesSentOK+ " messages sent successfully");
     }
 
-    private int getScaledMetric(byte[] bytes, MetricType mt, int clamp)
+    private double getScaledMetric(byte[] bytes, MetricType mt, int clamp)
     {
-        //TODO extract data and scale based on clamps
-        return 0;
+        final int serialOffsetClamps = 10;
+        final int sizeOfDouble = 8;
+        double rawValue;
+        byte[] bytes8 = new byte[8];
+
+        if (mt==MetricType.Real)
+        {
+            bytes8 = Arrays.copyOfRange(bytes, serialOffsetClamps, serialOffsetClamps+sizeOfDouble);
+            rawValue = ByteBuffer.wrap(bytes8).getDouble();
+        }
+        else
+        {
+            bytes8 = Arrays.copyOfRange(bytes, serialOffsetClamps+sizeOfDouble, serialOffsetClamps+sizeOfDouble+sizeOfDouble);
+            rawValue = ByteBuffer.wrap(bytes8).getDouble();
+        }
+        return rawValue*cp[clamp].scaleFactor;
     }
 
     @Override
