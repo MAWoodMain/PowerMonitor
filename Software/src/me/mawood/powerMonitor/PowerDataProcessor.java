@@ -8,18 +8,23 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
+import java.io.IOException;
+import java.util.Arrays;
+
 
 public class PowerDataProcessor  implements SerialDataEventListener
 {
-    private String topic        = "emon";
+    private final String basetopic    = "emon";
+    private final String clientId     = "PMon10ADC";
+    private final String topic        = basetopic+"/"+clientId;
+
     private String content      = "test message";
     private int qos             = 2;
     private String broker       = "tcp://localhost:1883";
-    private String clientId     = "PowerMonitorADC";
     private MemoryPersistence persistence = new MemoryPersistence();
     private MqttClient powerMonitorADCMQQTClient;
 
-    public PowerDataProcessor()
+    PowerDataProcessor()
     {
         // set up clamp configuration
         // bind listener to serial port
@@ -29,9 +34,9 @@ public class PowerDataProcessor  implements SerialDataEventListener
             powerMonitorADCMQQTClient = new MqttClient(broker, clientId, persistence);
             MqttConnectOptions connOpts = new MqttConnectOptions();
             connOpts.setCleanSession(true);
-            System.out.println("Connecting to broker: "+broker);
+            System.out.println("Connecting PowerDataProcessor to broker: "+broker);
             powerMonitorADCMQQTClient.connect(connOpts);
-            System.out.println("Connected");
+            System.out.println("PowerDataProcessor Connected");
 
         } catch(MqttException me) {
             handleMQTTException(me);
@@ -41,6 +46,13 @@ public class PowerDataProcessor  implements SerialDataEventListener
     @Override
     public void dataReceived(SerialDataEvent serialDataEvent)
     {
+        try
+        {
+            System.out.println("Received: " + Arrays.toString(serialDataEvent.getBytes()));
+        } catch (IOException e1)
+        {
+            e1.printStackTrace();
+        }
         // unwrap the data
         // Check for sequence gaps, fill if necessary
         // extract data and scale based on clamps
@@ -76,7 +88,7 @@ public class PowerDataProcessor  implements SerialDataEventListener
         {
             handleMQTTException(me);
         }
-        System.out.println("Disconnected");
+        System.out.println("PowerDataProcessor Disconnected");
         System.exit(0);
     }
 }
