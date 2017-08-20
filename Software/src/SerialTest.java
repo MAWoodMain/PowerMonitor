@@ -24,8 +24,9 @@ public class SerialTest
         serial.addListener(e -> {
             try
             {
-                System.out.print("Received: ");
-                for(byte b:e.getBytes()) System.out.printf("%02x", b);
+                byte[] bytes = e.getBytes();
+                System.out.printf("Received %d bytes: ", bytes.length);
+                for(byte b:bytes) System.out.printf("%02x", b);
                 System.out.println();
             } catch (IOException e1)
             {
