@@ -21,7 +21,7 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable
     private final String clientId     = "PMon10";
     private final String topic        = basetopic+"/"+clientId;
 
-    private String content      = "test message";
+    private String content ;
     private int qos             = 2;
     private String broker       = "tcp://localhost:1883";
     private MemoryPersistence persistence = new MemoryPersistence();
