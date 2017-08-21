@@ -3,8 +3,17 @@ package me.mawood.powerMonitor;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
+import java.io.IOException;
+import java.util.Arrays;
+
+import static java.lang.Thread.sleep;
+
 public class PowerDataSubscriber implements  Runnable, MqttCallback
 {
+    // run control variables
+    private volatile boolean msgArrived;
+    private volatile boolean stop;
+
     @Override
     public void connectionLost(Throwable throwable)
     {
@@ -15,6 +24,7 @@ public class PowerDataSubscriber implements  Runnable, MqttCallback
     @Override
     public void messageArrived(String s, MqttMessage mqttMessage) throws Exception
     {
+        msgArrived = true;
         System.out.println("-------------------------------------------------");
         System.out.println("| Topic:" + s);
         System.out.println("| Message: " + new String(mqttMessage.getPayload()));
@@ -35,6 +45,7 @@ public class PowerDataSubscriber implements  Runnable, MqttCallback
     private String broker       = "tcp://localhost:1883";
     private MemoryPersistence persistence = new MemoryPersistence();
     private MqttClient subscriberClientPMon10;
+    private int nbrMessagesReceivedOK;
 
     PowerDataSubscriber()
     {
@@ -58,6 +69,24 @@ public class PowerDataSubscriber implements  Runnable, MqttCallback
         }
 
     }
+
+    /**
+     * shutdownDataSubscriber   Tidy shutdown of the processor
+     */
+    private void shutdownDataSubscriber()
+    {
+        try
+        {
+            subscriberClientPMon10.disconnect();
+            System.out.println("Disconnected");
+        } catch (MqttException me)
+        {
+            handleMQTTException(me);
+        }
+        System.out.println("PowerDataProcessor Disconnected");
+        System.out.println(nbrMessagesReceivedOK+ " messages Received successfully");
+    }
+
     private void handleMQTTException(MqttException me)
     {
         System.out.println("reason "+me.getReasonCode());
@@ -67,10 +96,41 @@ public class PowerDataSubscriber implements  Runnable, MqttCallback
         System.out.println("excep "+me);
         me.printStackTrace();
     }
+    //
+    // Runnable implementation
+    //
 
+    /**
+     * run  The main processing loop
+     */
     @Override
     public void run()
     {
+        byte[] serialBytes = null;
+        String subTopic;
+        try
+        {
+            while (!stop)
+            {
+                if (msgArrived)
+                {
+                    nbrMessagesReceivedOK++;
+                    msgArrived = false;
+                }
+                sleep(100);
+            }
+        }catch (InterruptedException e)
+        {
+            shutdownDataSubscriber();
+            System.out.println("Data Processing Intterupted, exiting");
+        }
+    }
 
+    /**
+     * stop     Method to stop the main processing loop and close down processing
+     */
+    void stop()
+    {
+        stop = true;
     }
 }
