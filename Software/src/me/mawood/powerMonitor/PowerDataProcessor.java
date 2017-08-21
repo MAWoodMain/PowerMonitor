@@ -300,14 +300,13 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
                             publishToBroker( subTopic, 3 +" " + getScaledMetric(serialBytes, MetricType.Voltage, channel));
                         }
                      }
-
                 }
                 sleep(100);
             }
         }catch (InterruptedException e)
         {
             shutdownDataProcessing();
-            System.out.println("Data Processing Intterupted, exiting");
+            System.out.println("Data Processing Interrupted, exiting");
         }
     }
 
