@@ -35,9 +35,7 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
     private final String basetopic    = "emon";
     private final String clientId     = "PMon10";
     private final String topic        = basetopic+"/"+clientId;
-    private int qos             = 2; //The message is always delivered exactly once
-    private String broker       = "tcp://localhost:1883";
-    private MemoryPersistence persistence = new MemoryPersistence();
+    private final String broker       = "tcp://localhost:1883";
     private MqttClient publisherClientPMOn10;
     private MqttConnectOptions connOpts;
 
@@ -51,15 +49,14 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
     private volatile SerialDataEvent serialDataEvent;
     private volatile boolean stop;
 
-    //
-    // Constructor
-    //
-
+     /**
+     * PowerDataProcessor   Constructor
+     */
     PowerDataProcessor()
     {
         nbrMessagesSentOK =0;
         stop = false;
-        // set up clamp configuration
+        // set up channel configuration
         channels[0]= new ChannelMap(0,10.0,"V","Voltage");
         channels[1]= new ChannelMap(1,CurrentClamps.SCT013_5A1V.getMaxCurrent(),"W","UpstairsLighting");
         channels[2]= new ChannelMap(2,CurrentClamps.SCT013_5A1V.getMaxCurrent(),"W","DownstairsLighting");
@@ -73,7 +70,7 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
 
         try {
             // set up MQTT stream definitions
-            publisherClientPMOn10 = new MqttClient(broker, clientId, persistence);
+            publisherClientPMOn10 = new MqttClient(broker, clientId, new MemoryPersistence());
             connOpts = new MqttConnectOptions();
             connOpts.setCleanSession(true);
             System.out.println("Connecting PowerDataProcessor to broker: "+broker);
@@ -84,13 +81,16 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
         } catch(MqttException me) {
             handleMQTTException(me);
         }
-
     }
 
     //
     // MqttCallback implementation
     //
 
+    /**
+     * connectionLost       The connection to the MQTT server has been lost
+     * @param throwable     the cause?
+     */
     @Override
     public void connectionLost(Throwable throwable)
     {
@@ -105,6 +105,14 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
             System.exit(1);
         }
     }
+
+    /**
+     * messageArrived       An MQTT message has been recieved (not expected to happen
+     *                      as this class doesn't subscribe
+     * @param s             Topic
+     * @param mqttMessage   Message
+     * @throws Exception    if we can't handle it
+     */
     @Override
     public void messageArrived(String s, MqttMessage mqttMessage) throws Exception
     {
@@ -114,6 +122,11 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
         System.out.println("-------------------------------------------------");
 
     }
+
+    /**
+     * deliveryComplete             Notification that an MQTT delivery has been successfully recieved at the broker
+     * @param iMqttDeliveryToken    Which delivery?
+     */
     @Override
     public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken)
     {
@@ -124,6 +137,10 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
     // SerialDataEventListener implementation
     //
 
+    /**
+     * dataReceived             Handler for serial data arriving
+     * @param serialDataEvent   The data that has arrived
+     */
     @Override
     public void dataReceived(SerialDataEvent serialDataEvent)
     {
@@ -132,6 +149,10 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
 
     }
 
+    /**
+     * handleMQTTException  Handler for MQTT exceptions
+     * @param me            The MQTT exception
+     */
     private void handleMQTTException(MqttException me)
     {
         System.out.println("reason "+me.getReasonCode());
@@ -142,12 +163,20 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
         me.printStackTrace();
     }
 
+    /**
+     * setPowerMonitor  Stores the connected powerMonitor object
+     * @param pm        The object reference
+     */
     void setPowerMonitor(STM8PowerMonitor pm)
     {
         this.powerMonitor = pm;
         pm.AddSerialListener(this);// bind listener to serial port
 
     }
+
+    /**
+     * shutdownDataProcessing   Tidy shutdown of the processor
+     */
     private void shutdownDataProcessing()
     {
         try
@@ -162,6 +191,19 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
         System.out.println(nbrMessagesSentOK+ " messages sent successfully");
     }
 
+    /**
+     * getScaledMetric  Extracts a metic from a byte array, by working out the appropriate offset
+     *                  Message format expected
+     *                  8 bytes - Timestamp Long
+     *                  2 bytes - Sample Number a sequential count Short
+     *                  8 bytes - Voltage real
+     *                  8 bytes - Real Power real       } repeated 9 times
+     *                  8 bytes - Apparent power real   }
+     * @param bytes     The bytes received from the power monitor
+     * @param mt        The type of metric required
+     * @param channel   The power monitor channel
+     * @return          A double which is the scaled value of the metric
+     */
     private double getScaledMetric(byte[] bytes, MetricType mt, int channel)
     {
         final int serialOffsetClamps = 10;
@@ -195,8 +237,15 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
         return rawValue* channels[channel].scaleFactor;
     }
 
-    private    void publishToBroker(String subTopic, String content)
+    /**
+     * publishToBroker - send a message to the MQTT broker
+     * @param subTopic  - fully qualified topic identifier
+     * @param content   - message content "key data"
+     */
+    private void publishToBroker(String subTopic, String content)
     {
+        final int qos = 2; //The message is always delivered exactly once
+
         try
         {
             MqttMessage message = new MqttMessage(content.getBytes());
@@ -213,6 +262,9 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
     // Runnable implementation
     //
 
+    /**
+     * run  The main processing loop
+     */
     @Override
     public void run()
     {
@@ -258,6 +310,10 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
             System.out.println("Data Processing Intterupted, exiting");
         }
     }
+
+    /**
+     * stop     Method to stop the main processing loop and close down processing
+     */
     public void stop()
     {
         stop = true;
