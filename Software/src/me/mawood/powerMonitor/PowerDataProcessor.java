@@ -14,23 +14,6 @@ import static java.lang.Thread.sleep;
 
 public class PowerDataProcessor  implements SerialDataEventListener, Runnable, MqttCallback
 {
-    private enum MetricType{RealPower, ApparentPower, Voltage}
-    private final String basetopic    = "emon";
-    private final String clientId     = "PMon10";
-    private final String topic        = basetopic+"/"+clientId;
-
-    private String content ;
-    private int qos             = 2; //The message is always delivered exactly once
-    private String broker       = "tcp://localhost:1883";
-    private MemoryPersistence persistence = new MemoryPersistence();
-    private MqttClient publisherClientPMOn10;
-    private MqttConnectOptions connOpts;
-    private long nbrMessagesSentOK;
-    private boolean stop;
-    private int nbrSerialBytes;
-    private volatile boolean msgArrived;
-    private volatile SerialDataEvent serialDataEvent;
-
     private class ChannelMap
     {
         int channelNumber;
@@ -45,8 +28,32 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
             this.name = name;
         }
     }
+
+    private enum MetricType{RealPower, ApparentPower, Voltage}
+
+    // MQTT related variables
+    private final String basetopic    = "emon";
+    private final String clientId     = "PMon10";
+    private final String topic        = basetopic+"/"+clientId;
+    private int qos             = 2; //The message is always delivered exactly once
+    private String broker       = "tcp://localhost:1883";
+    private MemoryPersistence persistence = new MemoryPersistence();
+    private MqttClient publisherClientPMOn10;
+    private MqttConnectOptions connOpts;
+
     private STM8PowerMonitor powerMonitor;
     private ChannelMap[] channels = new ChannelMap[10];
+    private long nbrMessagesSentOK;
+    private int nbrSerialBytes;
+
+    // run control variables
+    private volatile boolean msgArrived;
+    private volatile SerialDataEvent serialDataEvent;
+    private volatile boolean stop;
+
+    //
+    // Constructor
+    //
 
     PowerDataProcessor()
     {
@@ -79,6 +86,11 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
         }
 
     }
+
+    //
+    // MqttCallback implementation
+    //
+
     @Override
     public void connectionLost(Throwable throwable)
     {
@@ -107,6 +119,10 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
     {
         nbrMessagesSentOK++;
     }
+
+    //
+    // SerialDataEventListener implementation
+    //
 
     @Override
     public void dataReceived(SerialDataEvent serialDataEvent)
@@ -167,6 +183,7 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
             {
                 bytes8 = Arrays.copyOfRange(bytes, serialOffsetClamps+channel*sizeOfDouble + sizeOfDouble, serialOffsetClamps+channel*sizeOfDouble + sizeOfDouble + sizeOfDouble);
                 rawValue = ByteBuffer.wrap(bytes8).getDouble();
+                break;
             }
             case Voltage:
             {
@@ -191,6 +208,11 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
             handleMQTTException(me);
         }
     }
+
+    //
+    // Runnable implementation
+    //
+
     @Override
     public void run()
     {
