@@ -1,5 +1,5 @@
 
-Map of Debug\powermonitor.sm8 from link file Debug\powermonitor.lkf - Sun Aug 20 19:32:30 2017
+Map of Debug\powermonitor.sm8 from link file Debug\powermonitor.lkf - Mon Aug 21 20:46:11 2017
 
 
                                --------
@@ -33,35 +33,35 @@ start 00000100 end 00000100 length     0 section .bss
 start 0000000a end 0000000a length     0 section .ubsct
 start 00000000 end 00000030 length    48 section .info.
 
+Debug\adc.o:
+start 0000813e end 000081d8 length   154 section .text
+start 00000000 end 0000000a length    10 section .bsct
+start 00000000 end 000025a6 length  9638 section .debug
+start 00000030 end 0000009c length   108 section .info.
+
 Debug\calcvi.o:
-start 0000813e end 00008463 length   805 section .text
+start 000081d8 end 000084fd length   805 section .text
 start 0000000a end 0000005c length    82 section .ubsct
-start 00000000 end 00002a5e length 10846 section .debug
-start 00000030 end 0000009f length   111 section .info.
+start 000025a6 end 00005004 length 10846 section .debug
+start 0000009c end 0000010b length   111 section .info.
 start 00008080 end 0000809e length    30 section .const
 start 000066:0 end 000066:2 length     2 section .bit
 
 Debug\main.o:
-start 00008463 end 00008552 length   239 section .text
-start 00002a5e end 00005016 length  9656 section .debug
-start 0000009f end 0000010c length   109 section .info.
+start 000084fd end 000085ec length   239 section .text
+start 00005004 end 000075bc length  9656 section .debug
+start 0000010b end 00000178 length   109 section .info.
 start 0000809e end 000080db length    61 section .const
 
 Debug\rtc.o:
-start 00008552 end 00008599 length    71 section .text
-start 00005016 end 00007510 length  9466 section .debug
-start 0000010c end 00000178 length   108 section .info.
+start 000085ec end 00008633 length    71 section .text
+start 000075bc end 00009ab6 length  9466 section .debug
+start 00000178 end 000001e4 length   108 section .info.
 
 Debug\uart.o:
-start 00008599 end 00008671 length   216 section .text
-start 00007510 end 00009c03 length  9971 section .debug
-start 00000178 end 000001e5 length   109 section .info.
-
-Debug\adc.o:
-start 00008671 end 0000870b length   154 section .text
-start 00000000 end 0000000a length    10 section .bsct
-start 00009c03 end 0000c1a9 length  9638 section .debug
-start 000001e5 end 00000251 length   108 section .info.
+start 00008633 end 0000870b length   216 section .text
+start 00009ab6 end 0000c1a9 length  9971 section .debug
+start 000001e4 end 00000251 length   109 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)strlen0.o:
 start 0000870b end 00008717 length    12 section .text
@@ -250,320 +250,320 @@ Stack size: 69
                                Symbols
                                -------
 
-_ADC1_CR1               00005340   defined in Debug\calcvi.o
-_ADC1_CR2               00005341   defined in Debug\calcvi.o
-_ADC1_CR3               00005342   defined in Debug\calcvi.o
-_ADC1_DR                00005344   defined in Debug\calcvi.o
-_ADC1_DRH               00005344   defined in Debug\calcvi.o
-_ADC1_DRL               00005345   defined in Debug\calcvi.o
-_ADC1_HTR               00005346   defined in Debug\calcvi.o
-_ADC1_HTRH              00005346   defined in Debug\calcvi.o
-_ADC1_HTRL              00005347   defined in Debug\calcvi.o
-_ADC1_LTR               00005348   defined in Debug\calcvi.o
-_ADC1_LTRH              00005348   defined in Debug\calcvi.o
-_ADC1_LTRL              00005349   defined in Debug\calcvi.o
-_ADC1_SQR1              0000534a   defined in Debug\calcvi.o
-_ADC1_SQR2              0000534b   defined in Debug\calcvi.o
-_ADC1_SQR3              0000534c   defined in Debug\calcvi.o
-_ADC1_SQR4              0000534d   defined in Debug\calcvi.o
-_ADC1_SR                00005343   defined in Debug\calcvi.o
-_ADC1_TRIGR1            0000534e   defined in Debug\calcvi.o
-_ADC1_TRIGR2            0000534f   defined in Debug\calcvi.o
-_ADC1_TRIGR3            00005350   defined in Debug\calcvi.o
-_ADC1_TRIGR4            00005351   defined in Debug\calcvi.o
+_ADC1_CR1               00005340   defined in Debug\adc.o
+_ADC1_CR2               00005341   defined in Debug\adc.o
+_ADC1_CR3               00005342   defined in Debug\adc.o
+_ADC1_DR                00005344   defined in Debug\adc.o
+_ADC1_DRH               00005344   defined in Debug\adc.o
+_ADC1_DRL               00005345   defined in Debug\adc.o
+_ADC1_HTR               00005346   defined in Debug\adc.o
+_ADC1_HTRH              00005346   defined in Debug\adc.o
+_ADC1_HTRL              00005347   defined in Debug\adc.o
+_ADC1_LTR               00005348   defined in Debug\adc.o
+_ADC1_LTRH              00005348   defined in Debug\adc.o
+_ADC1_LTRL              00005349   defined in Debug\adc.o
+_ADC1_SQR1              0000534a   defined in Debug\adc.o
+_ADC1_SQR2              0000534b   defined in Debug\adc.o
+_ADC1_SQR3              0000534c   defined in Debug\adc.o
+_ADC1_SQR4              0000534d   defined in Debug\adc.o
+_ADC1_SR                00005343   defined in Debug\adc.o
+_ADC1_TRIGR1            0000534e   defined in Debug\adc.o
+_ADC1_TRIGR2            0000534f   defined in Debug\adc.o
+_ADC1_TRIGR3            00005350   defined in Debug\adc.o
+_ADC1_TRIGR4            00005351   defined in Debug\adc.o
 _ADC_COUNTS             00008080   defined in Debug\calcvi.o section .const
-_ADC_INIT               00008671   defined in Debug\adc.o section .text
+_ADC_INIT               0000813e   defined in Debug\adc.o section .text
                                    used in Debug\main.o
-_BEEP_CSR1              000050f0   defined in Debug\calcvi.o
-_BEEP_CSR2              000050f3   defined in Debug\calcvi.o
-_CFG_GCR                00007f60   defined in Debug\calcvi.o
+_BEEP_CSR1              000050f0   defined in Debug\adc.o
+_BEEP_CSR2              000050f3   defined in Debug\adc.o
+_CFG_GCR                00007f60   defined in Debug\adc.o
 _CHANNELS               00000000   defined in Debug\adc.o section .bsct, initialized
                                    used in Debug\main.o
-_CLK_CBEEPR             000050cb   defined in Debug\calcvi.o
-_CLK_CCOR               000050c5   defined in Debug\calcvi.o
-_CLK_CKDIVR             000050c0   defined in Debug\calcvi.o
-_CLK_CRTCR              000050c1   defined in Debug\calcvi.o
-_CLK_CSSR               000050ca   defined in Debug\calcvi.o
-_CLK_ECKCR              000050c6   defined in Debug\calcvi.o
-_CLK_HSICALR            000050cc   defined in Debug\calcvi.o
-_CLK_HSITRIMR           000050cd   defined in Debug\calcvi.o
-_CLK_HSIUNLCKR          000050ce   defined in Debug\calcvi.o
-_CLK_ICKCR              000050c2   defined in Debug\calcvi.o
-_CLK_PCKENR1            000050c3   defined in Debug\calcvi.o
-_CLK_PCKENR2            000050c4   defined in Debug\calcvi.o
-_CLK_PCKENR3            000050d0   defined in Debug\calcvi.o
-_CLK_REGCSR             000050cf   defined in Debug\calcvi.o
-_CLK_SCSR               000050c7   defined in Debug\calcvi.o
-_CLK_SWCR               000050c9   defined in Debug\calcvi.o
-_CLK_SWR                000050c8   defined in Debug\calcvi.o
-_CSS_LSE_CSR            00005190   defined in Debug\calcvi.o
-_DMA1_C0CR              00005075   defined in Debug\calcvi.o
-_DMA1_C0M0AR            0000507b   defined in Debug\calcvi.o
-_DMA1_C0M0ARH           0000507b   defined in Debug\calcvi.o
-_DMA1_C0M0ARL           0000507c   defined in Debug\calcvi.o
-_DMA1_C0NDTR            00005077   defined in Debug\calcvi.o
-_DMA1_C0PAR             00005078   defined in Debug\calcvi.o
-_DMA1_C0PARH            00005078   defined in Debug\calcvi.o
-_DMA1_C0PARL            00005079   defined in Debug\calcvi.o
-_DMA1_C0SPR             00005076   defined in Debug\calcvi.o
-_DMA1_C1CR              0000507f   defined in Debug\calcvi.o
-_DMA1_C1M0AR            00005085   defined in Debug\calcvi.o
-_DMA1_C1M0ARH           00005085   defined in Debug\calcvi.o
-_DMA1_C1M0ARL           00005086   defined in Debug\calcvi.o
-_DMA1_C1NDTR            00005081   defined in Debug\calcvi.o
-_DMA1_C1PAR             00005082   defined in Debug\calcvi.o
-_DMA1_C1PARH            00005082   defined in Debug\calcvi.o
-_DMA1_C1PARL            00005083   defined in Debug\calcvi.o
-_DMA1_C1SPR             00005080   defined in Debug\calcvi.o
-_DMA1_C2CR              00005089   defined in Debug\calcvi.o
-_DMA1_C2M0AR            0000508f   defined in Debug\calcvi.o
-_DMA1_C2M0ARH           0000508f   defined in Debug\calcvi.o
-_DMA1_C2M0ARL           00005090   defined in Debug\calcvi.o
-_DMA1_C2NDTR            0000508b   defined in Debug\calcvi.o
-_DMA1_C2PAR             0000508c   defined in Debug\calcvi.o
-_DMA1_C2PARH            0000508c   defined in Debug\calcvi.o
-_DMA1_C2PARL            0000508d   defined in Debug\calcvi.o
-_DMA1_C2SPR             0000508a   defined in Debug\calcvi.o
-_DMA1_C3CR              00005093   defined in Debug\calcvi.o
-_DMA1_C3M0AR            00005099   defined in Debug\calcvi.o
-_DMA1_C3M0ARH           00005099   defined in Debug\calcvi.o
-_DMA1_C3M0ARL           0000509a   defined in Debug\calcvi.o
-_DMA1_C3NDTR            00005095   defined in Debug\calcvi.o
-_DMA1_C3PARH_C3M1ARH    00005096   defined in Debug\calcvi.o
-_DMA1_C3PARL_C3M1ARL    00005097   defined in Debug\calcvi.o
-_DMA1_C3PAR_C3M1AR      00005096   defined in Debug\calcvi.o
-_DMA1_C3SPR             00005094   defined in Debug\calcvi.o
-_DMA1_GCSR              00005070   defined in Debug\calcvi.o
-_DMA1_GIR1              00005071   defined in Debug\calcvi.o
-_DMA_C3M0EAR            00005098   defined in Debug\calcvi.o
-_EXTI_CONF1             000050a5   defined in Debug\calcvi.o
-_EXTI_CONF2             000050ab   defined in Debug\calcvi.o
-_EXTI_CR1               000050a0   defined in Debug\calcvi.o
-_EXTI_CR2               000050a1   defined in Debug\calcvi.o
-_EXTI_CR3               000050a2   defined in Debug\calcvi.o
-_EXTI_CR4               000050aa   defined in Debug\calcvi.o
-_EXTI_SR1               000050a3   defined in Debug\calcvi.o
-_EXTI_SR2               000050a4   defined in Debug\calcvi.o
-_FLASH_CR1              00005050   defined in Debug\calcvi.o
-_FLASH_CR2              00005051   defined in Debug\calcvi.o
-_FLASH_DUKR             00005053   defined in Debug\calcvi.o
-_FLASH_IAPSR            00005054   defined in Debug\calcvi.o
-_FLASH_PUKR             00005052   defined in Debug\calcvi.o
-_I2C1_CCRH              0000521c   defined in Debug\calcvi.o
-_I2C1_CCRL              0000521b   defined in Debug\calcvi.o
-_I2C1_CR1               00005210   defined in Debug\calcvi.o
-_I2C1_CR2               00005211   defined in Debug\calcvi.o
-_I2C1_DR                00005216   defined in Debug\calcvi.o
-_I2C1_FREQR             00005212   defined in Debug\calcvi.o
-_I2C1_ITR               0000521a   defined in Debug\calcvi.o
-_I2C1_OAR2              00005215   defined in Debug\calcvi.o
-_I2C1_OARH              00005214   defined in Debug\calcvi.o
-_I2C1_OARL              00005213   defined in Debug\calcvi.o
-_I2C1_PECR              0000521e   defined in Debug\calcvi.o
-_I2C1_SR1               00005217   defined in Debug\calcvi.o
-_I2C1_SR2               00005218   defined in Debug\calcvi.o
-_I2C1_SR3               00005219   defined in Debug\calcvi.o
-_I2C1_TRISER            0000521d   defined in Debug\calcvi.o
+_CLK_CBEEPR             000050cb   defined in Debug\adc.o
+_CLK_CCOR               000050c5   defined in Debug\adc.o
+_CLK_CKDIVR             000050c0   defined in Debug\adc.o
+_CLK_CRTCR              000050c1   defined in Debug\adc.o
+_CLK_CSSR               000050ca   defined in Debug\adc.o
+_CLK_ECKCR              000050c6   defined in Debug\adc.o
+_CLK_HSICALR            000050cc   defined in Debug\adc.o
+_CLK_HSITRIMR           000050cd   defined in Debug\adc.o
+_CLK_HSIUNLCKR          000050ce   defined in Debug\adc.o
+_CLK_ICKCR              000050c2   defined in Debug\adc.o
+_CLK_PCKENR1            000050c3   defined in Debug\adc.o
+_CLK_PCKENR2            000050c4   defined in Debug\adc.o
+_CLK_PCKENR3            000050d0   defined in Debug\adc.o
+_CLK_REGCSR             000050cf   defined in Debug\adc.o
+_CLK_SCSR               000050c7   defined in Debug\adc.o
+_CLK_SWCR               000050c9   defined in Debug\adc.o
+_CLK_SWR                000050c8   defined in Debug\adc.o
+_CSS_LSE_CSR            00005190   defined in Debug\adc.o
+_DMA1_C0CR              00005075   defined in Debug\adc.o
+_DMA1_C0M0AR            0000507b   defined in Debug\adc.o
+_DMA1_C0M0ARH           0000507b   defined in Debug\adc.o
+_DMA1_C0M0ARL           0000507c   defined in Debug\adc.o
+_DMA1_C0NDTR            00005077   defined in Debug\adc.o
+_DMA1_C0PAR             00005078   defined in Debug\adc.o
+_DMA1_C0PARH            00005078   defined in Debug\adc.o
+_DMA1_C0PARL            00005079   defined in Debug\adc.o
+_DMA1_C0SPR             00005076   defined in Debug\adc.o
+_DMA1_C1CR              0000507f   defined in Debug\adc.o
+_DMA1_C1M0AR            00005085   defined in Debug\adc.o
+_DMA1_C1M0ARH           00005085   defined in Debug\adc.o
+_DMA1_C1M0ARL           00005086   defined in Debug\adc.o
+_DMA1_C1NDTR            00005081   defined in Debug\adc.o
+_DMA1_C1PAR             00005082   defined in Debug\adc.o
+_DMA1_C1PARH            00005082   defined in Debug\adc.o
+_DMA1_C1PARL            00005083   defined in Debug\adc.o
+_DMA1_C1SPR             00005080   defined in Debug\adc.o
+_DMA1_C2CR              00005089   defined in Debug\adc.o
+_DMA1_C2M0AR            0000508f   defined in Debug\adc.o
+_DMA1_C2M0ARH           0000508f   defined in Debug\adc.o
+_DMA1_C2M0ARL           00005090   defined in Debug\adc.o
+_DMA1_C2NDTR            0000508b   defined in Debug\adc.o
+_DMA1_C2PAR             0000508c   defined in Debug\adc.o
+_DMA1_C2PARH            0000508c   defined in Debug\adc.o
+_DMA1_C2PARL            0000508d   defined in Debug\adc.o
+_DMA1_C2SPR             0000508a   defined in Debug\adc.o
+_DMA1_C3CR              00005093   defined in Debug\adc.o
+_DMA1_C3M0AR            00005099   defined in Debug\adc.o
+_DMA1_C3M0ARH           00005099   defined in Debug\adc.o
+_DMA1_C3M0ARL           0000509a   defined in Debug\adc.o
+_DMA1_C3NDTR            00005095   defined in Debug\adc.o
+_DMA1_C3PARH_C3M1ARH    00005096   defined in Debug\adc.o
+_DMA1_C3PARL_C3M1ARL    00005097   defined in Debug\adc.o
+_DMA1_C3PAR_C3M1AR      00005096   defined in Debug\adc.o
+_DMA1_C3SPR             00005094   defined in Debug\adc.o
+_DMA1_GCSR              00005070   defined in Debug\adc.o
+_DMA1_GIR1              00005071   defined in Debug\adc.o
+_DMA_C3M0EAR            00005098   defined in Debug\adc.o
+_EXTI_CONF1             000050a5   defined in Debug\adc.o
+_EXTI_CONF2             000050ab   defined in Debug\adc.o
+_EXTI_CR1               000050a0   defined in Debug\adc.o
+_EXTI_CR2               000050a1   defined in Debug\adc.o
+_EXTI_CR3               000050a2   defined in Debug\adc.o
+_EXTI_CR4               000050aa   defined in Debug\adc.o
+_EXTI_SR1               000050a3   defined in Debug\adc.o
+_EXTI_SR2               000050a4   defined in Debug\adc.o
+_FLASH_CR1              00005050   defined in Debug\adc.o
+_FLASH_CR2              00005051   defined in Debug\adc.o
+_FLASH_DUKR             00005053   defined in Debug\adc.o
+_FLASH_IAPSR            00005054   defined in Debug\adc.o
+_FLASH_PUKR             00005052   defined in Debug\adc.o
+_I2C1_CCRH              0000521c   defined in Debug\adc.o
+_I2C1_CCRL              0000521b   defined in Debug\adc.o
+_I2C1_CR1               00005210   defined in Debug\adc.o
+_I2C1_CR2               00005211   defined in Debug\adc.o
+_I2C1_DR                00005216   defined in Debug\adc.o
+_I2C1_FREQR             00005212   defined in Debug\adc.o
+_I2C1_ITR               0000521a   defined in Debug\adc.o
+_I2C1_OAR2              00005215   defined in Debug\adc.o
+_I2C1_OARH              00005214   defined in Debug\adc.o
+_I2C1_OARL              00005213   defined in Debug\adc.o
+_I2C1_PECR              0000521e   defined in Debug\adc.o
+_I2C1_SR1               00005217   defined in Debug\adc.o
+_I2C1_SR2               00005218   defined in Debug\adc.o
+_I2C1_SR3               00005219   defined in Debug\adc.o
+_I2C1_TRISER            0000521d   defined in Debug\adc.o
 _ICAL                   0000003c   defined in Debug\calcvi.o section .ubsct
-_IR_CR                  000052ff   defined in Debug\calcvi.o
-_ITC_SPR1               00007f70   defined in Debug\calcvi.o
-_ITC_SPR2               00007f71   defined in Debug\calcvi.o
-_ITC_SPR3               00007f72   defined in Debug\calcvi.o
-_ITC_SPR4               00007f73   defined in Debug\calcvi.o
-_ITC_SPR5               00007f74   defined in Debug\calcvi.o
-_ITC_SPR6               00007f75   defined in Debug\calcvi.o
-_ITC_SPR7               00007f76   defined in Debug\calcvi.o
-_ITC_SPR8               00007f77   defined in Debug\calcvi.o
-_IWDG_KR                000050e0   defined in Debug\calcvi.o
-_IWDG_PR                000050e1   defined in Debug\calcvi.o
-_IWDG_RLR               000050e2   defined in Debug\calcvi.o
+_IR_CR                  000052ff   defined in Debug\adc.o
+_ITC_SPR1               00007f70   defined in Debug\adc.o
+_ITC_SPR2               00007f71   defined in Debug\adc.o
+_ITC_SPR3               00007f72   defined in Debug\adc.o
+_ITC_SPR4               00007f73   defined in Debug\adc.o
+_ITC_SPR5               00007f74   defined in Debug\adc.o
+_ITC_SPR6               00007f75   defined in Debug\adc.o
+_ITC_SPR7               00007f76   defined in Debug\adc.o
+_ITC_SPR8               00007f77   defined in Debug\adc.o
+_IWDG_KR                000050e0   defined in Debug\adc.o
+_IWDG_PR                000050e1   defined in Debug\adc.o
+_IWDG_RLR               000050e2   defined in Debug\adc.o
 _Irms                   00000048   defined in Debug\calcvi.o section .ubsct
-_PA_CR1                 00005003   defined in Debug\calcvi.o
-_PA_CR2                 00005004   defined in Debug\calcvi.o
-_PA_DDR                 00005002   defined in Debug\calcvi.o
-_PA_IDR                 00005001   defined in Debug\calcvi.o
-_PA_ODR                 00005000   defined in Debug\calcvi.o
-_PB_CR1                 00005008   defined in Debug\calcvi.o
-_PB_CR2                 00005009   defined in Debug\calcvi.o
-_PB_DDR                 00005007   defined in Debug\calcvi.o
-_PB_IDR                 00005006   defined in Debug\calcvi.o
-_PB_ODR                 00005005   defined in Debug\calcvi.o
-_PC_CR1                 0000500d   defined in Debug\calcvi.o
-_PC_CR2                 0000500e   defined in Debug\calcvi.o
-_PC_DDR                 0000500c   defined in Debug\calcvi.o
-_PC_IDR                 0000500b   defined in Debug\calcvi.o
-_PC_ODR                 0000500a   defined in Debug\calcvi.o
-_PD_CR1                 00005012   defined in Debug\calcvi.o
-_PD_CR2                 00005013   defined in Debug\calcvi.o
-_PD_DDR                 00005011   defined in Debug\calcvi.o
-_PD_IDR                 00005010   defined in Debug\calcvi.o
-_PD_ODR                 0000500f   defined in Debug\calcvi.o
+_PA_CR1                 00005003   defined in Debug\adc.o
+_PA_CR2                 00005004   defined in Debug\adc.o
+_PA_DDR                 00005002   defined in Debug\adc.o
+_PA_IDR                 00005001   defined in Debug\adc.o
+_PA_ODR                 00005000   defined in Debug\adc.o
+_PB_CR1                 00005008   defined in Debug\adc.o
+_PB_CR2                 00005009   defined in Debug\adc.o
+_PB_DDR                 00005007   defined in Debug\adc.o
+_PB_IDR                 00005006   defined in Debug\adc.o
+_PB_ODR                 00005005   defined in Debug\adc.o
+_PC_CR1                 0000500d   defined in Debug\adc.o
+_PC_CR2                 0000500e   defined in Debug\adc.o
+_PC_DDR                 0000500c   defined in Debug\adc.o
+_PC_IDR                 0000500b   defined in Debug\adc.o
+_PC_ODR                 0000500a   defined in Debug\adc.o
+_PD_CR1                 00005012   defined in Debug\adc.o
+_PD_CR2                 00005013   defined in Debug\adc.o
+_PD_DDR                 00005011   defined in Debug\adc.o
+_PD_IDR                 00005010   defined in Debug\adc.o
+_PD_ODR                 0000500f   defined in Debug\adc.o
 _PHASECAL               00008082   defined in Debug\calcvi.o section .const
-_PWR_CSR1               000050b2   defined in Debug\calcvi.o
-_PWR_CSR2               000050b3   defined in Debug\calcvi.o
-_RI_ASCR1               0000543d   defined in Debug\calcvi.o
-_RI_ASCR2               0000543e   defined in Debug\calcvi.o
-_RI_CR                  00005450   defined in Debug\calcvi.o
-_RI_ICR1                00005431   defined in Debug\calcvi.o
-_RI_ICR2                00005432   defined in Debug\calcvi.o
-_RI_IOCMR1              00005436   defined in Debug\calcvi.o
-_RI_IOCMR2              00005437   defined in Debug\calcvi.o
-_RI_IOCMR3              00005438   defined in Debug\calcvi.o
-_RI_IOCMR4              00005456   defined in Debug\calcvi.o
-_RI_IOGCR               0000543c   defined in Debug\calcvi.o
-_RI_IOIR1               00005433   defined in Debug\calcvi.o
-_RI_IOIR2               00005434   defined in Debug\calcvi.o
-_RI_IOIR3               00005435   defined in Debug\calcvi.o
-_RI_IOIR4               00005455   defined in Debug\calcvi.o
-_RI_IOSR1               00005439   defined in Debug\calcvi.o
-_RI_IOSR2               0000543a   defined in Debug\calcvi.o
-_RI_IOSR3               0000543b   defined in Debug\calcvi.o
-_RI_IOSR4               00005457   defined in Debug\calcvi.o
-_RI_MASKR1              00005451   defined in Debug\calcvi.o
-_RI_MASKR2              00005452   defined in Debug\calcvi.o
-_RI_MASKR3              00005453   defined in Debug\calcvi.o
-_RI_MASKR4              00005454   defined in Debug\calcvi.o
-_RI_RCR                 0000543f   defined in Debug\calcvi.o
-_RST_CR                 000050b0   defined in Debug\calcvi.o
-_RST_SR                 000050b1   defined in Debug\calcvi.o
-_RTC_ALRMAR1            0000515c   defined in Debug\calcvi.o
-_RTC_ALRMAR2            0000515d   defined in Debug\calcvi.o
-_RTC_ALRMAR3            0000515e   defined in Debug\calcvi.o
-_RTC_ALRMAR4            0000515f   defined in Debug\calcvi.o
-_RTC_ALRMASSMSKR        00005166   defined in Debug\calcvi.o
-_RTC_ALRMASSR           00005164   defined in Debug\calcvi.o
-_RTC_ALRMASSRH          00005164   defined in Debug\calcvi.o
-_RTC_ALRMASSRL          00005165   defined in Debug\calcvi.o
-_RTC_APRER              00005152   defined in Debug\calcvi.o
-_RTC_CALR               0000516a   defined in Debug\calcvi.o
-_RTC_CALRH              0000516a   defined in Debug\calcvi.o
-_RTC_CALRL              0000516b   defined in Debug\calcvi.o
-_RTC_CR1                00005148   defined in Debug\calcvi.o
-_RTC_CR2                00005149   defined in Debug\calcvi.o
-_RTC_CR3                0000514a   defined in Debug\calcvi.o
-_RTC_DR1                00005144   defined in Debug\calcvi.o
-_RTC_DR2                00005145   defined in Debug\calcvi.o
-_RTC_DR3                00005146   defined in Debug\calcvi.o
-_RTC_INIT               00008552   defined in Debug\rtc.o section .text
+_PWR_CSR1               000050b2   defined in Debug\adc.o
+_PWR_CSR2               000050b3   defined in Debug\adc.o
+_RI_ASCR1               0000543d   defined in Debug\adc.o
+_RI_ASCR2               0000543e   defined in Debug\adc.o
+_RI_CR                  00005450   defined in Debug\adc.o
+_RI_ICR1                00005431   defined in Debug\adc.o
+_RI_ICR2                00005432   defined in Debug\adc.o
+_RI_IOCMR1              00005436   defined in Debug\adc.o
+_RI_IOCMR2              00005437   defined in Debug\adc.o
+_RI_IOCMR3              00005438   defined in Debug\adc.o
+_RI_IOCMR4              00005456   defined in Debug\adc.o
+_RI_IOGCR               0000543c   defined in Debug\adc.o
+_RI_IOIR1               00005433   defined in Debug\adc.o
+_RI_IOIR2               00005434   defined in Debug\adc.o
+_RI_IOIR3               00005435   defined in Debug\adc.o
+_RI_IOIR4               00005455   defined in Debug\adc.o
+_RI_IOSR1               00005439   defined in Debug\adc.o
+_RI_IOSR2               0000543a   defined in Debug\adc.o
+_RI_IOSR3               0000543b   defined in Debug\adc.o
+_RI_IOSR4               00005457   defined in Debug\adc.o
+_RI_MASKR1              00005451   defined in Debug\adc.o
+_RI_MASKR2              00005452   defined in Debug\adc.o
+_RI_MASKR3              00005453   defined in Debug\adc.o
+_RI_MASKR4              00005454   defined in Debug\adc.o
+_RI_RCR                 0000543f   defined in Debug\adc.o
+_RST_CR                 000050b0   defined in Debug\adc.o
+_RST_SR                 000050b1   defined in Debug\adc.o
+_RTC_ALRMAR1            0000515c   defined in Debug\adc.o
+_RTC_ALRMAR2            0000515d   defined in Debug\adc.o
+_RTC_ALRMAR3            0000515e   defined in Debug\adc.o
+_RTC_ALRMAR4            0000515f   defined in Debug\adc.o
+_RTC_ALRMASSMSKR        00005166   defined in Debug\adc.o
+_RTC_ALRMASSR           00005164   defined in Debug\adc.o
+_RTC_ALRMASSRH          00005164   defined in Debug\adc.o
+_RTC_ALRMASSRL          00005165   defined in Debug\adc.o
+_RTC_APRER              00005152   defined in Debug\adc.o
+_RTC_CALR               0000516a   defined in Debug\adc.o
+_RTC_CALRH              0000516a   defined in Debug\adc.o
+_RTC_CALRL              0000516b   defined in Debug\adc.o
+_RTC_CR1                00005148   defined in Debug\adc.o
+_RTC_CR2                00005149   defined in Debug\adc.o
+_RTC_CR3                0000514a   defined in Debug\adc.o
+_RTC_DR1                00005144   defined in Debug\adc.o
+_RTC_DR2                00005145   defined in Debug\adc.o
+_RTC_DR3                00005146   defined in Debug\adc.o
+_RTC_INIT               000085ec   defined in Debug\rtc.o section .text
                                    used in Debug\main.o
-_RTC_ISR1               0000514c   defined in Debug\calcvi.o
-_RTC_ISR2               0000514d   defined in Debug\calcvi.o
-_RTC_SHIFTR             0000515a   defined in Debug\calcvi.o
-_RTC_SHIFTRH            0000515a   defined in Debug\calcvi.o
-_RTC_SHIFTRL            0000515b   defined in Debug\calcvi.o
-_RTC_SPRER              00005150   defined in Debug\calcvi.o
-_RTC_SPRERH             00005150   defined in Debug\calcvi.o
-_RTC_SPRERL             00005151   defined in Debug\calcvi.o
-_RTC_SSR                00005157   defined in Debug\calcvi.o
-_RTC_SSRH               00005157   defined in Debug\calcvi.o
-_RTC_SSRL               00005158   defined in Debug\calcvi.o
-_RTC_TCR1               0000516c   defined in Debug\calcvi.o
-_RTC_TCR2               0000516d   defined in Debug\calcvi.o
-_RTC_TR1                00005140   defined in Debug\calcvi.o
-_RTC_TR2                00005141   defined in Debug\calcvi.o
-_RTC_TR3                00005142   defined in Debug\calcvi.o
-_RTC_WPR                00005159   defined in Debug\calcvi.o
-_RTC_WUTR               00005154   defined in Debug\calcvi.o
-_RTC_WUTRH              00005154   defined in Debug\calcvi.o
-_RTC_WUTRL              00005155   defined in Debug\calcvi.o
-_SPI1_CR1               00005200   defined in Debug\calcvi.o
-_SPI1_CR2               00005201   defined in Debug\calcvi.o
-_SPI1_CRCPR             00005205   defined in Debug\calcvi.o
-_SPI1_DR                00005204   defined in Debug\calcvi.o
-_SPI1_ICR               00005202   defined in Debug\calcvi.o
-_SPI1_RXCRCR            00005206   defined in Debug\calcvi.o
-_SPI1_SR                00005203   defined in Debug\calcvi.o
-_SPI1_TXCRCR            00005207   defined in Debug\calcvi.o
-_SYSCFG_RMPCR1          0000509e   defined in Debug\calcvi.o
-_SYSCFG_RMPCR2          0000509f   defined in Debug\calcvi.o
-_SYSCFG_RMPCR3          0000509d   defined in Debug\calcvi.o
-_TIM2_ARR               0000525f   defined in Debug\calcvi.o
-_TIM2_ARRH              0000525f   defined in Debug\calcvi.o
-_TIM2_ARRL              00005260   defined in Debug\calcvi.o
-_TIM2_BKR               00005265   defined in Debug\calcvi.o
-_TIM2_CCER1             0000525b   defined in Debug\calcvi.o
-_TIM2_CCMR1             00005259   defined in Debug\calcvi.o
-_TIM2_CCMR2             0000525a   defined in Debug\calcvi.o
-_TIM2_CCR1              00005261   defined in Debug\calcvi.o
-_TIM2_CCR1H             00005261   defined in Debug\calcvi.o
-_TIM2_CCR1L             00005262   defined in Debug\calcvi.o
-_TIM2_CCR2              00005263   defined in Debug\calcvi.o
-_TIM2_CCR2H             00005263   defined in Debug\calcvi.o
-_TIM2_CCR2L             00005264   defined in Debug\calcvi.o
-_TIM2_CNTR              0000525c   defined in Debug\calcvi.o
-_TIM2_CNTRH             0000525c   defined in Debug\calcvi.o
-_TIM2_CNTRL             0000525d   defined in Debug\calcvi.o
-_TIM2_CR1               00005250   defined in Debug\calcvi.o
-_TIM2_CR2               00005251   defined in Debug\calcvi.o
-_TIM2_DER               00005254   defined in Debug\calcvi.o
-_TIM2_EGR               00005258   defined in Debug\calcvi.o
-_TIM2_ETR               00005253   defined in Debug\calcvi.o
-_TIM2_IER               00005255   defined in Debug\calcvi.o
-_TIM2_OISR              00005266   defined in Debug\calcvi.o
-_TIM2_PSCR              0000525e   defined in Debug\calcvi.o
-_TIM2_SMCR              00005252   defined in Debug\calcvi.o
-_TIM2_SR1               00005256   defined in Debug\calcvi.o
-_TIM2_SR2               00005257   defined in Debug\calcvi.o
-_TIM3_ARR               0000528f   defined in Debug\calcvi.o
-_TIM3_ARRH              0000528f   defined in Debug\calcvi.o
-_TIM3_ARRL              00005290   defined in Debug\calcvi.o
-_TIM3_BKR               00005295   defined in Debug\calcvi.o
-_TIM3_CCER1             0000528b   defined in Debug\calcvi.o
-_TIM3_CCMR1             00005289   defined in Debug\calcvi.o
-_TIM3_CCMR2             0000528a   defined in Debug\calcvi.o
-_TIM3_CCR1              00005291   defined in Debug\calcvi.o
-_TIM3_CCR1H             00005291   defined in Debug\calcvi.o
-_TIM3_CCR1L             00005292   defined in Debug\calcvi.o
-_TIM3_CCR2              00005293   defined in Debug\calcvi.o
-_TIM3_CCR2H             00005293   defined in Debug\calcvi.o
-_TIM3_CCR2L             00005294   defined in Debug\calcvi.o
-_TIM3_CNTR              0000528c   defined in Debug\calcvi.o
-_TIM3_CNTRH             0000528c   defined in Debug\calcvi.o
-_TIM3_CNTRL             0000528d   defined in Debug\calcvi.o
-_TIM3_CR1               00005280   defined in Debug\calcvi.o
-_TIM3_CR2               00005281   defined in Debug\calcvi.o
-_TIM3_DER               00005284   defined in Debug\calcvi.o
-_TIM3_EGR               00005288   defined in Debug\calcvi.o
-_TIM3_ETR               00005283   defined in Debug\calcvi.o
-_TIM3_IER               00005285   defined in Debug\calcvi.o
-_TIM3_OISR              00005296   defined in Debug\calcvi.o
-_TIM3_PSCR              0000528e   defined in Debug\calcvi.o
-_TIM3_SMCR              00005282   defined in Debug\calcvi.o
-_TIM3_SR1               00005286   defined in Debug\calcvi.o
-_TIM3_SR2               00005287   defined in Debug\calcvi.o
-_TIM4_ARR               000052e9   defined in Debug\calcvi.o
-_TIM4_CNTR              000052e7   defined in Debug\calcvi.o
-_TIM4_CR1               000052e0   defined in Debug\calcvi.o
-_TIM4_CR2               000052e1   defined in Debug\calcvi.o
-_TIM4_DER               000052e3   defined in Debug\calcvi.o
-_TIM4_EGR               000052e6   defined in Debug\calcvi.o
-_TIM4_IER               000052e4   defined in Debug\calcvi.o
-_TIM4_PSCR              000052e8   defined in Debug\calcvi.o
-_TIM4_SMCR              000052e2   defined in Debug\calcvi.o
-_TIM4_SR1               000052e5   defined in Debug\calcvi.o
-_UART_INIT              00008599   defined in Debug\uart.o section .text
+_RTC_ISR1               0000514c   defined in Debug\adc.o
+_RTC_ISR2               0000514d   defined in Debug\adc.o
+_RTC_SHIFTR             0000515a   defined in Debug\adc.o
+_RTC_SHIFTRH            0000515a   defined in Debug\adc.o
+_RTC_SHIFTRL            0000515b   defined in Debug\adc.o
+_RTC_SPRER              00005150   defined in Debug\adc.o
+_RTC_SPRERH             00005150   defined in Debug\adc.o
+_RTC_SPRERL             00005151   defined in Debug\adc.o
+_RTC_SSR                00005157   defined in Debug\adc.o
+_RTC_SSRH               00005157   defined in Debug\adc.o
+_RTC_SSRL               00005158   defined in Debug\adc.o
+_RTC_TCR1               0000516c   defined in Debug\adc.o
+_RTC_TCR2               0000516d   defined in Debug\adc.o
+_RTC_TR1                00005140   defined in Debug\adc.o
+_RTC_TR2                00005141   defined in Debug\adc.o
+_RTC_TR3                00005142   defined in Debug\adc.o
+_RTC_WPR                00005159   defined in Debug\adc.o
+_RTC_WUTR               00005154   defined in Debug\adc.o
+_RTC_WUTRH              00005154   defined in Debug\adc.o
+_RTC_WUTRL              00005155   defined in Debug\adc.o
+_SPI1_CR1               00005200   defined in Debug\adc.o
+_SPI1_CR2               00005201   defined in Debug\adc.o
+_SPI1_CRCPR             00005205   defined in Debug\adc.o
+_SPI1_DR                00005204   defined in Debug\adc.o
+_SPI1_ICR               00005202   defined in Debug\adc.o
+_SPI1_RXCRCR            00005206   defined in Debug\adc.o
+_SPI1_SR                00005203   defined in Debug\adc.o
+_SPI1_TXCRCR            00005207   defined in Debug\adc.o
+_SYSCFG_RMPCR1          0000509e   defined in Debug\adc.o
+_SYSCFG_RMPCR2          0000509f   defined in Debug\adc.o
+_SYSCFG_RMPCR3          0000509d   defined in Debug\adc.o
+_TIM2_ARR               0000525f   defined in Debug\adc.o
+_TIM2_ARRH              0000525f   defined in Debug\adc.o
+_TIM2_ARRL              00005260   defined in Debug\adc.o
+_TIM2_BKR               00005265   defined in Debug\adc.o
+_TIM2_CCER1             0000525b   defined in Debug\adc.o
+_TIM2_CCMR1             00005259   defined in Debug\adc.o
+_TIM2_CCMR2             0000525a   defined in Debug\adc.o
+_TIM2_CCR1              00005261   defined in Debug\adc.o
+_TIM2_CCR1H             00005261   defined in Debug\adc.o
+_TIM2_CCR1L             00005262   defined in Debug\adc.o
+_TIM2_CCR2              00005263   defined in Debug\adc.o
+_TIM2_CCR2H             00005263   defined in Debug\adc.o
+_TIM2_CCR2L             00005264   defined in Debug\adc.o
+_TIM2_CNTR              0000525c   defined in Debug\adc.o
+_TIM2_CNTRH             0000525c   defined in Debug\adc.o
+_TIM2_CNTRL             0000525d   defined in Debug\adc.o
+_TIM2_CR1               00005250   defined in Debug\adc.o
+_TIM2_CR2               00005251   defined in Debug\adc.o
+_TIM2_DER               00005254   defined in Debug\adc.o
+_TIM2_EGR               00005258   defined in Debug\adc.o
+_TIM2_ETR               00005253   defined in Debug\adc.o
+_TIM2_IER               00005255   defined in Debug\adc.o
+_TIM2_OISR              00005266   defined in Debug\adc.o
+_TIM2_PSCR              0000525e   defined in Debug\adc.o
+_TIM2_SMCR              00005252   defined in Debug\adc.o
+_TIM2_SR1               00005256   defined in Debug\adc.o
+_TIM2_SR2               00005257   defined in Debug\adc.o
+_TIM3_ARR               0000528f   defined in Debug\adc.o
+_TIM3_ARRH              0000528f   defined in Debug\adc.o
+_TIM3_ARRL              00005290   defined in Debug\adc.o
+_TIM3_BKR               00005295   defined in Debug\adc.o
+_TIM3_CCER1             0000528b   defined in Debug\adc.o
+_TIM3_CCMR1             00005289   defined in Debug\adc.o
+_TIM3_CCMR2             0000528a   defined in Debug\adc.o
+_TIM3_CCR1              00005291   defined in Debug\adc.o
+_TIM3_CCR1H             00005291   defined in Debug\adc.o
+_TIM3_CCR1L             00005292   defined in Debug\adc.o
+_TIM3_CCR2              00005293   defined in Debug\adc.o
+_TIM3_CCR2H             00005293   defined in Debug\adc.o
+_TIM3_CCR2L             00005294   defined in Debug\adc.o
+_TIM3_CNTR              0000528c   defined in Debug\adc.o
+_TIM3_CNTRH             0000528c   defined in Debug\adc.o
+_TIM3_CNTRL             0000528d   defined in Debug\adc.o
+_TIM3_CR1               00005280   defined in Debug\adc.o
+_TIM3_CR2               00005281   defined in Debug\adc.o
+_TIM3_DER               00005284   defined in Debug\adc.o
+_TIM3_EGR               00005288   defined in Debug\adc.o
+_TIM3_ETR               00005283   defined in Debug\adc.o
+_TIM3_IER               00005285   defined in Debug\adc.o
+_TIM3_OISR              00005296   defined in Debug\adc.o
+_TIM3_PSCR              0000528e   defined in Debug\adc.o
+_TIM3_SMCR              00005282   defined in Debug\adc.o
+_TIM3_SR1               00005286   defined in Debug\adc.o
+_TIM3_SR2               00005287   defined in Debug\adc.o
+_TIM4_ARR               000052e9   defined in Debug\adc.o
+_TIM4_CNTR              000052e7   defined in Debug\adc.o
+_TIM4_CR1               000052e0   defined in Debug\adc.o
+_TIM4_CR2               000052e1   defined in Debug\adc.o
+_TIM4_DER               000052e3   defined in Debug\adc.o
+_TIM4_EGR               000052e6   defined in Debug\adc.o
+_TIM4_IER               000052e4   defined in Debug\adc.o
+_TIM4_PSCR              000052e8   defined in Debug\adc.o
+_TIM4_SMCR              000052e2   defined in Debug\adc.o
+_TIM4_SR1               000052e5   defined in Debug\adc.o
+_UART_INIT              00008633   defined in Debug\uart.o section .text
                                    used in Debug\main.o
-_USART1_BRR1            00005232   defined in Debug\calcvi.o
-_USART1_BRR2            00005233   defined in Debug\calcvi.o
-_USART1_CR1             00005234   defined in Debug\calcvi.o
-_USART1_CR2             00005235   defined in Debug\calcvi.o
-_USART1_CR3             00005236   defined in Debug\calcvi.o
-_USART1_CR4             00005237   defined in Debug\calcvi.o
-_USART1_CR5             00005238   defined in Debug\calcvi.o
-_USART1_DR              00005231   defined in Debug\calcvi.o
-_USART1_GTR             00005239   defined in Debug\calcvi.o
-_USART1_PSCR            0000523a   defined in Debug\calcvi.o
-_USART1_SR              00005230   defined in Debug\calcvi.o
+_USART1_BRR1            00005232   defined in Debug\adc.o
+_USART1_BRR2            00005233   defined in Debug\adc.o
+_USART1_CR1             00005234   defined in Debug\adc.o
+_USART1_CR2             00005235   defined in Debug\adc.o
+_USART1_CR3             00005236   defined in Debug\adc.o
+_USART1_CR4             00005237   defined in Debug\adc.o
+_USART1_CR5             00005238   defined in Debug\adc.o
+_USART1_DR              00005231   defined in Debug\adc.o
+_USART1_GTR             00005239   defined in Debug\adc.o
+_USART1_PSCR            0000523a   defined in Debug\adc.o
+_USART1_SR              00005230   defined in Debug\adc.o
 _VCAL                   00000040   defined in Debug\calcvi.o section .ubsct
 _VOLTAGE_CHANNEL        00000009   defined in Debug\adc.o section .bsct, initialized
                                    used in Debug\main.o
 _Vrms                   0000004c   defined in Debug\calcvi.o section .ubsct
-_WFE_CR1                000050a6   defined in Debug\calcvi.o
-_WFE_CR2                000050a7   defined in Debug\calcvi.o
-_WFE_CR3                000050a8   defined in Debug\calcvi.o
-_WFE_CR4                000050a9   defined in Debug\calcvi.o
-_WWDG_CR                000050d3   defined in Debug\calcvi.o
-_WWDG_WR                000050d4   defined in Debug\calcvi.o
+_WFE_CR1                000050a6   defined in Debug\adc.o
+_WFE_CR2                000050a7   defined in Debug\adc.o
+_WFE_CR3                000050a8   defined in Debug\adc.o
+_WFE_CR4                000050a9   defined in Debug\adc.o
+_WWDG_CR                000050d3   defined in Debug\adc.o
+_WWDG_WR                000050d4   defined in Debug\adc.o
 __endmem                000001ff   defined in command file
                                    *** not used ***
 __endzp                 00000066   defined in command file section .ubsct
@@ -580,40 +580,40 @@ __stext                 000080f3   defined in C:\Program Files (x86)\COSMIC\CXST
                                    used in Debug\stm8_interrupt_vector.o
 __vectab                00008000   defined in Debug\stm8_interrupt_vector.o section .const
 _apparentPower          00000054   defined in Debug\calcvi.o section .ubsct
-_calcVI                 0000813e   defined in Debug\calcvi.o section .text
+_calcVI                 000081d8   defined in Debug\calcvi.o section .text
                                    used in Debug\main.o
 _checkVCross            000066:0   defined in Debug\calcvi.o section .bit, initialized
 _exit                   0000813c   defined in C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\crtsi0.sm8 section .text
 _filteredI              00000030   defined in Debug\calcvi.o section .ubsct
 _filteredV              00000034   defined in Debug\calcvi.o section .ubsct
-_getApparentPower       000083c7   defined in Debug\calcvi.o section .text
+_getApparentPower       00008461   defined in Debug\calcvi.o section .text
                                    used in Debug\main.o
-_getRealPower           000083c0   defined in Debug\calcvi.o section .text
+_getRealPower           0000845a   defined in Debug\calcvi.o section .text
                                    used in Debug\main.o
 _instP                  00000010   defined in Debug\calcvi.o section .ubsct
 _lastFilteredV          00000038   defined in Debug\calcvi.o section .ubsct
 _lastVCross             000066:1   defined in Debug\calcvi.o section .bit, initialized
-_loop                   000084aa   defined in Debug\main.o section .text
-_main                   00008463   defined in Debug\main.o section .text
+_loop                   00008544   defined in Debug\main.o section .text
+_main                   000084fd   defined in Debug\main.o section .text
                                    used in C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\crtsi0.sm8
 _offsetI                00000028   defined in Debug\calcvi.o section .ubsct
 _offsetV                0000002c   defined in Debug\calcvi.o section .ubsct
 _phaseShiftedV          00000024   defined in Debug\calcvi.o section .ubsct
 _powerFactor            00000050   defined in Debug\calcvi.o section .ubsct
-_readChannel            00008682   defined in Debug\adc.o section .text
+_readChannel            0000814f   defined in Debug\adc.o section .text
                                    used in Debug\calcvi.o Debug\main.o
 _realPower              00000058   defined in Debug\calcvi.o section .ubsct
-_root                   000083ce   defined in Debug\calcvi.o section .text
+_root                   00008468   defined in Debug\calcvi.o section .text
 _sampleI                00000044   defined in Debug\calcvi.o section .ubsct
 _sampleV                00000046   defined in Debug\calcvi.o section .ubsct
-_sendChar               000085c2   defined in Debug\uart.o section .text
+_sendChar               0000865c   defined in Debug\uart.o section .text
                                    used in Debug\main.o
-_sendDouble             000085fc   defined in Debug\uart.o section .text
+_sendDouble             00008696   defined in Debug\uart.o section .text
                                    used in Debug\main.o
-_sendFloat              00008636   defined in Debug\uart.o section .text
-_sendString             000085d1   defined in Debug\uart.o section .text
+_sendFloat              000086d0   defined in Debug\uart.o section .text
+_sendString             0000866b   defined in Debug\uart.o section .text
                                    used in Debug\main.o
-_setup                  00008469   defined in Debug\main.o section .text
+_setup                  00008503   defined in Debug\main.o section .text
 _sqI                    00000018   defined in Debug\calcvi.o section .ubsct
 _sqV                    00000020   defined in Debug\calcvi.o section .ubsct
 _startV                 0000000a   defined in Debug\calcvi.o section .ubsct
