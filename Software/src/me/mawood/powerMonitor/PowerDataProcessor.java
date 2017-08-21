@@ -199,6 +199,13 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
      *                  8 bytes - Voltage real
      *                  8 bytes - Real Power real       } repeated 9 times
      *                  8 bytes - Apparent power real   }
+     *
+     *                  1 byte Ascii 'V'
+     *                  2 bytes voltage count big endian
+     *                  1 byte channel number 0-8
+     *                  8 bytes double apparent power   }repeated 9 times
+     *                  8 bytes double real power       }
+     *                  total length 156 bytes
      * @param bytes     The bytes received from the power monitor
      * @param mt        The type of metric required
      * @param channel   The power monitor channel
