@@ -14,8 +14,10 @@ public class Main
         PowerDataProcessor powerDataProcessor = new PowerDataProcessor();
         powerDataProcessor.setPowerMonitor(powerMonitor);
         powerMonitor.OpenSerialPort();
+        powerDataSubscriber.run();
         powerDataProcessor.run();
         powerMonitor.closeSerialPort();
+        powerDataSubscriber.stop();
         System.exit(0);
      }
 }
