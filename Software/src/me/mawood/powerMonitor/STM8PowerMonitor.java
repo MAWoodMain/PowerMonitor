@@ -3,6 +3,7 @@ package me.mawood.powerMonitor;
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
+import com.pi4j.io.serial.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -18,7 +19,26 @@ import java.util.Arrays;
 public class STM8PowerMonitor
 {
     private static final byte DEFAULT_I2C_ADDRESS = 0x30;
+    private static final int DEFAULT_OUTPUT_DATA_FREQUENCY= 1;
     private final I2CDevice device;
+    private final int MIN_ADC_CHANNEL = 0;
+    private final int MAX_ADC_CHANNEL = 9;
+    enum ChannelType{Voltage, Current}
+    private final ChannelType channelTypes[] = {ChannelType.Voltage,
+                                                ChannelType.Current,
+                                                ChannelType.Current,
+                                                ChannelType.Current,
+                                                ChannelType.Current,
+                                                ChannelType.Current,
+                                                ChannelType.Current,
+                                                ChannelType.Current,
+                                                ChannelType.Current,
+                                                ChannelType.Current,};
+
+
+    private int outputDataFrequency;
+    private Serial serial;
+    private SerialConfig config;
 
     public STM8PowerMonitor() throws IOException, I2CFactory.UnsupportedBusNumberException
     {
@@ -29,7 +49,16 @@ public class STM8PowerMonitor
     {
         device = I2CFactory.getInstance(I2CBus.BUS_1).getDevice(address);
         configureRTC();
+        outputDataFrequency = DEFAULT_OUTPUT_DATA_FREQUENCY;
+        InitialiseSerialPort();
     }
+
+    public int getMinADCChannel() {return this.MIN_ADC_CHANNEL;}
+    public int getMAXADCChannnel() {return this.MAX_ADC_CHANNEL;}
+    public ChannelType getADCChannelType(int channelNumber) {return channelTypes[channelNumber];}
+
+    public int getOutputDataFrequency() {return outputDataFrequency;}
+    public void setOutputDataFrequency(int hertz) {this.outputDataFrequency = hertz;}
 
     public void configureRTC()
     {
@@ -71,8 +100,6 @@ public class STM8PowerMonitor
         return buffer.array();
     }
 
-
-
     private static byte[] DecToBCDArray(long num) {
         int digits = 0;
 
@@ -110,22 +137,46 @@ public class STM8PowerMonitor
 
         return bcd;
     }
-
-    public static void main(String[] args) throws IOException, I2CFactory.UnsupportedBusNumberException
+    private void InitialiseSerialPort()
     {
+        config = new SerialConfig();
         try
         {
-            STM8PowerMonitor sPM = new STM8PowerMonitor();
-            PowerDataSubscriber pDS = new PowerDataSubscriber();
-            PowerDataProcessor pDP = new PowerDataProcessor();
-            SerialStreamer serialStreamer= new SerialStreamer(pDP); // bind listener to serial port and start serial
-            pDP.run();
-            serialStreamer.close();
-            System.exit(0);
-        } catch (InterruptedException e)
+            config.device(SerialPort.getDefaultPort())
+                    .baud(Baud._9600)
+                    .dataBits(DataBits._8)
+                    .stopBits(StopBits._1)
+                    .parity(Parity.NONE)
+                    .flowControl(FlowControl.NONE);
+        } catch (IOException | InterruptedException e)
         {
             e.printStackTrace();
         }
 
+        serial = SerialFactory.createInstance();
+    }
+    public void AddSerialListener( SerialDataEventListener listener)
+    {
+        serial.addListener(listener);
+    }
+    public void OpenSerialPort()
+    {
+        try
+        {
+            serial.open(config);
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+    public void closeSerialPort()
+    {
+        try
+        {
+            serial.close();
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
     }
 }
