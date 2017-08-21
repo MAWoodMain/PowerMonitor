@@ -10,12 +10,11 @@ import java.util.Arrays;
 
 import java.nio.ByteBuffer;
 
-import java.nio.ByteBuffer;
 import static java.lang.Thread.sleep;
 
 public class PowerDataProcessor  implements SerialDataEventListener, Runnable, MqttCallback
 {
-    private enum MetricType{Real, Apparent}
+    private enum MetricType{RealPower, ApparentPower, Voltage}
     private final String basetopic    = "emon";
     private final String clientId     = "PMon10";
     private final String topic        = basetopic+"/"+clientId;
@@ -32,39 +31,39 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
     private volatile boolean msgArrived;
     private volatile SerialDataEvent serialDataEvent;
 
-    private class ClampParameters
+    private class ChannelMap
     {
-        int clampNumber;
+        int channelNumber;
         double scaleFactor;
         String units;
-        int maxCurrent;
-        int burdenResistor;
-        ClampParameters(int clamp, double scale, String units, int maxCurrent, int burdenResistor)
+        String name;
+        ChannelMap(int channel, double scale, String units, String name)
         {
-            this.clampNumber = clamp;
+            this.channelNumber = channel;
             this.scaleFactor = scale;
             this.units = units;
-            this.burdenResistor = burdenResistor;
-            this.maxCurrent = maxCurrent;
+            this.name = name;
         }
     }
-    private ClampParameters[] cp = new ClampParameters[10];
+    private STM8PowerMonitor powerMonitor;
+    private ChannelMap[] channels = new ChannelMap[10];
 
     PowerDataProcessor()
     {
         nbrMessagesSentOK =0;
         stop = false;
         // set up clamp configuration
-        cp[0]= new ClampParameters(0,1.0,"V",0,0);
-        cp[1]= new ClampParameters(1,1.0,"W",100, 10);
-        cp[2]= new ClampParameters(2,1.0,"W",20, 93);
-        cp[3]= new ClampParameters(3,1.0,"W",20, 93);
-        cp[4]= new ClampParameters(4,1.0,"W",20, 93);
-        cp[5]= new ClampParameters(5,1.0,"W",20, 93);
-        cp[6]= new ClampParameters(6,1.0,"W",30, 62);
-        cp[7]= new ClampParameters(7,1.0,"W",30, 62);
-        cp[8]= new ClampParameters(8,1.0,"W",5, 372);
-        cp[9]= new ClampParameters(9,1.0,"W",5, 372);
+        channels[0]= new ChannelMap(0,10.0,"V","Voltage");
+        channels[1]= new ChannelMap(1,CurrentClamps.SCT013_5A1V.getMaxCurrent(),"W","UpstairsLighting");
+        channels[2]= new ChannelMap(2,CurrentClamps.SCT013_5A1V.getMaxCurrent(),"W","DownstairsLighting");
+        channels[3]= new ChannelMap(3,CurrentClamps.SCT013_5A1V.getMaxCurrent(),"W","ExtensionLighting");
+        channels[4]= new ChannelMap(4,CurrentClamps.SCT013_5A1V.getMaxCurrent(),"W","OutsideLighting");
+        channels[5]= new ChannelMap(5,CurrentClamps.SCT013_20A1V.getMaxCurrent(),"W","LoungeEndPlugs");
+        channels[6]= new ChannelMap(6,CurrentClamps.SCT013_30A1V.getMaxCurrent(),"W","KitchenPlugs");
+        channels[7]= new ChannelMap(7,CurrentClamps.SCT013_20A1V.getMaxCurrent(),"W","OutsidePlugs");
+        channels[8]= new ChannelMap(8,CurrentClamps.SCT013_30A1V.getMaxCurrent(),"W","Cooker");
+        channels[9]= new ChannelMap(9,CurrentClamps.SCT013_100A1V.getMaxCurrent(),"W","WholeHouse");
+
         try {
             // set up MQTT stream definitions
             publisherClientPMOn10 = new MqttClient(broker, clientId, persistence);
@@ -127,6 +126,12 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
         me.printStackTrace();
     }
 
+    void setPowerMonitor(STM8PowerMonitor pm)
+    {
+        this.powerMonitor = pm;
+        pm.AddSerialListener(this);// bind listener to serial port
+
+    }
     private void shutdownDataProcessing()
     {
         try
@@ -141,26 +146,51 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
         System.out.println(nbrMessagesSentOK+ " messages sent successfully");
     }
 
-    private double getScaledMetric(byte[] bytes, MetricType mt, int clamp)
+    private double getScaledMetric(byte[] bytes, MetricType mt, int channel)
     {
         final int serialOffsetClamps = 10;
+        final int serialOffsetVoltage = 10;
         final int sizeOfDouble = 8;
         double rawValue;
         byte[] bytes8;
         if (nbrSerialBytes < serialOffsetClamps+sizeOfDouble*10) return 0; //message too short
-        if (mt==MetricType.Real)
+        rawValue=0;
+        switch (mt)
         {
-            bytes8 = Arrays.copyOfRange(bytes, serialOffsetClamps, serialOffsetClamps+sizeOfDouble);
-            rawValue = ByteBuffer.wrap(bytes8).getDouble();
+            case RealPower:
+            {
+                bytes8 = Arrays.copyOfRange(bytes, serialOffsetClamps+channel*sizeOfDouble, serialOffsetClamps+channel*sizeOfDouble + sizeOfDouble);
+                rawValue = ByteBuffer.wrap(bytes8).getDouble();
+                break;
+            }
+            case ApparentPower:
+            {
+                bytes8 = Arrays.copyOfRange(bytes, serialOffsetClamps+channel*sizeOfDouble + sizeOfDouble, serialOffsetClamps+channel*sizeOfDouble + sizeOfDouble + sizeOfDouble);
+                rawValue = ByteBuffer.wrap(bytes8).getDouble();
+            }
+            case Voltage:
+            {
+                bytes8 = Arrays.copyOfRange(bytes, serialOffsetVoltage, serialOffsetVoltage + sizeOfDouble); //always channel 0
+                rawValue = ByteBuffer.wrap(bytes8).getDouble();
+                break;
+            }
         }
-        else
-        {
-            bytes8 = Arrays.copyOfRange(bytes, serialOffsetClamps+sizeOfDouble, serialOffsetClamps+sizeOfDouble+sizeOfDouble);
-            rawValue = ByteBuffer.wrap(bytes8).getDouble();
-        }
-        return rawValue*cp[clamp].scaleFactor*cp[clamp].maxCurrent;
+        return rawValue* channels[channel].scaleFactor;
     }
 
+    private    void publishToBroker(String subTopic, String content)
+    {
+        try
+        {
+            MqttMessage message = new MqttMessage(content.getBytes());
+            message.setQos(qos);
+            publisherClientPMOn10.publish(subTopic, message);
+            //System.out.println("Message published");
+        } catch (MqttException me)
+        {
+            handleMQTTException(me);
+        }
+    }
     @Override
     public void run()
     {
@@ -183,26 +213,19 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
                     {
                         e1.printStackTrace();
                     }
-                    for (MetricType mt : MetricType.values() )
+                    for (int channel = powerMonitor.getMinADCChannel(); channel <powerMonitor.getMAXADCChannnel(); channel++ )
                     {
-                        subTopic = topic+"/"+mt.toString();
-                        for (int clamp = 0; clamp<10; clamp++)
+                        subTopic = topic+"/"+channels[channel].name;
+                        if (powerMonitor.getADCChannelType(channel)== STM8PowerMonitor.ChannelType.Current)
                         {
-                            //clamp is the key
-                            content = clamp+ " " + getScaledMetric(serialBytes,mt, clamp);
-                            // publish to broker
-                            try
-                            {
-                                MqttMessage message = new MqttMessage(content.getBytes());
-                                message.setQos(qos);
-                                publisherClientPMOn10.publish(subTopic, message);
-                                //System.out.println("Message published");
-                            } catch (MqttException me)
-                            {
-                                handleMQTTException(me);
-                            }
+                            publishToBroker( subTopic,1 + " " + getScaledMetric(serialBytes, MetricType.RealPower, channel));
+                            publishToBroker( subTopic,2 + " " + getScaledMetric(serialBytes, MetricType.ApparentPower, channel));
                         }
-                    }
+                        else
+                        {
+                            publishToBroker( subTopic, 3 +" " + getScaledMetric(serialBytes, MetricType.Voltage, channel));
+                        }
+                     }
 
                 }
                 sleep(100);

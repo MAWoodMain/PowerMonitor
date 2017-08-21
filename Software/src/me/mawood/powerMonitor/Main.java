@@ -12,7 +12,7 @@ public class Main
         powerMonitor.setOutputDataFrequency(1);
         PowerDataSubscriber powerDataSubscriber = new PowerDataSubscriber();
         PowerDataProcessor powerDataProcessor = new PowerDataProcessor();
-        powerMonitor.AddSerialListener(powerDataProcessor);// bind listener to serial port and start serial
+        powerDataProcessor.setPowerMonitor(powerMonitor);
         powerMonitor.OpenSerialPort();
         powerDataProcessor.run();
         powerMonitor.closeSerialPort();
