@@ -54,6 +54,7 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
     {
         nbrMessagesSentOK =0;
         stop = false;
+        //TODO: rename ClampParameters to Clamp and separate voltage measurement from current as they are not related.
         // set up clamp configuration
         cp[0]= new ClampParameters(0,1.0,"V",0,0);
         cp[1]= new ClampParameters(1,1.0,"W",100, 10);

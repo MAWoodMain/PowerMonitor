@@ -25,8 +25,8 @@ public class SerialTest
             try
             {
                 byte[] bytes = e.getBytes();
-                System.out.printf("Received %d bytes: ", bytes.length);
-                for(byte b:bytes) System.out.printf("%02x", b);
+                e.getHexByteString();
+                System.out.printf("Received %d bytes: %s", bytes.length,e.getHexByteString());
                 System.out.println();
             } catch (IOException e1)
             {
