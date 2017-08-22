@@ -129,6 +129,11 @@ double getApparentPower()
 	return apparentPower;
 }
 
+double getVrms()
+{
+return Vrms;
+}
+
 double root(double n)
 {
   double lo = 0, hi = n, mid;

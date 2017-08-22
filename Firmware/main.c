@@ -41,11 +41,12 @@ void loop()
 	unsigned int adcValue = 0;
 	adcValue = readChannel(VOLTAGE_CHANNEL);
 	sendChar('V');
-	sendChar((char)(adcValue >> 8));
-	sendChar((char)adcValue);
+	//sendChar((char)(adcValue >> 8));
+	//sendChar((char)adcValue);
 	while(i<HARDWARE_CHANNEL_NUM)
 	{
 		calcVI(VOLTAGE_CHANNEL, CHANNELS[i], 30);
+		if(i==0) sendDouble(getVrms());
 		sendChar(i);
 		sendDouble(getApparentPower());
 		sendDouble(getRealPower());

@@ -34,7 +34,7 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
     private MqttConnectOptions connOpts;
 
     private STM8PowerMonitor powerMonitor;
-    private ChannelMap[] channels = new ChannelMap[10];
+    private ChannelMap[] aDCchannels = new ChannelMap[10];
     private long nbrMessagesSentOK;
 
     // run control variables
@@ -50,16 +50,16 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
         nbrMessagesSentOK =0;
         stop = false;
         // set up channel configuration
-        channels[0]= new ChannelMap(0,10.0,"V","Voltage");
-        channels[1]= new ChannelMap(1,CurrentClamps.SCT013_5A1V.getMaxCurrent(),"W","UpstairsLighting");
-        channels[2]= new ChannelMap(2,CurrentClamps.SCT013_5A1V.getMaxCurrent(),"W","DownstairsLighting");
-        channels[3]= new ChannelMap(3,CurrentClamps.SCT013_5A1V.getMaxCurrent(),"W","ExtensionLighting");
-        channels[4]= new ChannelMap(4,CurrentClamps.SCT013_5A1V.getMaxCurrent(),"W","OutsideLighting");
-        channels[5]= new ChannelMap(5,CurrentClamps.SCT013_20A1V.getMaxCurrent(),"W","LoungeEndPlugs");
-        channels[6]= new ChannelMap(6,CurrentClamps.SCT013_30A1V.getMaxCurrent(),"W","KitchenPlugs");
-        channels[7]= new ChannelMap(7,CurrentClamps.SCT013_20A1V.getMaxCurrent(),"W","OutsidePlugs");
-        channels[8]= new ChannelMap(8,CurrentClamps.SCT013_30A1V.getMaxCurrent(),"W","Cooker");
-        channels[9]= new ChannelMap(9,CurrentClamps.SCT013_100A1V.getMaxCurrent(),"W","WholeHouse");
+        aDCchannels[0]= new ChannelMap(0,10.0,"V","Voltage");
+        aDCchannels[1]= new ChannelMap(1,CurrentClamps.SCT013_5A1V.getMaxCurrent(),"W","UpstairsLighting");
+        aDCchannels[2]= new ChannelMap(2,CurrentClamps.SCT013_5A1V.getMaxCurrent(),"W","DownstairsLighting");
+        aDCchannels[3]= new ChannelMap(3,CurrentClamps.SCT013_5A1V.getMaxCurrent(),"W","ExtensionLighting");
+        aDCchannels[4]= new ChannelMap(4,CurrentClamps.SCT013_5A1V.getMaxCurrent(),"W","OutsideLighting");
+        aDCchannels[5]= new ChannelMap(5,CurrentClamps.SCT013_20A1V.getMaxCurrent(),"W","LoungeEndPlugs");
+        aDCchannels[6]= new ChannelMap(6,CurrentClamps.SCT013_30A1V.getMaxCurrent(),"W","KitchenPlugs");
+        aDCchannels[7]= new ChannelMap(7,CurrentClamps.SCT013_20A1V.getMaxCurrent(),"W","OutsidePlugs");
+        aDCchannels[8]= new ChannelMap(8,CurrentClamps.SCT013_30A1V.getMaxCurrent(),"W","Cooker");
+        aDCchannels[9]= new ChannelMap(9,CurrentClamps.SCT013_100A1V.getMaxCurrent(),"W","WholeHouse");
 
         try {
             // set up MQTT stream definitions
@@ -187,7 +187,7 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
 
     /**
      * getScaledMetric  returns a specific metric scaled to match the external device on the ADC channel
-     *                  of the power monitor. ADC channels 0-9 include 0 for voltage, the buffer holds
+     *                  of the power monitor. ADC aDCchannels 0-9 include 0 for voltage, the buffer holds
      *                  power metrics 0-8 so an offset is needed
      *
      * @param rawMetricsBuffer      The metrics received from the power monitor
@@ -213,12 +213,11 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
             }
             case Voltage:
             {
-                rawValue = rawMetricsBuffer.getVoltageCount();
-                //TODO turn into actual value might need division
+                rawValue = rawMetricsBuffer.getRmsVoltage();
                 break;
             }
         }
-        return rawValue* channels[channel].scaleFactor;
+        return rawValue* aDCchannels[channel].scaleFactor;
     }
 
     /**
@@ -273,7 +272,7 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
                         rawMetricsBuffer.printMetricsBuffer();
                         for (int channel = powerMonitor.getMinADCChannel(); channel <powerMonitor.getMAXADCChannnel(); channel++ )
                         {
-                            subTopic = topic +"/"+channels[channel].name;
+                            subTopic = topic +"/"+ aDCchannels[channel].name;
                             if (powerMonitor.getADCChannelType(channel)== STM8PowerMonitor.ChannelType.Current)
                             {
                                 publishToBroker( subTopic,1 + " " + getScaledMetric(rawMetricsBuffer, MetricType.RealPower, channel));
@@ -288,7 +287,6 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
                     {
                         e1.printStackTrace();
                     }
-
                 }
                 sleep(100);
             }

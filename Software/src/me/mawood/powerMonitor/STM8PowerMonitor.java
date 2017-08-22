@@ -10,7 +10,6 @@ import java.nio.ByteBuffer;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Arrays;
 
 /**
  * PowerMonitor
@@ -24,16 +23,16 @@ class STM8PowerMonitor
     private final int MIN_ADC_CHANNEL = 0;
     private final int MAX_ADC_CHANNEL = 9;
     enum ChannelType{Voltage, Current}
-    private final ChannelType channelTypes[] = {ChannelType.Voltage,
-                                                ChannelType.Current,
-                                                ChannelType.Current,
-                                                ChannelType.Current,
-                                                ChannelType.Current,
-                                                ChannelType.Current,
-                                                ChannelType.Current,
-                                                ChannelType.Current,
-                                                ChannelType.Current,
-                                                ChannelType.Current,};
+    private final ChannelType aDCchannelTypes[] = { ChannelType.Voltage,
+                                                    ChannelType.Current,
+                                                    ChannelType.Current,
+                                                    ChannelType.Current,
+                                                    ChannelType.Current,
+                                                    ChannelType.Current,
+                                                    ChannelType.Current,
+                                                    ChannelType.Current,
+                                                    ChannelType.Current,
+                                                    ChannelType.Current,};
 
 
     private int outputDataFrequency;
@@ -55,7 +54,7 @@ class STM8PowerMonitor
 
     int getMinADCChannel() {return this.MIN_ADC_CHANNEL;}
     int getMAXADCChannnel() {return this.MAX_ADC_CHANNEL;}
-    ChannelType getADCChannelType(int channelNumber) {return channelTypes[channelNumber];}
+    ChannelType getADCChannelType(int channelNumber) {return aDCchannelTypes[channelNumber];}
 
     int getOutputDataFrequency() {return outputDataFrequency;}
     void setOutputDataFrequency(int hertz) {this.outputDataFrequency = hertz;}
