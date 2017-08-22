@@ -55,142 +55,149 @@
 3467                     ; 36 }
 3470  0044 5b04          	addw	sp,#4
 3471  0046 81            	ret
-3522                     .const:	section	.text
-3523  0000               L21:
-3524  0000 00000009      	dc.l	9
-3525  0004               L41:
-3526  0004 0000b960      	dc.l	47456
-3527                     ; 38 void loop()
-3527                     ; 39 {
-3528                     	switch	.text
-3529  0047               _loop:
-3531  0047 5206          	subw	sp,#6
-3532       00000006      OFST:	set	6
-3535                     ; 40 	unsigned long i = 0;
-3537  0049 ae0000        	ldw	x,#0
-3538  004c 1f05          	ldw	(OFST-1,sp),x
-3539  004e ae0000        	ldw	x,#0
-3540  0051 1f03          	ldw	(OFST-3,sp),x
-3541                     ; 41 	unsigned int adcValue = 0;
-3543                     ; 42 	adcValue = readChannel(VOLTAGE_CHANNEL);
-3545  0053 b600          	ld	a,_VOLTAGE_CHANNEL
-3546  0055 5f            	clrw	x
-3547  0056 97            	ld	xl,a
-3548  0057 cd0000        	call	_readChannel
-3550  005a 1f01          	ldw	(OFST-5,sp),x
+3523                     .const:	section	.text
+3524  0000               L21:
+3525  0000 00000009      	dc.l	9
+3526  0004               L41:
+3527  0004 0000b960      	dc.l	47456
+3528                     ; 38 void loop()
+3528                     ; 39 {
+3529                     	switch	.text
+3530  0047               _loop:
+3532  0047 5206          	subw	sp,#6
+3533       00000006      OFST:	set	6
+3536                     ; 40 	unsigned long i = 0;
+3538  0049 ae0000        	ldw	x,#0
+3539  004c 1f05          	ldw	(OFST-1,sp),x
+3540  004e ae0000        	ldw	x,#0
+3541  0051 1f03          	ldw	(OFST-3,sp),x
+3542                     ; 41 	unsigned int adcValue = 0;
+3544                     ; 42 	adcValue = readChannel(VOLTAGE_CHANNEL);
+3546  0053 b600          	ld	a,_VOLTAGE_CHANNEL
+3547  0055 5f            	clrw	x
+3548  0056 97            	ld	xl,a
+3549  0057 cd0000        	call	_readChannel
 3551                     ; 43 	sendChar('V');
-3553  005c a656          	ld	a,#86
-3554  005e cd0000        	call	_sendChar
-3556                     ; 44 	sendChar((char)(adcValue >> 8));
-3558  0061 7b01          	ld	a,(OFST-5,sp)
-3559  0063 cd0000        	call	_sendChar
-3561                     ; 45 	sendChar((char)adcValue);
-3563  0066 7b02          	ld	a,(OFST-4,sp)
-3564  0068 cd0000        	call	_sendChar
-3567  006b 203a          	jra	L5632
-3568  006d               L3632:
-3569                     ; 48 		calcVI(VOLTAGE_CHANNEL, CHANNELS[i], 30);
-3571  006d ae001e        	ldw	x,#30
-3572  0070 89            	pushw	x
-3573  0071 1e07          	ldw	x,(OFST+1,sp)
-3574  0073 e600          	ld	a,(_CHANNELS,x)
-3575  0075 97            	ld	xl,a
-3576  0076 b600          	ld	a,_VOLTAGE_CHANNEL
-3577  0078 95            	ld	xh,a
-3578  0079 cd0000        	call	_calcVI
-3580  007c 85            	popw	x
-3581                     ; 49 		sendChar(i);
-3583  007d 7b06          	ld	a,(OFST+0,sp)
-3584  007f cd0000        	call	_sendChar
-3586                     ; 50 		sendDouble(getApparentPower());
-3588  0082 cd0000        	call	_getApparentPower
-3590  0085 be02          	ldw	x,c_lreg+2
-3591  0087 89            	pushw	x
-3592  0088 be00          	ldw	x,c_lreg
-3593  008a 89            	pushw	x
-3594  008b cd0000        	call	_sendDouble
-3596  008e 5b04          	addw	sp,#4
-3597                     ; 51 		sendDouble(getRealPower());
-3599  0090 cd0000        	call	_getRealPower
-3601  0093 be02          	ldw	x,c_lreg+2
+3553  005a a656          	ld	a,#86
+3554  005c cd0000        	call	_sendChar
+3557  005f 2051          	jra	L5632
+3558  0061               L3632:
+3559                     ; 48 		calcVI(VOLTAGE_CHANNEL, CHANNELS[i], 30);
+3561  0061 ae001e        	ldw	x,#30
+3562  0064 89            	pushw	x
+3563  0065 1e07          	ldw	x,(OFST+1,sp)
+3564  0067 e600          	ld	a,(_CHANNELS,x)
+3565  0069 97            	ld	xl,a
+3566  006a b600          	ld	a,_VOLTAGE_CHANNEL
+3567  006c 95            	ld	xh,a
+3568  006d cd0000        	call	_calcVI
+3570  0070 85            	popw	x
+3571                     ; 49 		if(i==0) sendDouble(getVrms());
+3573  0071 96            	ldw	x,sp
+3574  0072 1c0003        	addw	x,#OFST-3
+3575  0075 cd0000        	call	c_lzmp
+3577  0078 260e          	jrne	L1732
+3580  007a cd0000        	call	_getVrms
+3582  007d be02          	ldw	x,c_lreg+2
+3583  007f 89            	pushw	x
+3584  0080 be00          	ldw	x,c_lreg
+3585  0082 89            	pushw	x
+3586  0083 cd0000        	call	_sendDouble
+3588  0086 5b04          	addw	sp,#4
+3589  0088               L1732:
+3590                     ; 50 		sendChar(i);
+3592  0088 7b06          	ld	a,(OFST+0,sp)
+3593  008a cd0000        	call	_sendChar
+3595                     ; 51 		sendDouble(getApparentPower());
+3597  008d cd0000        	call	_getApparentPower
+3599  0090 be02          	ldw	x,c_lreg+2
+3600  0092 89            	pushw	x
+3601  0093 be00          	ldw	x,c_lreg
 3602  0095 89            	pushw	x
-3603  0096 be00          	ldw	x,c_lreg
-3604  0098 89            	pushw	x
-3605  0099 cd0000        	call	_sendDouble
-3607  009c 5b04          	addw	sp,#4
-3608                     ; 52 		i++;
-3610  009e 96            	ldw	x,sp
-3611  009f 1c0003        	addw	x,#OFST-3
-3612  00a2 a601          	ld	a,#1
-3613  00a4 cd0000        	call	c_lgadc
-3615  00a7               L5632:
-3616                     ; 46 	while(i<HARDWARE_CHANNEL_NUM)
-3618  00a7 96            	ldw	x,sp
-3619  00a8 1c0003        	addw	x,#OFST-3
-3620  00ab cd0000        	call	c_ltor
-3622  00ae ae0000        	ldw	x,#L21
-3623  00b1 cd0000        	call	c_lcmp
-3625  00b4 25b7          	jrult	L3632
-3626                     ; 54 	i = 0;
-3628  00b6 ae0000        	ldw	x,#0
-3629  00b9 1f05          	ldw	(OFST-1,sp),x
-3630  00bb ae0000        	ldw	x,#0
-3631  00be 1f03          	ldw	(OFST-3,sp),x
-3632  00c0               L1732:
-3633                     ; 55 	while(i < 47456) i++;
-3636  00c0 96            	ldw	x,sp
-3637  00c1 1c0003        	addw	x,#OFST-3
-3638  00c4 a601          	ld	a,#1
-3639  00c6 cd0000        	call	c_lgadc
-3643  00c9 96            	ldw	x,sp
-3644  00ca 1c0003        	addw	x,#OFST-3
-3645  00cd cd0000        	call	c_ltor
-3647  00d0 ae0004        	ldw	x,#L41
-3648  00d3 cd0000        	call	c_lcmp
-3650  00d6 25e8          	jrult	L1732
-3652  00d8 2009          	jra	L1042
-3653  00da               L7732:
-3654                     ; 56 	while(i > 0) i--;
-3656  00da 96            	ldw	x,sp
-3657  00db 1c0003        	addw	x,#OFST-3
-3658  00de a601          	ld	a,#1
-3659  00e0 cd0000        	call	c_lgsbc
-3661  00e3               L1042:
-3664  00e3 96            	ldw	x,sp
-3665  00e4 1c0003        	addw	x,#OFST-3
-3666  00e7 cd0000        	call	c_lzmp
-3668  00ea 26ee          	jrne	L7732
-3669                     ; 57 }
-3672  00ec 5b06          	addw	sp,#6
-3673  00ee 81            	ret
-3686                     	xdef	_main
-3687                     	xdef	_loop
-3688                     	xdef	_setup
-3689                     	xref	_getRealPower
-3690                     	xref	_getApparentPower
-3691                     	xref	_calcVI
-3692                     	xref	_readChannel
-3693                     	xref	_ADC_INIT
-3694                     	xref.b	_VOLTAGE_CHANNEL
-3695                     	xref.b	_CHANNELS
-3696                     	xref	_RTC_INIT
-3697                     	xref	_sendString
-3698                     	xref	_sendChar
-3699                     	xref	_sendDouble
-3700                     	xref	_UART_INIT
-3701                     	switch	.const
-3702  0008               L7332:
-3703  0008 41444320496e  	dc.b	"ADC Initialised",0
-3704  0018               L5332:
-3705  0018 52544320496e  	dc.b	"RTC Initialised",0
-3706  0028               L3332:
-3707  0028 554152542049  	dc.b	"UART Initialised",0
-3708  0039               L7232:
-3709  0039 40f00000      	dc.w	16624,0
-3710                     	xref.b	c_lreg
-3730                     	xref	c_lzmp
-3731                     	xref	c_lgsbc
-3732                     	xref	c_lcmp
-3733                     	xref	c_ltor
-3734                     	xref	c_lgadc
-3735                     	end
+3603  0096 cd0000        	call	_sendDouble
+3605  0099 5b04          	addw	sp,#4
+3606                     ; 52 		sendDouble(getRealPower());
+3608  009b cd0000        	call	_getRealPower
+3610  009e be02          	ldw	x,c_lreg+2
+3611  00a0 89            	pushw	x
+3612  00a1 be00          	ldw	x,c_lreg
+3613  00a3 89            	pushw	x
+3614  00a4 cd0000        	call	_sendDouble
+3616  00a7 5b04          	addw	sp,#4
+3617                     ; 53 		i++;
+3619  00a9 96            	ldw	x,sp
+3620  00aa 1c0003        	addw	x,#OFST-3
+3621  00ad a601          	ld	a,#1
+3622  00af cd0000        	call	c_lgadc
+3624  00b2               L5632:
+3625                     ; 46 	while(i<HARDWARE_CHANNEL_NUM)
+3627  00b2 96            	ldw	x,sp
+3628  00b3 1c0003        	addw	x,#OFST-3
+3629  00b6 cd0000        	call	c_ltor
+3631  00b9 ae0000        	ldw	x,#L21
+3632  00bc cd0000        	call	c_lcmp
+3634  00bf 25a0          	jrult	L3632
+3635                     ; 55 	i = 0;
+3637  00c1 ae0000        	ldw	x,#0
+3638  00c4 1f05          	ldw	(OFST-1,sp),x
+3639  00c6 ae0000        	ldw	x,#0
+3640  00c9 1f03          	ldw	(OFST-3,sp),x
+3641  00cb               L3732:
+3642                     ; 56 	while(i < 47456) i++;
+3645  00cb 96            	ldw	x,sp
+3646  00cc 1c0003        	addw	x,#OFST-3
+3647  00cf a601          	ld	a,#1
+3648  00d1 cd0000        	call	c_lgadc
+3652  00d4 96            	ldw	x,sp
+3653  00d5 1c0003        	addw	x,#OFST-3
+3654  00d8 cd0000        	call	c_ltor
+3656  00db ae0004        	ldw	x,#L41
+3657  00de cd0000        	call	c_lcmp
+3659  00e1 25e8          	jrult	L3732
+3661  00e3 2009          	jra	L3042
+3662  00e5               L1042:
+3663                     ; 57 	while(i > 0) i--;
+3665  00e5 96            	ldw	x,sp
+3666  00e6 1c0003        	addw	x,#OFST-3
+3667  00e9 a601          	ld	a,#1
+3668  00eb cd0000        	call	c_lgsbc
+3670  00ee               L3042:
+3673  00ee 96            	ldw	x,sp
+3674  00ef 1c0003        	addw	x,#OFST-3
+3675  00f2 cd0000        	call	c_lzmp
+3677  00f5 26ee          	jrne	L1042
+3678                     ; 58 }
+3681  00f7 5b06          	addw	sp,#6
+3682  00f9 81            	ret
+3695                     	xdef	_main
+3696                     	xdef	_loop
+3697                     	xdef	_setup
+3698                     	xref	_getVrms
+3699                     	xref	_getRealPower
+3700                     	xref	_getApparentPower
+3701                     	xref	_calcVI
+3702                     	xref	_readChannel
+3703                     	xref	_ADC_INIT
+3704                     	xref.b	_VOLTAGE_CHANNEL
+3705                     	xref.b	_CHANNELS
+3706                     	xref	_RTC_INIT
+3707                     	xref	_sendString
+3708                     	xref	_sendChar
+3709                     	xref	_sendDouble
+3710                     	xref	_UART_INIT
+3711                     	switch	.const
+3712  0008               L7332:
+3713  0008 41444320496e  	dc.b	"ADC Initialised",0
+3714  0018               L5332:
+3715  0018 52544320496e  	dc.b	"RTC Initialised",0
+3716  0028               L3332:
+3717  0028 554152542049  	dc.b	"UART Initialised",0
+3718  0039               L7232:
+3719  0039 40f00000      	dc.w	16624,0
+3720                     	xref.b	c_lreg
+3740                     	xref	c_lgsbc
+3741                     	xref	c_lcmp
+3742                     	xref	c_ltor
+3743                     	xref	c_lgadc
+3744                     	xref	c_lzmp
+3745                     	end

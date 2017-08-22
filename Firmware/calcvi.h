@@ -10,6 +10,7 @@ extern const float PHASECAL;
 void calcVI(char vPin, char iPin, unsigned int crossings);
 double getApparentPower(void);
 double getRealPower(void);
+double getVrms(void);
 double root(double n);
 
 extern double realPower,apparentPower,powerFactor,Vrms,Irms;
