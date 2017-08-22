@@ -1,16 +1,10 @@
 package me.mawood.powerMonitor;
-
-import com.pi4j.io.serial.SerialDataEvent;
-import com.pi4j.io.serial.SerialDataEventListener;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
-import java.io.IOException;
-import java.util.Arrays;
-
 import static java.lang.Thread.sleep;
 
-public class PowerDataProcessor  implements SerialDataEventListener, Runnable, MqttCallback
+public class PowerDataProcessor  implements Runnable, MqttCallback
 {
     private class ChannelMap
     {
@@ -48,7 +42,6 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
     }
 
     private PowerData scaledPowerData[];
-    private enum MetricType{RealPower, ApparentPower, Voltage}
 
     private final String clientId     = "PMon10";
     private MqttClient publisherClientPMOn10;
@@ -60,7 +53,6 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
 
     // run control variables
     private volatile boolean msgArrived;
-    private volatile SerialDataEvent serialDataEvent;
     private volatile boolean stop;
 
      /**
@@ -148,21 +140,6 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
         nbrMessagesSentOK++;
     }
 
-    //
-    // SerialDataEventListener implementation
-    //
-
-    /**
-     * dataReceived             Handler for serial data arriving
-     * @param serialDataEvent   The data that has arrived
-     */
-    @Override
-    public void dataReceived(SerialDataEvent serialDataEvent)
-    {
-        this.serialDataEvent = serialDataEvent;
-        msgArrived = true;
-
-    }
 
     /**
      * handleMQTTException  Handler for MQTT exceptions
@@ -185,8 +162,6 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
     void setPowerMonitor(STM8PowerMonitor pm)
     {
         this.powerMonitor = pm;
-        pm.AddSerialListener(this);// bind listener to serial port
-
     }
 
     /**
@@ -206,44 +181,10 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
         System.out.println(nbrMessagesSentOK+ " messages sent successfully");
     }
 
-    /**
-     * getScaledMetric  returns a specific metric scaled to match the external device on the ADC channel
-     *                  of the power monitor. ADC aDCchannels 0-9 include 0 for voltage, the buffer holds
-     *                  power metrics 0-8 so an offset is needed
-     *
-     * @param rawMetricsBuffer      The metrics received from the power monitor
-     * @param mt                    The type of metric required
-     * @param channel               The power monitor channel
-     * @return                      A double which is the scaled value of the metric
-     */
-    private double getScaledMetric(MetricsBuffer rawMetricsBuffer, MetricType mt, int channel)
-    {
-        double rawValue;
-        rawValue=0;
-        switch (mt)
-        {
-            case RealPower:
-            {
-                rawValue = rawMetricsBuffer.getRealPower(channel-1);
-                break;
-            }
-            case ApparentPower:
-            {
-                rawValue = rawMetricsBuffer.getApparentPower(channel-1);
-                break;
-            }
-            case Voltage:
-            {
-                return rawMetricsBuffer.getRmsVoltage()*aDCchannels[0].scaleFactor;
-            }
-        }
-        return rawValue* aDCchannels[channel].scaleFactor;
-    }
-
     private PowerData[] calculateScaledPower(MetricsBuffer rawMetrics)
     {
         PowerData[] powerdata = new PowerData[9];
-        for(int i = 0; i<9; i++)
+        for(int i = 0; i<8; i++)
         {
             powerdata[i] = new PowerData(   rawMetrics.getApparentPower(i),
                                             rawMetrics.getRealPower(i),
@@ -284,7 +225,6 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
     @Override
     public void run()
     {
-        byte[] serialBytes;
         String basetopic = "emon";
         String topic = basetopic + "/" + clientId;
         String subTopic;
@@ -301,18 +241,16 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
                     rawMetricsBuffer = powerMonitor.getRawMetricsBuffer();
                     //rawMetricsBuffer.printMetricsBuffer();
                     scaledPowerData = calculateScaledPower(rawMetricsBuffer);
-                    for (int channel = 0; channel <9; channel++ )
+                    subTopic = topic +"/"+ aDCchannels[0].name;
+                    publishToBroker( subTopic, 3 +" " + scaledPowerData[0].voltage);
+                    for (int channel = 0; channel <8; channel++ )
                     {
-                        subTopic = topic +"/"+ aDCchannels[channel].name;
-                        if (channel == 0)
-                        {
-                            publishToBroker( subTopic, 3 +" " + scaledPowerData[channel].voltage);
-                        }
+                        subTopic = topic +"/"+ aDCchannels[channel+1].name;
                         publishToBroker( subTopic,1 + " " + scaledPowerData[channel].apparentPower);
                         publishToBroker( subTopic,2 + " " + scaledPowerData[channel].realPower);
                     }
                 }
-                sleep(1000);
+                sleep(1000); //defines output frequency
             }
         }catch (InterruptedException e)
         {
