@@ -27,6 +27,27 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
         }
     }
 
+    private class PowerData
+    {
+        double apparentPower;
+        double realPower;
+        double voltage;
+        double reactivePower;
+        double loadFactor;
+        double current;
+
+        PowerData(double apparentPower, double realPower, double voltage, double currentScale, double voltageScale )
+        {
+            this.apparentPower = apparentPower*currentScale;
+            this.realPower = realPower*currentScale;
+            this.voltage = voltage*voltageScale;
+            this.reactivePower = Math.sqrt(this.apparentPower*this.apparentPower-this.realPower*this.realPower);
+            this.loadFactor = this.realPower/this.apparentPower;
+            this.current = this.realPower/this.voltage;
+        }
+    }
+
+    private PowerData scaledPowerData[];
     private enum MetricType{RealPower, ApparentPower, Voltage}
 
     private final String clientId     = "PMon10";
@@ -60,7 +81,7 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
         aDCchannels[7]= new ChannelMap(7,CurrentClamps.SCT013_20A1V.getMaxCurrent(),"W","OutsidePlugs");
         aDCchannels[8]= new ChannelMap(8,CurrentClamps.SCT013_30A1V.getMaxCurrent(),"W","Cooker");
         aDCchannels[9]= new ChannelMap(9,CurrentClamps.SCT013_100A1V.getMaxCurrent(),"W","WholeHouse");
-
+        scaledPowerData = new PowerData[9];
         try {
             // set up MQTT stream definitions
             String broker = "tcp://localhost:1883";
@@ -213,13 +234,25 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
             }
             case Voltage:
             {
-                rawValue = rawMetricsBuffer.getRmsVoltage();
-                break;
+                return rawMetricsBuffer.getRmsVoltage()*aDCchannels[0].scaleFactor;
             }
         }
         return rawValue* aDCchannels[channel].scaleFactor;
     }
 
+    private PowerData[] calculateScaledPower(MetricsBuffer rawMetrics)
+    {
+        PowerData[] powerdata = new PowerData[9];
+        for(int i = 0; i<9; i++)
+        {
+            powerdata[i] = new PowerData(   rawMetrics.getApparentPower(i),
+                                            rawMetrics.getRealPower(i),
+                                            rawMetrics.getRmsVoltage(),
+                                            aDCchannels[i+1].scaleFactor,
+                                            aDCchannels[0].scaleFactor );
+        }
+        return powerdata;
+    }
     /**
      * publishToBroker - send a message to the MQTT broker
      * @param subTopic  - fully qualified topic identifier
@@ -264,31 +297,22 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
                 {
                     msgArrived = false;
                     //TODO  Check for sequence gaps, fill if necessary
-                    try
+
+                    rawMetricsBuffer = powerMonitor.getRawMetricsBuffer();
+                    //rawMetricsBuffer.printMetricsBuffer();
+                    scaledPowerData = calculateScaledPower(rawMetricsBuffer);
+                    for (int channel = 0; channel <9; channel++ )
                     {
-                        serialBytes = serialDataEvent.getBytes();
-                        System.out.println("Received: " + Arrays.toString(serialBytes));
-                        rawMetricsBuffer = new MetricsBuffer(serialBytes);
-                        rawMetricsBuffer.printMetricsBuffer();
-                        for (int channel = powerMonitor.getMinADCChannel(); channel <powerMonitor.getMAXADCChannnel(); channel++ )
+                        subTopic = topic +"/"+ aDCchannels[channel].name;
+                        if (channel == 0)
                         {
-                            subTopic = topic +"/"+ aDCchannels[channel].name;
-                            if (powerMonitor.getADCChannelType(channel)== STM8PowerMonitor.ChannelType.Current)
-                            {
-                                publishToBroker( subTopic,1 + " " + getScaledMetric(rawMetricsBuffer, MetricType.RealPower, channel));
-                                publishToBroker( subTopic,2 + " " + getScaledMetric(rawMetricsBuffer, MetricType.ApparentPower, channel));
-                            }
-                            else
-                            {
-                                publishToBroker( subTopic, 3 +" " + getScaledMetric(rawMetricsBuffer, MetricType.Voltage, channel));
-                            }
+                            publishToBroker( subTopic, 3 +" " + scaledPowerData[channel].voltage);
                         }
-                    } catch (IOException e1)
-                    {
-                        e1.printStackTrace();
+                        publishToBroker( subTopic,1 + " " + scaledPowerData[channel].apparentPower);
+                        publishToBroker( subTopic,2 + " " + scaledPowerData[channel].realPower);
                     }
                 }
-                sleep(100);
+                sleep(1000);
             }
         }catch (InterruptedException e)
         {
