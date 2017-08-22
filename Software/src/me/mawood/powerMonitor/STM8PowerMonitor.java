@@ -21,11 +21,11 @@ import static java.lang.Thread.sleep;
 class STM8PowerMonitor implements SerialDataEventListener, Runnable
 {
     private static final byte DEFAULT_I2C_ADDRESS = 0x30;
-    private static final int DEFAULT_OUTPUT_DATA_FREQUENCY= 1;
+
     private final I2CDevice device;
     private Serial serial;
     private SerialConfig config;
-    private volatile MetricsBuffer rawMetricsBuffer;
+    private MetricsBuffer rawMetricsBuffer;
 
     // run control variables
     private volatile boolean msgArrived;
@@ -38,6 +38,7 @@ class STM8PowerMonitor implements SerialDataEventListener, Runnable
         this(DEFAULT_I2C_ADDRESS);
     }
 
+    @SuppressWarnings("WeakerAccess")
     STM8PowerMonitor(byte address) throws IOException, I2CFactory.UnsupportedBusNumberException
     {
         device = I2CFactory.getInstance(I2CBus.BUS_1).getDevice(address);
@@ -194,7 +195,7 @@ class STM8PowerMonitor implements SerialDataEventListener, Runnable
         byte[] serialBytes;
         try
         {
-            while (!stop)
+            while (!Thread.interrupted() && !stop)
             {
                 if (msgArrived)
                 {

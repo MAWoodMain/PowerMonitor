@@ -1,15 +1,14 @@
 import com.pi4j.io.serial.*;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * PowerMonitor
  * Created by Matthew Wood on 19/08/2017.
  */
-public class SerialTest
+class SerialTest
 {
-    public SerialTest() throws IOException, InterruptedException
+    private SerialTest() throws IOException, InterruptedException
     {
         SerialConfig config = new SerialConfig();
         config.device(SerialPort.getDefaultPort())

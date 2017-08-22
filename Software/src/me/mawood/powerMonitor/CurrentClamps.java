@@ -12,6 +12,7 @@ public enum CurrentClamps
     SCT013_60A1V (60,31.0),
     SCT013_70A1V (70,26.6),
     SCT013_100A1V (100,1.0);
+
     private final int maxCurrent;
     private final double samplingResistor;
 

@@ -4,18 +4,19 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import static java.lang.Thread.sleep;
 
-public class PowerDataProcessor  implements Runnable, MqttCallback
+class PowerDataProcessor  implements Runnable, MqttCallback
 {
     private class ChannelMap
     {
-        int channelNumber;
-        double scaleFactor;
-        String units;
-        String name;
-        ChannelMap(int channel, double scale, String units, String name)
+        final int channelNumber;
+        final double scaleFactor;
+        final String units;
+        final String name;
+
+        private ChannelMap(int channelNumber, double scaleFactor, String units, String name)
         {
-            this.channelNumber = channel;
-            this.scaleFactor = scale;
+            this.channelNumber = channelNumber;
+            this.scaleFactor = scaleFactor;
             this.units = units;
             this.name = name;
         }
@@ -23,12 +24,12 @@ public class PowerDataProcessor  implements Runnable, MqttCallback
 
     private class PowerData
     {
-        double apparentPower;
-        double realPower;
-        double voltage;
-        double reactivePower;
-        double loadFactor;
-        double current;
+        final double apparentPower;
+        final double realPower;
+        final double voltage;
+        final double reactivePower;
+        final double loadFactor;
+        final double current;
 
         PowerData(double apparentPower, double realPower, double voltage, double currentScale, double voltageScale )
         {
@@ -44,12 +45,12 @@ public class PowerDataProcessor  implements Runnable, MqttCallback
     private PowerData scaledPowerData[];
 
     private final String clientId     = "PMon10";
-    private MqttClient publisherClientPMOn10;
-    private MqttConnectOptions connOpts;
+    private final MqttClient publisherClientPMOn10;
+    private final MqttConnectOptions connOpts;
 
-    private STM8PowerMonitor powerMonitor;
-    private ChannelMap[] aDCchannels = new ChannelMap[10];
-    private long nbrMessagesSentOK;
+    private final STM8PowerMonitor powerMonitor;
+    private final ChannelMap[] adcChannels = new ChannelMap[10];
+    private long noMessagesSentOK;
 
     // run control variables
     private volatile boolean msgArrived;
@@ -58,36 +59,34 @@ public class PowerDataProcessor  implements Runnable, MqttCallback
      /**
      * PowerDataProcessor   Constructor
      */
-    PowerDataProcessor()
+    PowerDataProcessor(STM8PowerMonitor powerMonitor) throws MqttException
     {
-        nbrMessagesSentOK =0;
+        this.powerMonitor = powerMonitor;
+
+        noMessagesSentOK =0;
         stop = false;
         // set up channel configuration
-        aDCchannels[0]= new ChannelMap(0,10.0,"V","Voltage");
-        aDCchannels[1]= new ChannelMap(1,CurrentClamps.SCT013_5A1V.getMaxCurrent(),"W","UpstairsLighting");
-        aDCchannels[2]= new ChannelMap(2,CurrentClamps.SCT013_5A1V.getMaxCurrent(),"W","DownstairsLighting");
-        aDCchannels[3]= new ChannelMap(3,CurrentClamps.SCT013_5A1V.getMaxCurrent(),"W","ExtensionLighting");
-        aDCchannels[4]= new ChannelMap(4,CurrentClamps.SCT013_5A1V.getMaxCurrent(),"W","OutsideLighting");
-        aDCchannels[5]= new ChannelMap(5,CurrentClamps.SCT013_20A1V.getMaxCurrent(),"W","LoungeEndPlugs");
-        aDCchannels[6]= new ChannelMap(6,CurrentClamps.SCT013_30A1V.getMaxCurrent(),"W","KitchenPlugs");
-        aDCchannels[7]= new ChannelMap(7,CurrentClamps.SCT013_20A1V.getMaxCurrent(),"W","OutsidePlugs");
-        aDCchannels[8]= new ChannelMap(8,CurrentClamps.SCT013_30A1V.getMaxCurrent(),"W","Cooker");
-        aDCchannels[9]= new ChannelMap(9,CurrentClamps.SCT013_100A1V.getMaxCurrent(),"W","WholeHouse");
+        adcChannels[0]= new ChannelMap(0,10.0,"V","Voltage");
+        adcChannels[1]= new ChannelMap(1,CurrentClamps.SCT013_5A1V.getMaxCurrent(),"W","UpstairsLighting");
+        adcChannels[2]= new ChannelMap(2,CurrentClamps.SCT013_5A1V.getMaxCurrent(),"W","DownstairsLighting");
+        adcChannels[3]= new ChannelMap(3,CurrentClamps.SCT013_5A1V.getMaxCurrent(),"W","ExtensionLighting");
+        adcChannels[4]= new ChannelMap(4,CurrentClamps.SCT013_5A1V.getMaxCurrent(),"W","OutsideLighting");
+        adcChannels[5]= new ChannelMap(5,CurrentClamps.SCT013_20A1V.getMaxCurrent(),"W","LoungeEndPlugs");
+        adcChannels[6]= new ChannelMap(6,CurrentClamps.SCT013_30A1V.getMaxCurrent(),"W","KitchenPlugs");
+        adcChannels[7]= new ChannelMap(7,CurrentClamps.SCT013_20A1V.getMaxCurrent(),"W","OutsidePlugs");
+        adcChannels[8]= new ChannelMap(8,CurrentClamps.SCT013_30A1V.getMaxCurrent(),"W","Cooker");
+        adcChannels[9]= new ChannelMap(9,CurrentClamps.SCT013_100A1V.getMaxCurrent(),"W","WholeHouse");
         scaledPowerData = new PowerData[9];
-        try {
-            // set up MQTT stream definitions
-            String broker = "tcp://localhost:1883";
-            publisherClientPMOn10 = new MqttClient(broker, clientId, new MemoryPersistence());
-            connOpts = new MqttConnectOptions();
-            connOpts.setCleanSession(true);
-            System.out.println("Connecting PowerDataProcessor to broker: "+ broker);
-            // make connection to MQTT broker
-            publisherClientPMOn10.connect(connOpts);
-            System.out.println("PowerDataProcessor Connected");
 
-        } catch(MqttException me) {
-            handleMQTTException(me);
-        }
+        String broker = "tcp://localhost:1883";
+        publisherClientPMOn10 = new MqttClient(broker, clientId, new MemoryPersistence());
+        // set up MQTT stream definitions
+        connOpts = new MqttConnectOptions();
+        connOpts.setCleanSession(true);
+        System.out.println("Connecting PowerDataProcessor to broker: "+ broker);
+        // make connection to MQTT broker
+        publisherClientPMOn10.connect(connOpts);
+        System.out.println("PowerDataProcessor Connected");
     }
 
     //
@@ -114,7 +113,7 @@ public class PowerDataProcessor  implements Runnable, MqttCallback
     }
 
     /**
-     * messageArrived       An MQTT message has been recieved (not expected to happen
+     * messageArrived       An MQTT message has been received (not expected to happen
      *                      as this class doesn't subscribe
      * @param s             Topic
      * @param mqttMessage   Message
@@ -131,13 +130,13 @@ public class PowerDataProcessor  implements Runnable, MqttCallback
     }
 
     /**
-     * deliveryComplete             Notification that an MQTT delivery has been successfully recieved at the broker
+     * deliveryComplete             Notification that an MQTT delivery has been successfully received at the broker
      * @param iMqttDeliveryToken    Which delivery?
      */
     @Override
     public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken)
     {
-        nbrMessagesSentOK++;
+        noMessagesSentOK++;
     }
 
 
@@ -156,15 +155,6 @@ public class PowerDataProcessor  implements Runnable, MqttCallback
     }
 
     /**
-     * setPowerMonitor  Stores the connected powerMonitor object
-     * @param pm        The object reference
-     */
-    void setPowerMonitor(STM8PowerMonitor pm)
-    {
-        this.powerMonitor = pm;
-    }
-
-    /**
      * shutdownDataProcessing   Tidy shutdown of the processor
      */
     private void shutdownDataProcessing()
@@ -178,21 +168,21 @@ public class PowerDataProcessor  implements Runnable, MqttCallback
             handleMQTTException(me);
         }
         System.out.println("PowerDataProcessor Disconnected");
-        System.out.println(nbrMessagesSentOK+ " messages sent successfully");
+        System.out.println(noMessagesSentOK + " messages sent successfully");
     }
 
     private PowerData[] calculateScaledPower(MetricsBuffer rawMetrics)
     {
-        PowerData[] powerdata = new PowerData[9];
+        PowerData[] powerData = new PowerData[9];
         for(int i = 0; i<8; i++)
         {
-            powerdata[i] = new PowerData(   rawMetrics.getApparentPower(i),
+            powerData[i] = new PowerData(   rawMetrics.getApparentPower(i),
                                             rawMetrics.getRealPower(i),
                                             rawMetrics.getRmsVoltage(),
-                                            aDCchannels[i+1].scaleFactor,
-                                            aDCchannels[0].scaleFactor );
+                                            adcChannels[i+1].scaleFactor,
+                                            adcChannels[0].scaleFactor );
         }
-        return powerdata;
+        return powerData;
     }
     /**
      * publishToBroker - send a message to the MQTT broker
@@ -225,13 +215,13 @@ public class PowerDataProcessor  implements Runnable, MqttCallback
     @Override
     public void run()
     {
-        String basetopic = "emon";
-        String topic = basetopic + "/" + clientId;
+        String baseTopic = "emon";
+        String topic = baseTopic + "/" + clientId;
         String subTopic;
         MetricsBuffer rawMetricsBuffer;
         try
         {
-            while (!stop)
+            while (!Thread.interrupted() && !stop)
             {
                 if (msgArrived)
                 {
@@ -241,11 +231,11 @@ public class PowerDataProcessor  implements Runnable, MqttCallback
                     rawMetricsBuffer = powerMonitor.getRawMetricsBuffer();
                     //rawMetricsBuffer.printMetricsBuffer();
                     scaledPowerData = calculateScaledPower(rawMetricsBuffer);
-                    subTopic = topic +"/"+ aDCchannels[0].name;
+                    subTopic = topic +"/"+ adcChannels[0].name;
                     publishToBroker( subTopic, 3 +" " + scaledPowerData[0].voltage);
                     for (int channel = 0; channel <8; channel++ )
                     {
-                        subTopic = topic +"/"+ aDCchannels[channel+1].name;
+                        subTopic = topic +"/"+ adcChannels[channel+1].name;
                         publishToBroker( subTopic,1 + " " + scaledPowerData[channel].apparentPower);
                         publishToBroker( subTopic,2 + " " + scaledPowerData[channel].realPower);
                     }

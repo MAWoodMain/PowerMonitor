@@ -3,12 +3,9 @@ package me.mawood.powerMonitor;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
-import java.io.IOException;
-import java.util.Arrays;
-
 import static java.lang.Thread.sleep;
 
-public class PowerDataSubscriber implements  Runnable, MqttCallback
+class PowerDataSubscriber implements  Runnable, MqttCallback
 {
     // run control variables
     private volatile boolean msgArrived;
@@ -36,37 +33,25 @@ public class PowerDataSubscriber implements  Runnable, MqttCallback
     {
 
     }
-    private enum MetricType{Real, Apparent}
-    private final String basetopic    = "emon";
-    private final String clientId     = "PMon10";
-    private final String topic        = basetopic+"/"+clientId;
-    private String content ;
-    private int qos             = 2;
-    private String broker       = "tcp://localhost:1883";
-    private MemoryPersistence persistence = new MemoryPersistence();
-    private MqttClient subscriberClientPMon10;
+
+    private static final String baseTopic = "emon";
+    private static final String clientId     = "PMon10";
+    private static final String topic        = baseTopic +"/"+clientId;
+    private static final int qos             = 2;
+    private static final String broker       = "tcp://localhost:1883";
+    private final MqttClient subscriberClientPMon10;
     private int nbrMessagesReceivedOK;
 
-    PowerDataSubscriber()
+    PowerDataSubscriber() throws MqttException
     {
-        try {
-            subscriberClientPMon10 = new MqttClient(broker, clientId, persistence);
-            subscriberClientPMon10.setCallback(this);
-            MqttConnectOptions connOpts = new MqttConnectOptions();
-            connOpts.setCleanSession(true);
-            System.out.println("Connecting PowerDataSubscriber to broker: "+broker);
-            subscriberClientPMon10.connect(connOpts);
-            System.out.println("PowerDataSubscriber Connected");
-
-        } catch(MqttException me) {
-            handleMQTTException(me);
-        }
-        try {
-            int subQoS = 0;
-            subscriberClientPMon10.subscribe(topic, subQoS);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        subscriberClientPMon10 = new MqttClient(broker, clientId, new MemoryPersistence());
+        subscriberClientPMon10.setCallback(this);
+        MqttConnectOptions connOpts = new MqttConnectOptions();
+        connOpts.setCleanSession(true);
+        System.out.println("Connecting PowerDataSubscriber to broker: "+broker);
+        subscriberClientPMon10.connect(connOpts);
+        System.out.println("PowerDataSubscriber Connected");
+        subscriberClientPMon10.subscribe(topic, qos);
 
     }
 
@@ -110,7 +95,7 @@ public class PowerDataSubscriber implements  Runnable, MqttCallback
         String subTopic;
         try
         {
-            while (!stop)
+            while (!Thread.interrupted() && !stop)
             {
                 if (msgArrived)
                 {
@@ -122,7 +107,7 @@ public class PowerDataSubscriber implements  Runnable, MqttCallback
         }catch (InterruptedException e)
         {
             shutdownDataSubscriber();
-            System.out.println("Data Processing Intterupted, exiting");
+            System.out.println("Data Processing Interrupted, exiting");
         }
     }
 
