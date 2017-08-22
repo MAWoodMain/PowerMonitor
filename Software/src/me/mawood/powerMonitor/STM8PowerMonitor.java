@@ -10,18 +10,22 @@ import java.nio.ByteBuffer;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Arrays;
+
+import static java.lang.Thread.sleep;
 
 /**
  * PowerMonitor
  * Created by Matthew Wood on 19/08/2017.
  */
-class STM8PowerMonitor
+class STM8PowerMonitor implements SerialDataEventListener, Runnable
 {
     private static final byte DEFAULT_I2C_ADDRESS = 0x30;
     private static final int DEFAULT_OUTPUT_DATA_FREQUENCY= 1;
     private final I2CDevice device;
     private final int MIN_ADC_CHANNEL = 0;
     private final int MAX_ADC_CHANNEL = 9;
+
     enum ChannelType{Voltage, Current}
     private final ChannelType aDCchannelTypes[] = { ChannelType.Voltage,
                                                     ChannelType.Current,
@@ -38,6 +42,12 @@ class STM8PowerMonitor
     private int outputDataFrequency;
     private Serial serial;
     private SerialConfig config;
+    private volatile MetricsBuffer rawMetricsBuffer;
+    // run control variables
+    private volatile boolean msgArrived;
+    private volatile SerialDataEvent serialDataEvent;
+    private volatile boolean stop;
+
 
     STM8PowerMonitor() throws IOException, I2CFactory.UnsupportedBusNumberException
     {
@@ -51,6 +61,8 @@ class STM8PowerMonitor
         outputDataFrequency = DEFAULT_OUTPUT_DATA_FREQUENCY;
         InitialiseSerialPort();
     }
+
+    MetricsBuffer getRawMetricsBuffer() {return rawMetricsBuffer;}
 
     int getMinADCChannel() {return this.MIN_ADC_CHANNEL;}
     int getMAXADCChannnel() {return this.MAX_ADC_CHANNEL;}
@@ -177,5 +189,65 @@ class STM8PowerMonitor
         {
             e.printStackTrace();
         }
+    }
+    //
+    // SerialDataEventListener implementation
+    //
+
+    /**
+     * dataReceived             Handler for serial data arriving
+     * @param serialDataEvent   The data that has arrived
+     */
+    @Override
+    public void dataReceived(SerialDataEvent serialDataEvent)
+    {
+        this.serialDataEvent = serialDataEvent;
+        msgArrived = true;
+
+    }
+    //
+    // Runnable implementation
+    //
+
+    /**
+     * run  The main processing loop
+     */
+    @Override
+    public void run()
+    {
+        byte[] serialBytes;
+        try
+        {
+            while (!stop)
+            {
+                if (msgArrived)
+                {
+                    msgArrived = false;
+                    //TODO  Check for sequence gaps, fill if necessary
+                    try
+                    {
+                        serialBytes = serialDataEvent.getBytes();
+                        System.out.println("Received: " + Arrays.toString(serialBytes));
+                        rawMetricsBuffer = new MetricsBuffer(serialBytes);
+                        rawMetricsBuffer.printMetricsBuffer();
+                    } catch (IOException e1)
+                    {
+                        e1.printStackTrace();
+                    }
+                }
+                sleep(100);
+            }
+        }catch (InterruptedException e)
+        {
+            System.out.println("STMPowerMonitor Interrupted, exiting");
+        }
+    }
+
+    /**
+     * stop     Method to stop the main processing loop and close down processing
+     */
+    public void stop()
+    {
+        stop = true;
     }
 }
