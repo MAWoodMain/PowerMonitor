@@ -8,8 +8,6 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import java.io.IOException;
 import java.util.Arrays;
 
-import java.nio.ByteBuffer;
-
 import static java.lang.Thread.sleep;
 
 public class PowerDataProcessor  implements SerialDataEventListener, Runnable, MqttCallback
@@ -31,18 +29,13 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
 
     private enum MetricType{RealPower, ApparentPower, Voltage}
 
-    // MQTT related variables
-    private final String basetopic    = "emon";
     private final String clientId     = "PMon10";
-    private final String topic        = basetopic+"/"+clientId;
-    private final String broker       = "tcp://localhost:1883";
     private MqttClient publisherClientPMOn10;
     private MqttConnectOptions connOpts;
 
     private STM8PowerMonitor powerMonitor;
     private ChannelMap[] channels = new ChannelMap[10];
     private long nbrMessagesSentOK;
-    private int nbrSerialBytes;
 
     // run control variables
     private volatile boolean msgArrived;
@@ -70,10 +63,11 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
 
         try {
             // set up MQTT stream definitions
+            String broker = "tcp://localhost:1883";
             publisherClientPMOn10 = new MqttClient(broker, clientId, new MemoryPersistence());
             connOpts = new MqttConnectOptions();
             connOpts.setCleanSession(true);
-            System.out.println("Connecting PowerDataProcessor to broker: "+broker);
+            System.out.println("Connecting PowerDataProcessor to broker: "+ broker);
             // make connection to MQTT broker
             publisherClientPMOn10.connect(connOpts);
             System.out.println("PowerDataProcessor Connected");
@@ -192,52 +186,35 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
     }
 
     /**
-     * getScaledMetric  Extracts a metic from a byte array, by working out the appropriate offset
-     *                  Message format expected
-     *                  8 bytes - Timestamp Long
-     *                  2 bytes - Sample Number a sequential count Short
-     *                  8 bytes - Voltage real
-     *                  8 bytes - Real Power real       } repeated 9 times
-     *                  8 bytes - Apparent power real   }
+     * getScaledMetric  returns a specific metric scaled to match the external device on the ADC channel
+     *                  of the power monitor. ADC channels 0-9 include 0 for voltage, the buffer holds
+     *                  power metrics 0-8 so an offset is needed
      *
-     *                  1 byte Ascii 'V'
-     *                  2 bytes voltage count big endian
-     *                  1 byte channel number 0-8
-     *                  8 bytes double apparent power   }repeated 9 times
-     *                  8 bytes double real power       }
-     *                  total length 156 bytes
-     * @param bytes     The bytes received from the power monitor
-     * @param mt        The type of metric required
-     * @param channel   The power monitor channel
-     * @return          A double which is the scaled value of the metric
+     * @param rawMetricsBuffer      The metrics received from the power monitor
+     * @param mt                    The type of metric required
+     * @param channel               The power monitor channel
+     * @return                      A double which is the scaled value of the metric
      */
-    private double getScaledMetric(byte[] bytes, MetricType mt, int channel)
+    private double getScaledMetric(MetricsBuffer rawMetricsBuffer, MetricType mt, int channel)
     {
-        final int serialOffsetClamps = 10;
-        final int serialOffsetVoltage = 10;
-        final int sizeOfDouble = 8;
         double rawValue;
-        byte[] bytes8;
-        if (nbrSerialBytes < serialOffsetClamps+sizeOfDouble*10) return 0; //message too short
         rawValue=0;
         switch (mt)
         {
             case RealPower:
             {
-                bytes8 = Arrays.copyOfRange(bytes, serialOffsetClamps+channel*sizeOfDouble, serialOffsetClamps+channel*sizeOfDouble + sizeOfDouble);
-                rawValue = ByteBuffer.wrap(bytes8).getDouble();
+                rawValue = rawMetricsBuffer.getRealPower(channel-1);
                 break;
             }
             case ApparentPower:
             {
-                bytes8 = Arrays.copyOfRange(bytes, serialOffsetClamps+channel*sizeOfDouble + sizeOfDouble, serialOffsetClamps+channel*sizeOfDouble + sizeOfDouble + sizeOfDouble);
-                rawValue = ByteBuffer.wrap(bytes8).getDouble();
+                rawValue = rawMetricsBuffer.getApparentPower(channel-1);
                 break;
             }
             case Voltage:
             {
-                bytes8 = Arrays.copyOfRange(bytes, serialOffsetVoltage, serialOffsetVoltage + sizeOfDouble); //always channel 0
-                rawValue = ByteBuffer.wrap(bytes8).getDouble();
+                rawValue = rawMetricsBuffer.getVoltageCount();
+                //TODO turn into actual value might need division
                 break;
             }
         }
@@ -275,8 +252,11 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
     @Override
     public void run()
     {
-        byte[] serialBytes = null;
+        byte[] serialBytes;
+        String basetopic = "emon";
+        String topic = basetopic + "/" + clientId;
         String subTopic;
+        MetricsBuffer rawMetricsBuffer;
         try
         {
             while (!stop)
@@ -288,25 +268,27 @@ public class PowerDataProcessor  implements SerialDataEventListener, Runnable, M
                     try
                     {
                         serialBytes = serialDataEvent.getBytes();
-                        nbrSerialBytes = serialDataEvent.length();
                         System.out.println("Received: " + Arrays.toString(serialBytes));
+                        rawMetricsBuffer = new MetricsBuffer(serialBytes);
+                        rawMetricsBuffer.printMetricsBuffer();
+                        for (int channel = powerMonitor.getMinADCChannel(); channel <powerMonitor.getMAXADCChannnel(); channel++ )
+                        {
+                            subTopic = topic +"/"+channels[channel].name;
+                            if (powerMonitor.getADCChannelType(channel)== STM8PowerMonitor.ChannelType.Current)
+                            {
+                                publishToBroker( subTopic,1 + " " + getScaledMetric(rawMetricsBuffer, MetricType.RealPower, channel));
+                                publishToBroker( subTopic,2 + " " + getScaledMetric(rawMetricsBuffer, MetricType.ApparentPower, channel));
+                            }
+                            else
+                            {
+                                publishToBroker( subTopic, 3 +" " + getScaledMetric(rawMetricsBuffer, MetricType.Voltage, channel));
+                            }
+                        }
                     } catch (IOException e1)
                     {
                         e1.printStackTrace();
                     }
-                    for (int channel = powerMonitor.getMinADCChannel(); channel <powerMonitor.getMAXADCChannnel(); channel++ )
-                    {
-                        subTopic = topic+"/"+channels[channel].name;
-                        if (powerMonitor.getADCChannelType(channel)== STM8PowerMonitor.ChannelType.Current)
-                        {
-                            publishToBroker( subTopic,1 + " " + getScaledMetric(serialBytes, MetricType.RealPower, channel));
-                            publishToBroker( subTopic,2 + " " + getScaledMetric(serialBytes, MetricType.ApparentPower, channel));
-                        }
-                        else
-                        {
-                            publishToBroker( subTopic, 3 +" " + getScaledMetric(serialBytes, MetricType.Voltage, channel));
-                        }
-                     }
+
                 }
                 sleep(100);
             }

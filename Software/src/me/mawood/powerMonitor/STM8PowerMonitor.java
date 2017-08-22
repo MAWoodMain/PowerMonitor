@@ -16,7 +16,7 @@ import java.util.Arrays;
  * PowerMonitor
  * Created by Matthew Wood on 19/08/2017.
  */
-public class STM8PowerMonitor
+class STM8PowerMonitor
 {
     private static final byte DEFAULT_I2C_ADDRESS = 0x30;
     private static final int DEFAULT_OUTPUT_DATA_FREQUENCY= 1;
@@ -40,12 +40,12 @@ public class STM8PowerMonitor
     private Serial serial;
     private SerialConfig config;
 
-    public STM8PowerMonitor() throws IOException, I2CFactory.UnsupportedBusNumberException
+    STM8PowerMonitor() throws IOException, I2CFactory.UnsupportedBusNumberException
     {
         this(DEFAULT_I2C_ADDRESS);
     }
 
-    public STM8PowerMonitor(byte address) throws IOException, I2CFactory.UnsupportedBusNumberException
+    STM8PowerMonitor(byte address) throws IOException, I2CFactory.UnsupportedBusNumberException
     {
         device = I2CFactory.getInstance(I2CBus.BUS_1).getDevice(address);
         configureRTC();
@@ -53,14 +53,14 @@ public class STM8PowerMonitor
         InitialiseSerialPort();
     }
 
-    public int getMinADCChannel() {return this.MIN_ADC_CHANNEL;}
-    public int getMAXADCChannnel() {return this.MAX_ADC_CHANNEL;}
-    public ChannelType getADCChannelType(int channelNumber) {return channelTypes[channelNumber];}
+    int getMinADCChannel() {return this.MIN_ADC_CHANNEL;}
+    int getMAXADCChannnel() {return this.MAX_ADC_CHANNEL;}
+    ChannelType getADCChannelType(int channelNumber) {return channelTypes[channelNumber];}
 
-    public int getOutputDataFrequency() {return outputDataFrequency;}
-    public void setOutputDataFrequency(int hertz) {this.outputDataFrequency = hertz;}
+    int getOutputDataFrequency() {return outputDataFrequency;}
+    void setOutputDataFrequency(int hertz) {this.outputDataFrequency = hertz;}
 
-    public void configureRTC()
+    private void configureRTC()
     {
         byte[] timeRegisters = constructTimeRegisters();
         for(byte b:timeRegisters)
@@ -155,11 +155,11 @@ public class STM8PowerMonitor
 
         serial = SerialFactory.createInstance();
     }
-    public void AddSerialListener( SerialDataEventListener listener)
+    void AddSerialListener( SerialDataEventListener listener)
     {
         serial.addListener(listener);
     }
-    public void OpenSerialPort()
+    void OpenSerialPort()
     {
         try
         {
@@ -169,7 +169,7 @@ public class STM8PowerMonitor
             e.printStackTrace();
         }
     }
-    public void closeSerialPort()
+    void closeSerialPort()
     {
         try
         {
