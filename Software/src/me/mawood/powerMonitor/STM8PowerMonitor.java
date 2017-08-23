@@ -52,6 +52,12 @@ class STM8PowerMonitor implements SerialDataEventListener, Runnable, PowerMonito
     @Override
     public MetricsBuffer getRawMetricsBuffer() {return rawMetricsBuffer;}
 
+    public MetricsBuffer getAndResetRawMetricsBuffer()
+    {
+        samplesInBuffer = 0; // the next sample will overwrite the buffer
+        return rawMetricsBuffer;
+    }
+
     private void configureRTC()
     {
         byte[] timeRegisters = constructTimeRegisters();

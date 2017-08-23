@@ -228,7 +228,7 @@ class PowerDataProcessor  implements Runnable, MqttCallback
                     msgArrived = false;
                     //TODO  Check for sequence gaps, fill if necessary
 
-                    rawMetricsBuffer = powerMonitor.getRawMetricsBuffer();
+                    rawMetricsBuffer = powerMonitor.getAndResetRawMetricsBuffer();
                     //rawMetricsBuffer.printMetricsBuffer();
                     scaledPowerData = calculateScaledPower(rawMetricsBuffer);
                     subTopic = topic +"/"+ adcChannels[0].name;
