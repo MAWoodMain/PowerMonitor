@@ -48,7 +48,7 @@ class PowerDataProcessor  implements Runnable, MqttCallback
     private final MqttClient publisherClientPMOn10;
     private final MqttConnectOptions connOpts;
 
-    private final STM8PowerMonitor powerMonitor;
+    private final PowerMonitor powerMonitor;
     private final ChannelMap[] adcChannels = new ChannelMap[10];
     private long noMessagesSentOK;
 
@@ -59,7 +59,7 @@ class PowerDataProcessor  implements Runnable, MqttCallback
      /**
      * PowerDataProcessor   Constructor
      */
-    PowerDataProcessor(STM8PowerMonitor powerMonitor) throws MqttException
+    PowerDataProcessor(PowerMonitor powerMonitor) throws MqttException
     {
         this.powerMonitor = powerMonitor;
 
@@ -173,8 +173,8 @@ class PowerDataProcessor  implements Runnable, MqttCallback
 
     private PowerData[] calculateScaledPower(MetricsBuffer rawMetrics)
     {
-        PowerData[] powerData = new PowerData[9];
-        for(int i = 0; i<8; i++)
+        PowerData[] powerData = new PowerData[rawMetrics.getNoChannels()];
+        for(int i = 0; i < rawMetrics.getNoChannels(); i++)
         {
             powerData[i] = new PowerData(   rawMetrics.getApparentPower(i),
                                             rawMetrics.getRealPower(i),
@@ -233,7 +233,7 @@ class PowerDataProcessor  implements Runnable, MqttCallback
                     scaledPowerData = calculateScaledPower(rawMetricsBuffer);
                     subTopic = topic +"/"+ adcChannels[0].name;
                     publishToBroker( subTopic, 3 +" " + scaledPowerData[0].voltage);
-                    for (int channel = 0; channel <8; channel++ )
+                    for (int channel = 0; channel < rawMetricsBuffer.getNoChannels(); channel++ )
                     {
                         subTopic = topic +"/"+ adcChannels[channel+1].name;
                         publishToBroker( subTopic,1 + " " + scaledPowerData[channel].apparentPower);
@@ -252,7 +252,7 @@ class PowerDataProcessor  implements Runnable, MqttCallback
     /**
      * stop     Method to stop the main processing loop and close down processing
      */
-    public void stop()
+    void stop()
     {
         stop = true;
     }

@@ -18,7 +18,7 @@ import static java.lang.Thread.sleep;
  * PowerMonitor
  * Created by Matthew Wood on 19/08/2017.
  */
-class STM8PowerMonitor implements SerialDataEventListener, Runnable
+class STM8PowerMonitor implements SerialDataEventListener, Runnable, PowerMonitor
 {
     private static final byte DEFAULT_I2C_ADDRESS = 0x30;
 
@@ -46,7 +46,8 @@ class STM8PowerMonitor implements SerialDataEventListener, Runnable
         InitialiseSerialPort();
     }
 
-    MetricsBuffer getRawMetricsBuffer() {return rawMetricsBuffer;}
+    @Override
+    public MetricsBuffer getRawMetricsBuffer() {return rawMetricsBuffer;}
 
     private void configureRTC()
     {
