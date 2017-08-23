@@ -5,11 +5,11 @@ import java.util.Arrays;
 
 class MetricsBuffer
 {
+    private final int noChannels = 9;
     private double rmsVoltage;
-    private final short[] channelNumber = new short[9];
-    private final double[] realPowerValues = new double[9];
-    private final double[] apparentPowerValues = new double[9];
-    private final int noChannels;
+    private final short[] channelNumber = new short[noChannels];
+    private double[] realPowerValues = new double[noChannels];
+    private double[] apparentPowerValues = new double[noChannels];
 
     /**
      * MetricsBuffer    Translates a serial message in bytes to the metrics, the message is expected to contain
@@ -25,24 +25,64 @@ class MetricsBuffer
     MetricsBuffer(byte[] msg)throws IllegalArgumentException
     {
         final byte asciiChar = 'V';
-        noChannels =9;
         ByteBuffer bBuff = ByteBuffer.wrap(msg);
         if (bBuff.limit()<162) {throw new IllegalArgumentException("Message too short");}
         if (bBuff.get() != asciiChar) {throw new IllegalArgumentException("Illegal start character");}
         rmsVoltage = bBuff.getDouble();
         for (int i = 0; i< noChannels; i++)
         {
-         channelNumber[i] = bBuff.getShort();
-         if (channelNumber[i] != i) {throw new IllegalArgumentException("Illegal channel number");}
-         apparentPowerValues[i] = bBuff.getDouble();
-         realPowerValues[i] = bBuff.getDouble();
+            channelNumber[i] = bBuff.getShort();
+            if (channelNumber[i] != i) {throw new IllegalArgumentException("Illegal channel number");}
+            apparentPowerValues[i] = bBuff.getDouble();
+            realPowerValues[i] = bBuff.getDouble();
+        }
+    }
+
+    MetricsBuffer(double v, double[] realPower, double[] apparentPower)
+    {
+        this.rmsVoltage = v;
+        for( short i = 0; i < noChannels; i++) {channelNumber[i] =i;}
+        this.apparentPowerValues = apparentPower.clone();
+        this.realPowerValues =  realPower.clone();
+    }
+
+    MetricsBuffer()
+    {
+        rmsVoltage = 0;
+        for (short i = 0; i< noChannels; i++)
+        {
+            channelNumber[i] = i;
+            apparentPowerValues[i] = 0;
+            realPowerValues[i] = 0;
+        }
+
+    }
+    @Override
+    protected MetricsBuffer clone()
+    {
+        MetricsBuffer cloneMB = new MetricsBuffer();
+        cloneMB.rmsVoltage = this.rmsVoltage;
+        cloneMB.apparentPowerValues = this.apparentPowerValues.clone();
+        cloneMB.realPowerValues = this.realPowerValues.clone();
+        return cloneMB;
+    }
+    void updateAverages(int newN, double v, double[] realPower, double[] apparentPower) throws IllegalArgumentException
+    {
+        if( newN<2) {throw new IllegalArgumentException("Illegal average divisor");}
+        this.rmsVoltage = (this.rmsVoltage*(newN-1)+v)/newN;
+        for (int i = 0; i< noChannels; i++)
+        {
+            this.apparentPowerValues[i] = ((this.apparentPowerValues[i] * (newN - 1)) + apparentPower[i]) / newN;
+            this.realPowerValues[i] = ((this.realPowerValues[i] * (newN - 1)) + realPower[i]) / newN;
         }
     }
 
     double getRmsVoltage(){return this.rmsVoltage;}
     double getRealPower(int channel){return this.realPowerValues[channel];}
+    double[] getRealPowers(){return this.realPowerValues;}
     double getApparentPower(int channel){return this.apparentPowerValues[channel];}
-    int getNoChannels() {return this.noChannels;}
+    double[] getApparentPowers(){return this.apparentPowerValues;}
+    int getNoPowerChannels() {return this.noChannels;}
 
     void printMetricsBuffer()
     {

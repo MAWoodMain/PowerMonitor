@@ -173,8 +173,8 @@ class PowerDataProcessor  implements Runnable, MqttCallback
 
     private PowerData[] calculateScaledPower(MetricsBuffer rawMetrics)
     {
-        PowerData[] powerData = new PowerData[rawMetrics.getNoChannels()];
-        for(int i = 0; i < rawMetrics.getNoChannels(); i++)
+        PowerData[] powerData = new PowerData[rawMetrics.getNoPowerChannels()];
+        for(int i = 0; i < rawMetrics.getNoPowerChannels(); i++)
         {
             powerData[i] = new PowerData(   rawMetrics.getApparentPower(i),
                                             rawMetrics.getRealPower(i),
@@ -233,7 +233,7 @@ class PowerDataProcessor  implements Runnable, MqttCallback
                     scaledPowerData = calculateScaledPower(rawMetricsBuffer);
                     subTopic = topic +"/"+ adcChannels[0].name;
                     publishToBroker( subTopic, 3 +" " + scaledPowerData[0].voltage);
-                    for (int channel = 0; channel < rawMetricsBuffer.getNoChannels(); channel++ )
+                    for (int channel = 0; channel < rawMetricsBuffer.getNoPowerChannels(); channel++ )
                     {
                         subTopic = topic +"/"+ adcChannels[channel+1].name;
                         publishToBroker( subTopic,1 + " " + scaledPowerData[channel].apparentPower);

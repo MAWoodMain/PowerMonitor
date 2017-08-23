@@ -25,12 +25,13 @@ class STM8PowerMonitor implements SerialDataEventListener, Runnable, PowerMonito
     private final I2CDevice device;
     private Serial serial;
     private SerialConfig config;
-    private MetricsBuffer rawMetricsBuffer;
+    private MetricsBuffer rawMetricsBuffer,newRawMetricsBuffer;
 
     // run control variables
     private volatile boolean msgArrived;
     private volatile SerialDataEvent serialDataEvent;
     private volatile boolean stop;
+    private volatile int samplesInBuffer;
 
 
     STM8PowerMonitor() throws IOException, I2CFactory.UnsupportedBusNumberException
@@ -44,6 +45,8 @@ class STM8PowerMonitor implements SerialDataEventListener, Runnable, PowerMonito
         device = I2CFactory.getInstance(I2CBus.BUS_1).getDevice(address);
         configureRTC();
         InitialiseSerialPort();
+        samplesInBuffer = 0;
+        rawMetricsBuffer = new MetricsBuffer();
     }
 
     @Override
@@ -143,8 +146,9 @@ class STM8PowerMonitor implements SerialDataEventListener, Runnable, PowerMonito
         }
 
         serial = SerialFactory.createInstance();
+        addSerialListener(this);
     }
-    void AddSerialListener( SerialDataEventListener listener)
+    void addSerialListener( SerialDataEventListener listener)
     {
         serial.addListener(listener);
     }
@@ -206,8 +210,22 @@ class STM8PowerMonitor implements SerialDataEventListener, Runnable, PowerMonito
                     {
                         serialBytes = serialDataEvent.getBytes();
                         System.out.println("Received: " + Arrays.toString(serialBytes));
-                        rawMetricsBuffer = new MetricsBuffer(serialBytes);
-                        rawMetricsBuffer.printMetricsBuffer();
+                        newRawMetricsBuffer = new MetricsBuffer(serialBytes);
+                        newRawMetricsBuffer.printMetricsBuffer();
+                        if (samplesInBuffer == 0)
+                        {
+                            rawMetricsBuffer = newRawMetricsBuffer.clone();
+                            samplesInBuffer = 1;
+                        }
+                        else
+                        {
+                            samplesInBuffer++;
+                            rawMetricsBuffer.updateAverages(    samplesInBuffer,
+                                                                newRawMetricsBuffer.getRmsVoltage(),
+                                                                newRawMetricsBuffer.getRealPowers(),
+                                                                newRawMetricsBuffer.getApparentPowers());
+                        }
+
                     } catch (IOException e1)
                     {
                         e1.printStackTrace();
