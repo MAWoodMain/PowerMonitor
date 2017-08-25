@@ -18,9 +18,7 @@ main()
 }
 
 void setup()
-{
-	double d = 7.5;
-	
+{	
 	CLK_CKDIVR = 0x00;
 	
 	UART_INIT();
@@ -30,29 +28,40 @@ void setup()
 	ADC_INIT();
 	sendString("ADC Initialised");
 
-	sendChar(0x00);
-	sendDouble(d);
-	sendChar(0x00);
+	// setup debug output pin 
+	PC_DDR |= 1 << 6;
+	PC_CR1 |= 1 << 6;
+	// bring it low
+	PC_ODR &= ~(1 << 6);
 }
 
 void loop()
 {
-	unsigned long i = 0;
-	unsigned int adcValue = 0;
-	adcValue = readChannel(VOLTAGE_CHANNEL);
-	sendChar('V');
-	//sendChar((char)(adcValue >> 8));
-	//sendChar((char)adcValue);
+	float app,real;
+	unsigned long appL,realL;
+	long i = 0;
+	
 	while(i<HARDWARE_CHANNEL_NUM)
 	{
-		calcVI(VOLTAGE_CHANNEL, CHANNELS[i], 30);
-		if(i==0) sendDouble(getVrms());
+		calcVI(VOLTAGE_CHANNEL, CHANNELS[i], 10);
+		if(i==0) 
+		{
+			sendString("PM_START");
+			//sendFloatAsLong(getVrms());
+			sendFloatAsString(getVrms());
+		}
 		sendChar(i);
-		sendDouble(getApparentPower());
-		sendDouble(getRealPower());
+		sendFloatAsString(getApparentPower());
+		sendFloatAsString(getRealPower());
+		//app = getApparentPower();
+		//real = getRealPower();
+		//appL = app*1000000.0;
+		//sendLong(appL);
+		//realL = real*1000000.0;
+		//sendLong(realL);
 		i++;
 	}
 	i = 0;
-	while(i < 47456) i++;
-	while(i > 0) i--;
+	//while(i < 47456) i++;
+	//while(i > 0) i--;
 }

@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 class MetricsBuffer
 {
+    private static final String START_SEQUENCE = "PM_START";
     private final int noChannels = 9;
     private double rmsVoltage;
     private final short[] channelNumber = new short[noChannels];
@@ -24,10 +25,16 @@ class MetricsBuffer
      */
     MetricsBuffer(byte[] msg)throws IllegalArgumentException
     {
-        final byte asciiChar = 'V';
         ByteBuffer bBuff = ByteBuffer.wrap(msg);
-        if (bBuff.limit()<162) {throw new IllegalArgumentException("Message too short");}
-        if (bBuff.get() != asciiChar) {throw new IllegalArgumentException("Illegal start character");}
+        if (bBuff.limit()<(161+START_SEQUENCE.length())) {throw new IllegalArgumentException("Message too short");}
+
+        // get start sequence from buffer
+        byte[] identifier = new byte[START_SEQUENCE.length()];
+        bBuff.get(identifier,0,START_SEQUENCE.length());
+        // check if it recognised
+        if(!Arrays.equals(START_SEQUENCE.toCharArray(), ByteBuffer.wrap(identifier).asCharBuffer().array()))
+            throw new IllegalArgumentException("Message identifier not recognised");
+
         rmsVoltage = bBuff.getDouble();
         for (int i = 0; i< noChannels; i++)
         {

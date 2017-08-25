@@ -3,17 +3,17 @@
 const int ADC_COUNTS = 4096;
 const float PHASECAL = 1.7;
 
-double realPower,apparentPower,powerFactor,Vrms,Irms;
+float realPower,apparentPower,powerFactor,Vrms,Irms;
 
 int sampleV,sampleI;
 
 float VCAL,ICAL;
 
-double lastFilteredV,filteredV,filteredI,offsetV,offsetI;
+float lastFilteredV,filteredV,filteredI,offsetV,offsetI;
 
-double phaseShiftedV;
+float phaseShiftedV;
 
-double sqV,sumV,sqI,sumI,instP,sumP;
+double sumV,sumI,instP,sumP;
 
 int startV;
 
@@ -21,22 +21,25 @@ bool lastVCross,checkVCross;
 
 // Modified version of a method from https://github.com/openenergymonitor/EmonLib/blob/master/EmonLib.cpp
 // Calculator credits to the openenergymonitor project (https://github.com/openenergymonitor)
-void calcVI(char vPin, char iPin, unsigned int crossings)
+void calcVI(const char vPin, const char iPin, const unsigned int crossings)
 {
-	int SupplyVoltage=3300;
+	const float SupplyVoltage = 3.3;
   unsigned int crossCount = 0;
   unsigned int numberOfSamples = 0;
 	double V_RATIO,I_RATIO;
 	
-	float VCAL = 1;
-	float ICAL = 1;
+	float VCAL = 210.0;
+	float ICAL = 1800/372; // 1800 turns / burden resistor valuer for 5A clamp 372 Ohms
 	
-	
-	while(1)
+  //Reset accumulators
+  sumV = 0;
+  sumI = 0;
+  sumP = 0;	
+	do
 	{
     startV = readChannel(vPin);
-    if((startV<(ADC_COUNTS*0.55))&&(startV>(ADC_COUNTS*0.45)))break;
-	}
+		// keep trying until voltage is within 5% of a crossing point (offset zero)
+	} while (!((startV<(ADC_COUNTS*0.55))&&(startV>(ADC_COUNTS*0.45)))); 
 	
 	while(crossCount < crossings)
 	{
@@ -62,14 +65,14 @@ void calcVI(char vPin, char iPin, unsigned int crossings)
     //-----------------------------------------------------------------------------
     // C) Root-mean-square method voltage
     //-----------------------------------------------------------------------------
-    sqV= filteredV * filteredV;                 //1) square voltage values
-    sumV += sqV;                                //2) sum
+    //1) square voltage values
+    sumV += filteredV * filteredV;
 
     //-----------------------------------------------------------------------------
     // D) Root-mean-square method current
     //-----------------------------------------------------------------------------
-    sqI = filteredI * filteredI;                //1) square current values
-    sumI += sqI;                                //2) sum
+    //1) square current values
+    sumI += filteredI * filteredI;
 
     //-----------------------------------------------------------------------------
     // E) Phase calibration
@@ -88,13 +91,16 @@ void calcVI(char vPin, char iPin, unsigned int crossings)
     //    - so this method allows us to sample an integer number of half wavelengths which increases accuracy
     //-----------------------------------------------------------------------------
     lastVCross = checkVCross;
-    if (sampleV > startV) checkVCross = true;
-                     else checkVCross = false;
+		
+		checkVCross = sampleV > startV;
+		// /\ REPLACES \/
+    //if (sampleV > startV) checkVCross = true;
+    //                 else checkVCross = false;
+		
     if (numberOfSamples==1) lastVCross = checkVCross;
 
     if (lastVCross != checkVCross) crossCount++;
 	}
-	
 	
   //-------------------------------------------------------------------------------------------------------------------------
   // 3) Post loop calculations
@@ -102,50 +108,30 @@ void calcVI(char vPin, char iPin, unsigned int crossings)
   //Calculation of the root of the mean of the voltage and current squared (rms)
   //Calibration coefficients applied.
 
-  V_RATIO = VCAL *((SupplyVoltage/1000.0) / (ADC_COUNTS));
-  Vrms = V_RATIO * root(sumV / numberOfSamples);
+  V_RATIO = VCAL *(SupplyVoltage / ADC_COUNTS);
+  Vrms = V_RATIO * sqrt(sumV / numberOfSamples);
 
-  I_RATIO = ICAL *((SupplyVoltage/1000.0) / (ADC_COUNTS));
-  Irms = I_RATIO * root(sumI / numberOfSamples);
+  I_RATIO = ICAL *(SupplyVoltage / ADC_COUNTS);
+  Irms = I_RATIO * sqrt(sumI / numberOfSamples);
 
   //Calculation power values
   realPower = V_RATIO * I_RATIO * sumP / numberOfSamples;
   apparentPower = Vrms * Irms;
   //powerFactor=realPower / apparentPower;
-
-  //Reset accumulators
-  sumV = 0;
-  sumI = 0;
-  sumP = 0;
 }
 
-double getRealPower()
+float getRealPower()
 {
 	return realPower;
 }
 
-double getApparentPower()
+float getApparentPower()
 {
 	return apparentPower;
 }
 
-double getVrms()
+float getVrms()
 {
-return Vrms;
+	return Vrms;
 }
 
-double root(double n)
-{
-  double lo = 0, hi = n, mid;
-	int i = 0;
-  for(i = 0 ; i < 1000 ; i++){
-      mid = (lo+hi)/2;
-      if(mid*mid == n) return mid;
-      if(mid*mid > n){
-          hi = mid;
-      }else{
-          lo = mid;
-      }
-  }
-  return mid;
-}

@@ -10,21 +10,29 @@ public class Main
     public static void main(String[] args) throws IOException, I2CFactory.UnsupportedBusNumberException, InterruptedException, MqttException
     {
         STM8PowerMonitor powerMonitor = new STM8PowerMonitor();
-        PowerDataSubscriber powerDataSubscriber = new PowerDataSubscriber();
-        PowerDataProcessor powerDataProcessor = new PowerDataProcessor(powerMonitor);
+
+
+
+        //PowerDataSubscriber powerDataSubscriber = new PowerDataSubscriber();
+        //PowerDataProcessor powerDataProcessor = new PowerDataProcessor(powerMonitor);
+
+        powerMonitor.addSerialListener(e-> {
+            System.out.println("Event:");
+            System.out.println(powerMonitor.getAndResetRawMetricsBuffer().toString());
+        });
 
         powerMonitor.OpenSerialPort();
 
-        powerDataSubscriber.run();
-        powerDataProcessor.run();
+        //powerDataSubscriber.run();
+       // powerDataProcessor.run();
 
         // TODO add some form or wait or triggered exit
         Thread.sleep(100000); // temporary
 
 
         powerMonitor.closeSerialPort();
-        powerDataSubscriber.stop();
-        powerDataProcessor.stop();
+        //powerDataSubscriber.stop();
+        //powerDataProcessor.stop();
 
         System.exit(0);
      }

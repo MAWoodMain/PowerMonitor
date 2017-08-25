@@ -6,8 +6,8 @@ void UART_INIT()
 	CLK_PCKENR1 |= 0x20;
 
 	// Put TX line on
-	PC_DDR |= 0xFF;
-	PC_CR1 |= 0xFF;
+	PC_DDR |= 1 << 5;
+	PC_CR1 |= 1 << 5;
 
 	// Allow TX & RX
 	USART1_CR2 = USART_CR2_TEN;
@@ -20,7 +20,7 @@ void UART_INIT()
 	USART1_BRR1 = 0x04;
 }
 
-void sendChar(char c)
+void sendChar(unsigned char c)
 {
 	while(!(USART1_SR & USART_SR_TXE));
 	USART1_DR = c;
@@ -40,10 +40,35 @@ void sendDouble(double double_value)
 	for(i = 0; i < 8; i++) sendChar(bytes[i]);
 }
 
+void sendFloatAsLong(float double_value)
+{
+	unsigned long longValue;
+	longValue = (double_value*1000000.0);
+	sendLong(longValue);
+}
+
+void sendLong(unsigned long long_value)
+{
+	int i;
+	for(i = 24; i >=0; i = i-8)
+	{
+		sendChar((long_value >> i) & 0xFF);
+	}
+}
+
 void sendFloat(float float_value)
 {
 	char bytes[4];
 	char i;
 	memcpy(bytes, (unsigned char*) (&float_value), 4);
 	for(i = 0; i < 4; i++) sendChar(bytes[i]);
+}
+
+void sendFloatAsString(float float_value)
+{
+	int i;
+	char output[10];
+	for(i = 0; i< 10; i++) output[i] = 0x30;
+	sprintf(output,"%f",float_value);
+	for(i = 0; i< 10; i++) sendChar(output[i]);
 }

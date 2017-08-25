@@ -22,7 +22,7 @@ class STM8PowerMonitor implements SerialDataEventListener, Runnable, PowerMonito
 {
     private static final byte DEFAULT_I2C_ADDRESS = 0x30;
 
-    private final I2CDevice device;
+    //private final I2CDevice device;
     private Serial serial;
     private SerialConfig config;
     private MetricsBuffer rawMetricsBuffer,newRawMetricsBuffer;
@@ -42,8 +42,8 @@ class STM8PowerMonitor implements SerialDataEventListener, Runnable, PowerMonito
     @SuppressWarnings("WeakerAccess")
     STM8PowerMonitor(byte address) throws IOException, I2CFactory.UnsupportedBusNumberException
     {
-        device = I2CFactory.getInstance(I2CBus.BUS_1).getDevice(address);
-        configureRTC();
+        //device = I2CFactory.getInstance(I2CBus.BUS_1).getDevice(address);
+        //configureRTC();
         InitialiseSerialPort();
         samplesInBuffer = 0;
         rawMetricsBuffer = new MetricsBuffer();
@@ -141,7 +141,7 @@ class STM8PowerMonitor implements SerialDataEventListener, Runnable, PowerMonito
         try
         {
             config.device(SerialPort.getDefaultPort())
-                    .baud(Baud._9600)
+                    .baud(Baud._230400)
                     .dataBits(DataBits._8)
                     .stopBits(StopBits._1)
                     .parity(Parity.NONE)
