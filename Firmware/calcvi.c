@@ -29,7 +29,7 @@ void calcVI(const char vPin, const char iPin, const unsigned int crossings)
 	double V_RATIO,I_RATIO;
 	
 	float VCAL = 210.0;
-	float ICAL = 1800/372; // 1800 turns / burden resistor valuer for 5A clamp 372 Ohms
+	float ICAL = 1800/372; // 1800 turns / burden resistor valuer for 5A clamp 372 Ohms ~4.8387
 	
   //Reset accumulators
   sumV = 0;
@@ -111,7 +111,7 @@ void calcVI(const char vPin, const char iPin, const unsigned int crossings)
   V_RATIO = VCAL *(SupplyVoltage / ADC_COUNTS);
   Vrms = V_RATIO * sqrt(sumV / numberOfSamples);
 
-  I_RATIO = ICAL *(SupplyVoltage / ADC_COUNTS);
+  I_RATIO = SupplyVoltage / ADC_COUNTS;//ICAL *(SupplyVoltage / ADC_COUNTS);
   Irms = I_RATIO * sqrt(sumI / numberOfSamples);
 
   //Calculation power values

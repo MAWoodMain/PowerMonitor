@@ -1,6 +1,7 @@
 package me.mawood.powerMonitor;
 
 import com.pi4j.io.serial.*;
+import me.mawood.powerMonitor.metrics.sources.CurrentClamp;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -9,7 +10,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
-public class PowerMonitorMK2 extends Thread implements SerialDataEventListener
+public class PowerMonitorMK2 extends Thread implements SerialDataEventListener, PowerMonitor
 {
     private static final byte[] START_SEQUENCE;
     private static final int PACKET_LENGTH;
@@ -171,13 +172,13 @@ public class PowerMonitorMK2 extends Thread implements SerialDataEventListener
     public static void main(String[] args) throws IOException, InterruptedException
     {
         PowerMonitorMK2 powerMonitor = new PowerMonitorMK2();
+        CurrentClamp clamp0 = new CurrentClamp((byte)0,CurrentClampConfig.SCT013_5A1V,powerMonitor);
+        CurrentClamp clamp1 = new CurrentClamp((byte)1,CurrentClampConfig.SCT013_5A1V,powerMonitor);
         powerMonitor.addPacketEventListener(e -> {
-            for(PowerMonitorPacket packet:e)
-            {
-                System.out.println(packet.toCSV());
-            }
+            System.out.println(clamp0);
+            System.out.println(clamp1);
         });
-        Thread.sleep(20000);
+        Thread.sleep(60000);
         powerMonitor.close();
         System.exit(1);
     }

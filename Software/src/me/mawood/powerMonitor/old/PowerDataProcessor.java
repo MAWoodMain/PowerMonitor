@@ -1,4 +1,5 @@
-package me.mawood.powerMonitor;
+package me.mawood.powerMonitor.old;
+import me.mawood.powerMonitor.CurrentClampConfig;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
@@ -67,15 +68,15 @@ class PowerDataProcessor  implements Runnable, MqttCallback
         stop = false;
         // set up channel configuration
         adcChannels[0]= new ChannelMap(0,10.0,"V","Voltage");
-        adcChannels[1]= new ChannelMap(1,CurrentClamps.SCT013_5A1V.getMaxCurrent(),"W","UpstairsLighting");
-        adcChannels[2]= new ChannelMap(2,CurrentClamps.SCT013_5A1V.getMaxCurrent(),"W","DownstairsLighting");
-        adcChannels[3]= new ChannelMap(3,CurrentClamps.SCT013_5A1V.getMaxCurrent(),"W","ExtensionLighting");
-        adcChannels[4]= new ChannelMap(4,CurrentClamps.SCT013_5A1V.getMaxCurrent(),"W","OutsideLighting");
-        adcChannels[5]= new ChannelMap(5,CurrentClamps.SCT013_20A1V.getMaxCurrent(),"W","LoungeEndPlugs");
-        adcChannels[6]= new ChannelMap(6,CurrentClamps.SCT013_30A1V.getMaxCurrent(),"W","KitchenPlugs");
-        adcChannels[7]= new ChannelMap(7,CurrentClamps.SCT013_20A1V.getMaxCurrent(),"W","OutsidePlugs");
-        adcChannels[8]= new ChannelMap(8,CurrentClamps.SCT013_30A1V.getMaxCurrent(),"W","Cooker");
-        adcChannels[9]= new ChannelMap(9,CurrentClamps.SCT013_100A1V.getMaxCurrent(),"W","WholeHouse");
+        adcChannels[1]= new ChannelMap(1, CurrentClampConfig.SCT013_5A1V.getMaxCurrent(),"W","UpstairsLighting");
+        adcChannels[2]= new ChannelMap(2, CurrentClampConfig.SCT013_5A1V.getMaxCurrent(),"W","DownstairsLighting");
+        adcChannels[3]= new ChannelMap(3, CurrentClampConfig.SCT013_5A1V.getMaxCurrent(),"W","ExtensionLighting");
+        adcChannels[4]= new ChannelMap(4, CurrentClampConfig.SCT013_5A1V.getMaxCurrent(),"W","OutsideLighting");
+        adcChannels[5]= new ChannelMap(5, CurrentClampConfig.SCT013_20A1V.getMaxCurrent(),"W","LoungeEndPlugs");
+        adcChannels[6]= new ChannelMap(6, CurrentClampConfig.SCT013_30A1V.getMaxCurrent(),"W","KitchenPlugs");
+        adcChannels[7]= new ChannelMap(7, CurrentClampConfig.SCT013_20A1V.getMaxCurrent(),"W","OutsidePlugs");
+        adcChannels[8]= new ChannelMap(8, CurrentClampConfig.SCT013_30A1V.getMaxCurrent(),"W","Cooker");
+        adcChannels[9]= new ChannelMap(9, CurrentClampConfig.SCT013_100A1V.getMaxCurrent(),"W","WholeHouse");
         scaledPowerData = new PowerData[9];
 
         String broker = "tcp://localhost:1883";

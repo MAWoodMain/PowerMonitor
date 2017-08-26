@@ -1,7 +1,5 @@
-package me.mawood.powerMonitor;
+package me.mawood.powerMonitor.old;
 
-import com.pi4j.io.i2c.I2CBus;
-import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
 import com.pi4j.io.serial.*;
 
@@ -18,7 +16,7 @@ import static java.lang.Thread.sleep;
  * PowerMonitor
  * Created by Matthew Wood on 19/08/2017.
  */
-class STM8PowerMonitor implements SerialDataEventListener, Runnable, PowerMonitor
+class STM8PowerMonitorOld implements SerialDataEventListener, Runnable, PowerMonitor
 {
     private static final byte DEFAULT_I2C_ADDRESS = 0x30;
 
@@ -34,13 +32,13 @@ class STM8PowerMonitor implements SerialDataEventListener, Runnable, PowerMonito
     private volatile int samplesInBuffer;
 
 
-    STM8PowerMonitor() throws IOException, I2CFactory.UnsupportedBusNumberException
+    STM8PowerMonitorOld() throws IOException, I2CFactory.UnsupportedBusNumberException
     {
         this(DEFAULT_I2C_ADDRESS);
     }
 
     @SuppressWarnings("WeakerAccess")
-    STM8PowerMonitor(byte address) throws IOException, I2CFactory.UnsupportedBusNumberException
+    STM8PowerMonitorOld(byte address) throws IOException, I2CFactory.UnsupportedBusNumberException
     {
         //device = I2CFactory.getInstance(I2CBus.BUS_1).getDevice(address);
         //configureRTC();

@@ -1,5 +1,5 @@
 
-Map of Debug\powermonitor.sm8 from link file Debug\powermonitor.lkf - Fri Aug 25 22:15:18 2017
+Map of Debug\powermonitor.sm8 from link file Debug\powermonitor.lkf - Sat Aug 26 09:24:44 2017
 
 
                                --------
@@ -7,7 +7,7 @@ Map of Debug\powermonitor.sm8 from link file Debug\powermonitor.lkf - Fri Aug 25
                                --------
 
 start 00008080 end 00008177 length   247 segment .const
-start 0000818f end 00009b1f length  6544 segment .text
+start 0000818f end 00009b18 length  6537 segment .text
 start 00001000 end 00001000 length     0 segment .eeprom
 start 00000000 end 0000000a length    10 segment .bsct, initialized
 start 00008184 end 0000818e length    10 segment .bsct, from
@@ -40,7 +40,7 @@ start 00000000 end 000025a6 length  9638 section .debug
 start 00000030 end 0000009c length   108 section .info.
 
 Debug\calcvi.o:
-start 00008274 end 000084f1 length   637 section .text
+start 00008274 end 000084ea length   630 section .text
 start 0000000a end 00000054 length    74 section .ubsct
 start 000025a6 end 00004f5a length 10676 section .debug
 start 0000009c end 0000010b length   111 section .info.
@@ -48,45 +48,45 @@ start 00008080 end 0000809e length    30 section .const
 start 00005e:0 end 00005e:2 length     2 section .bit
 
 Debug\main.o:
-start 000084f1 end 00008599 length   168 section .text
+start 000084ea end 00008592 length   168 section .text
 start 00004f5a end 000074d9 length  9599 section .debug
 start 0000010b end 00000178 length   109 section .info.
 start 0000809e end 000080dc length    62 section .const
 
 Debug\rtc.o:
-start 00008599 end 000085e0 length    71 section .text
+start 00008592 end 000085d9 length    71 section .text
 start 000074d9 end 000099d3 length  9466 section .debug
 start 00000178 end 000001e4 length   108 section .info.
 
 Debug\uart.o:
-start 000085e0 end 0000875a length   378 section .text
+start 000085d9 end 00008753 length   378 section .text
 start 000099d3 end 0000c260 length 10381 section .debug
 start 000001e4 end 00000251 length   109 section .info.
 start 000080dc end 000080e3 length     7 section .const
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)sprnt.o:
-start 0000875a end 0000876e length    20 section .text
+start 00008753 end 00008767 length    20 section .text
 start 00000251 end 000002c5 length   116 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cprint.o:
-start 0000876e end 00008d3f length  1489 section .text
+start 00008767 end 00008d38 length  1489 section .text
 start 000002c5 end 0000033a length   117 section .info.
 start 000080e3 end 0000811c length    57 section .const
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtoe.o:
-start 00008d3f end 00008e81 length   322 section .text
+start 00008d38 end 00008e7a length   322 section .text
 start 0000033a end 000003ad length   115 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtof.o:
-start 00008e81 end 00008f71 length   240 section .text
+start 00008e7a end 00008f6a length   240 section .text
 start 000003ad end 00000420 length   115 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtog.o:
-start 00008f71 end 00009056 length   229 section .text
+start 00008f6a end 0000904f length   229 section .text
 start 00000420 end 00000493 length   115 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cnorm.o:
-start 00009056 end 000091bc length   358 section .text
+start 0000904f end 000091b5 length   358 section .text
 start 00000493 end 00000507 length   116 section .info.
 start 0000811c end 00008120 length     4 section .const
 
@@ -95,121 +95,121 @@ start 00000507 end 0000057b length   116 section .info.
 start 00008120 end 00008142 length    34 section .const
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtento.o:
-start 000091bc end 0000928b length   207 section .text
+start 000091b5 end 00009284 length   207 section .text
 start 0000057b end 000005f0 length   117 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)round.o:
-start 0000928b end 00009303 length   120 section .text
+start 00009284 end 000092fc length   120 section .text
 start 000005f0 end 00000664 length   116 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cffun0.o:
-start 00009303 end 0000935f length    92 section .text
+start 000092fc end 00009358 length    92 section .text
 start 00000664 end 00000692 length    46 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)sqrt.o:
-start 0000935f end 00009438 length   217 section .text
+start 00009358 end 00009431 length   217 section .text
 start 00000692 end 00000705 length   115 section .info.
 start 00008142 end 00008152 length    16 section .const
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)itob.o:
-start 00009438 end 00009548 length   272 section .text
+start 00009431 end 00009541 length   272 section .text
 start 00000705 end 00000778 length   115 section .info.
 start 00008152 end 00008177 length    37 section .const
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)idiv0.o:
-start 00009548 end 00009553 length    11 section .text
+start 00009541 end 0000954c length    11 section .text
 start 00000778 end 000007a5 length    45 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)ildiv0.o:
-start 00009553 end 0000956e length    27 section .text
+start 0000954c end 00009567 length    27 section .text
 start 000007a5 end 000007d3 length    46 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)memchr0.o:
-start 0000956e end 0000957e length    16 section .text
+start 00009567 end 00009577 length    16 section .text
 start 000007d3 end 00000802 length    47 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)putchr.o:
-start 0000957e end 00009585 length     7 section .text
+start 00009577 end 0000957e length     7 section .text
 start 00000802 end 00000877 length   117 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)strlen0.o:
-start 00009585 end 00009591 length    12 section .text
+start 0000957e end 0000958a length    12 section .text
 start 00000877 end 000008a6 length    47 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)toup0.o:
-start 00009591 end 0000959c length    11 section .text
+start 0000958a end 00009595 length    11 section .text
 start 000008a6 end 000008d3 length    45 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)ctof.o:
-start 0000959c end 000095a4 length     8 section .text
+start 00009595 end 0000959d length     8 section .text
 start 000008d3 end 00000902 length    47 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)ldiv.o:
-start 000095a4 end 0000968f length   235 section .text
+start 0000959d end 00009688 length   235 section .text
 start 00000902 end 00000931 length    47 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fadd.o:
-start 0000968f end 0000976c length   221 section .text
+start 00009688 end 00009765 length   221 section .text
 start 00000931 end 00000960 length    47 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fcmp.o:
-start 0000976c end 000097a2 length    54 section .text
+start 00009765 end 0000979b length    54 section .text
 start 00000960 end 0000098f length    47 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fdiv.o:
-start 000097a2 end 00009826 length   132 section .text
+start 0000979b end 0000981f length   132 section .text
 start 0000098f end 000009be length    47 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fgadd.o:
-start 00009826 end 0000982e length     8 section .text
+start 0000981f end 00009827 length     8 section .text
 start 000009be end 000009ee length    48 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fgdiv.o:
-start 0000982e end 00009850 length    34 section .text
+start 00009827 end 00009849 length    34 section .text
 start 000009ee end 00000a1e length    48 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fgmul.o:
-start 00009850 end 00009858 length     8 section .text
+start 00009849 end 00009851 length     8 section .text
 start 00000a1e end 00000a4e length    48 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fgneg.o:
-start 00009858 end 00009863 length    11 section .text
+start 00009851 end 0000985c length    11 section .text
 start 00000a4e end 00000a7e length    48 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fmul.o:
-start 00009863 end 00009938 length   213 section .text
+start 0000985c end 00009931 length   213 section .text
 start 00000a7e end 00000aad length    47 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)ftol.o:
-start 00009938 end 0000999a length    98 section .text
+start 00009931 end 00009993 length    98 section .text
 start 00000aad end 00000adc length    47 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)imul.o:
-start 0000999a end 000099bb length    33 section .text
+start 00009993 end 000099b4 length    33 section .text
 start 00000adc end 00000b0b length    47 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)itof.o:
-start 000099bb end 000099e9 length    46 section .text
+start 000099b4 end 000099e2 length    46 section .text
 start 00000b0b end 00000b3a length    47 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)lcmp.o:
-start 000099e9 end 00009a09 length    32 section .text
+start 000099e2 end 00009a02 length    32 section .text
 start 00000b3a end 00000b69 length    47 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)lsdiv.o:
-start 00009a09 end 00009a28 length    31 section .text
+start 00009a02 end 00009a21 length    31 section .text
 start 00000b69 end 00000b99 length    48 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)lgadc.o:
-start 00009a28 end 00009a38 length    16 section .text
+start 00009a21 end 00009a31 length    16 section .text
 start 00000b99 end 00000bc9 length    48 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)lgneg.o:
-start 00009a38 end 00009a4b length    19 section .text
+start 00009a31 end 00009a44 length    19 section .text
 start 00000bc9 end 00000bf9 length    48 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)lneg.o:
-start 00009a4b end 00009a60 length    21 section .text
+start 00009a44 end 00009a59 length    21 section .text
 start 00000bf9 end 00000c28 length    47 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)lreg.o:
@@ -217,31 +217,31 @@ start 00000054 end 00000058 length     4 section .ubsct
 start 00000c28 end 00000c57 length    47 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)ltor.o:
-start 00009a60 end 00009a72 length    18 section .text
+start 00009a59 end 00009a6b length    18 section .text
 start 00000c57 end 00000c86 length    47 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)lursh.o:
-start 00009a72 end 00009a81 length    15 section .text
+start 00009a6b end 00009a7a length    15 section .text
 start 00000c86 end 00000cb6 length    48 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)lzmp.o:
-start 00009a81 end 00009a94 length    19 section .text
+start 00009a7a end 00009a8d length    19 section .text
 start 00000cb6 end 00000ce5 length    47 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)rtol.o:
-start 00009a94 end 00009aa6 length    18 section .text
+start 00009a8d end 00009a9f length    18 section .text
 start 00000ce5 end 00000d14 length    47 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)uitof.o:
-start 00009aa6 end 00009aca length    36 section .text
+start 00009a9f end 00009ac3 length    36 section .text
 start 00000d14 end 00000d44 length    48 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)vmul.o:
-start 00009aca end 00009ae2 length    24 section .text
+start 00009ac3 end 00009adb length    24 section .text
 start 00000d44 end 00000d73 length    47 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)umul.o:
-start 00009ae2 end 00009b1e length    60 section .text
+start 00009adb end 00009b17 length    60 section .text
 start 00000d73 end 00000da2 length    47 section .info.
 
 (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)xreg.o:
@@ -253,7 +253,7 @@ start 0000005b end 0000005e length     3 section .ubsct
 start 00000dd1 end 00000e00 length    47 section .info.
 
 Debug\stm8_interrupt_vector.o:
-start 00009b1e end 00009b1f length     1 section .text
+start 00009b17 end 00009b18 length     1 section .text
 start 0000c260 end 0000c3cb length   363 section .debug
 start 00000e00 end 00000e7e length   126 section .info.
 start 00008000 end 00008080 length   128 section .const
@@ -679,7 +679,7 @@ _RTC_CR3                0000514a   defined in Debug\adc.o
 _RTC_DR1                00005144   defined in Debug\adc.o
 _RTC_DR2                00005145   defined in Debug\adc.o
 _RTC_DR3                00005146   defined in Debug\adc.o
-_RTC_INIT               00008599   defined in Debug\rtc.o section .text
+_RTC_INIT               00008592   defined in Debug\rtc.o section .text
                                    used in Debug\main.o
 _RTC_ISR1               0000514c   defined in Debug\adc.o
 _RTC_ISR2               0000514d   defined in Debug\adc.o
@@ -776,7 +776,7 @@ _TIM4_IER               000052e4   defined in Debug\adc.o
 _TIM4_PSCR              000052e8   defined in Debug\adc.o
 _TIM4_SMCR              000052e2   defined in Debug\adc.o
 _TIM4_SR1               000052e5   defined in Debug\adc.o
-_UART_INIT              000085e0   defined in Debug\uart.o section .text
+_UART_INIT              000085d9   defined in Debug\uart.o section .text
                                    used in Debug\main.o
 _USART1_BRR1            00005232   defined in Debug\adc.o
 _USART1_BRR2            00005233   defined in Debug\adc.o
@@ -799,20 +799,20 @@ _WFE_CR3                000050a8   defined in Debug\adc.o
 _WFE_CR4                000050a9   defined in Debug\adc.o
 _WWDG_CR                000050d3   defined in Debug\adc.o
 _WWDG_WR                000050d4   defined in Debug\adc.o
-__addexp                00009303   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cffun0.o section .text
+__addexp                000092fc   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cffun0.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)sqrt.o
 __dtens                 00008120   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cfcon.o section .const
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cnorm.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtento.o
-__dtento                000091bc   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtento.o section .text
+__dtento                000091b5   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtento.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cnorm.o
-__dtoe                  00008d3f   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtoe.o section .text
+__dtoe                  00008d38   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtoe.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cprint.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtog.o
-__dtof                  00008e81   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtof.o section .text
+__dtof                  00008e7a   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtof.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cprint.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtog.o
-__dtog                  00008f71   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtog.o section .text
+__dtog                  00008f6a   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtog.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cprint.o
 __endmem                000001ff   defined in command file
                                    *** not used ***
@@ -822,23 +822,23 @@ __huge                  0000813c   defined in (C:\Program Files (x86)\COSMIC\CXS
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtento.o
 __idesc__               00008177   defined in linker section .init
                                    used in C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\crtsi0.sm8
-__itob                  00009438   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)itob.o section .text
+__itob                  00009431   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)itob.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cprint.o
-__ltob                  000094b2   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)itob.o section .text
+__ltob                  000094ab   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)itob.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cprint.o
 __memory                00000100   defined in command file section .bss
                                    used in C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\crtsi0.sm8
-__norm                  00009056   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cnorm.o section .text
+__norm                  0000904f   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cnorm.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtoe.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtof.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtog.o
 __ntens                 00008140   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cfcon.o section .const
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtento.o
-__poly                  0000932f   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cffun0.o section .text
+__poly                  00009328   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cffun0.o section .text
                                    *** not used ***
-__print                 00008867   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cprint.o section .text
+__print                 00008860   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cprint.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)sprnt.o
-__round                 0000928b   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)round.o section .text
+__round                 00009284   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)round.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtoe.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtof.o
 __stack                 000003ff   defined in command file
@@ -847,13 +847,13 @@ __startmem              00000100   defined in command file section .bss
                                    *** not used ***
 __stext                 0000818f   defined in C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\crtsi0.sm8 section .text
                                    used in Debug\stm8_interrupt_vector.o
-__udiv                  00009548   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)idiv0.o section .text
+__udiv                  00009541   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)idiv0.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtoe.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cnorm.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)itob.o
-__uldiv                 00009553   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)ildiv0.o section .text
+__uldiv                 0000954c   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)ildiv0.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)itob.o
-__unpack                00009348   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cffun0.o section .text
+__unpack                00009341   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cffun0.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cnorm.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)sqrt.o
 __vectab                00008000   defined in Debug\stm8_interrupt_vector.o section .const
@@ -864,114 +864,114 @@ _checkVCross            00005e:0   defined in Debug\calcvi.o section .bit, initi
 _exit                   000081d8   defined in C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\crtsi0.sm8 section .text
 _filteredI              00000028   defined in Debug\calcvi.o section .ubsct
 _filteredV              0000002c   defined in Debug\calcvi.o section .ubsct
-_getApparentPower       000084e3   defined in Debug\calcvi.o section .text
+_getApparentPower       000084dc   defined in Debug\calcvi.o section .text
                                    used in Debug\main.o
-_getRealPower           000084dc   defined in Debug\calcvi.o section .text
+_getRealPower           000084d5   defined in Debug\calcvi.o section .text
                                    used in Debug\main.o
-_getVrms                000084ea   defined in Debug\calcvi.o section .text
+_getVrms                000084e3   defined in Debug\calcvi.o section .text
                                    used in Debug\main.o
 _instP                  00000010   defined in Debug\calcvi.o section .ubsct
 _lastFilteredV          00000030   defined in Debug\calcvi.o section .ubsct
 _lastVCross             00005e:1   defined in Debug\calcvi.o section .bit, initialized
-_loop                   00008523   defined in Debug\main.o section .text
-_main                   000084f1   defined in Debug\main.o section .text
+_loop                   0000851c   defined in Debug\main.o section .text
+_main                   000084ea   defined in Debug\main.o section .text
                                    used in C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\crtsi0.sm8
-_memchr                 0000956e   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)memchr0.o section .text
+_memchr                 00009567   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)memchr0.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtog.o
 _offsetI                00000020   defined in Debug\calcvi.o section .ubsct
 _offsetV                00000024   defined in Debug\calcvi.o section .ubsct
 _phaseShiftedV          0000001c   defined in Debug\calcvi.o section .ubsct
 _powerFactor            00000048   defined in Debug\calcvi.o section .ubsct
-_putchar                0000957e   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)putchr.o section .text
+_putchar                00009577   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)putchr.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cprint.o
 _readChannel            000081eb   defined in Debug\adc.o section .text
                                    used in Debug\calcvi.o
 _realPower              00000050   defined in Debug\calcvi.o section .ubsct
 _sampleI                0000003c   defined in Debug\calcvi.o section .ubsct
 _sampleV                0000003e   defined in Debug\calcvi.o section .ubsct
-_sendChar               00008601   defined in Debug\uart.o section .text
+_sendChar               000085fa   defined in Debug\uart.o section .text
                                    used in Debug\main.o
-_sendDouble             0000863b   defined in Debug\uart.o section .text
-_sendFloat              000086c6   defined in Debug\uart.o section .text
-_sendFloatAsLong        00008675   defined in Debug\uart.o section .text
-_sendFloatAsString      00008701   defined in Debug\uart.o section .text
+_sendDouble             00008634   defined in Debug\uart.o section .text
+_sendFloat              000086bf   defined in Debug\uart.o section .text
+_sendFloatAsLong        0000866e   defined in Debug\uart.o section .text
+_sendFloatAsString      000086fa   defined in Debug\uart.o section .text
                                    used in Debug\main.o
-_sendLong               0000869b   defined in Debug\uart.o section .text
-_sendString             00008610   defined in Debug\uart.o section .text
+_sendLong               00008694   defined in Debug\uart.o section .text
+_sendString             00008609   defined in Debug\uart.o section .text
                                    used in Debug\main.o
-_setup                  000084f7   defined in Debug\main.o section .text
-_sprintf                0000875a   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)sprnt.o section .text
+_setup                  000084f0   defined in Debug\main.o section .text
+_sprintf                00008753   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)sprnt.o section .text
                                    used in Debug\uart.o
-_sqrt                   0000935f   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)sqrt.o section .text
+_sqrt                   00009358   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)sqrt.o section .text
                                    used in Debug\calcvi.o
 _startV                 0000000a   defined in Debug\calcvi.o section .ubsct
-_strlen                 00009585   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)strlen0.o section .text
+_strlen                 0000957e   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)strlen0.o section .text
                                    used in Debug\uart.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cprint.o
 _sumI                   00000014   defined in Debug\calcvi.o section .ubsct
 _sumP                   0000000c   defined in Debug\calcvi.o section .ubsct
 _sumV                   00000018   defined in Debug\calcvi.o section .ubsct
-_toupper                00009591   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)toup0.o section .text
+_toupper                0000958a   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)toup0.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cprint.o
-c_ctof                  0000959c   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)ctof.o section .text
+c_ctof                  00009595   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)ctof.o section .text
                                    used in Debug\calcvi.o
-c_divsl                 000095a4   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)ldiv.o section .text
+c_divsl                 0000959d   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)ldiv.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)lsdiv.o
-c_divul                 000095bb   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)ldiv.o section .text
+c_divul                 000095b4   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)ldiv.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)ildiv0.o
-c_fadd                  000096a3   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fadd.o section .text
+c_fadd                  0000969c   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fadd.o section .text
                                    used in Debug\calcvi.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cffun0.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)sqrt.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fgadd.o
-c_fcmp                  0000976c   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fcmp.o section .text
+c_fcmp                  00009765   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fcmp.o section .text
                                    used in Debug\calcvi.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cnorm.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtento.o
-c_fdiv                  000097a2   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fdiv.o section .text
+c_fdiv                  0000979b   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fdiv.o section .text
                                    used in Debug\calcvi.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)sqrt.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fgdiv.o
-c_fgadd                 00009826   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fgadd.o section .text
+c_fgadd                 0000981f   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fgadd.o section .text
                                    used in Debug\calcvi.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)sqrt.o
-c_fgdiv                 0000982e   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fgdiv.o section .text
+c_fgdiv                 00009827   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fgdiv.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtento.o
-c_fgmul                 00009850   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fgmul.o section .text
+c_fgmul                 00009849   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fgmul.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtento.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)sqrt.o
-c_fgneg                 00009858   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fgneg.o section .text
+c_fgneg                 00009851   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fgneg.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtoe.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)dtof.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cnorm.o
-c_fmul                  00009863   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fmul.o section .text
+c_fmul                  0000985c   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fmul.o section .text
                                    used in Debug\calcvi.o Debug\uart.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cnorm.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cffun0.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)sqrt.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fgmul.o
-c_fsub                  0000968f   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fadd.o section .text
+c_fsub                  00009688   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fadd.o section .text
                                    used in Debug\calcvi.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cnorm.o
-c_ftoi                  00009938   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)ftol.o section .text
+c_ftoi                  00009931   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)ftol.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cnorm.o
-c_ftol                  0000993e   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)ftol.o section .text
+c_ftol                  00009937   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)ftol.o section .text
                                    used in Debug\uart.o
-c_imul                  0000999a   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)imul.o section .text
+c_imul                  00009993   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)imul.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cprint.o
-c_itof                  000099bb   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)itof.o section .text
+c_itof                  000099b4   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)itof.o section .text
                                    used in Debug\calcvi.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cnorm.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)ctof.o
-c_lcmp                  000099e9   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)lcmp.o section .text
+c_lcmp                  000099e2   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)lcmp.o section .text
                                    used in Debug\main.o
-c_ldiv                  00009a09   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)lsdiv.o section .text
+c_ldiv                  00009a02   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)lsdiv.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cnorm.o
-c_lgadc                 00009a28   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)lgadc.o section .text
+c_lgadc                 00009a21   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)lgadc.o section .text
                                    used in Debug\main.o
-c_lgneg                 00009a38   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)lgneg.o section .text
+c_lgneg                 00009a31   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)lgneg.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)ldiv.o
-c_lneg                  00009a4b   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)lneg.o section .text
+c_lneg                  00009a44   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)lneg.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)itob.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)ldiv.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)lsdiv.o
@@ -997,7 +997,7 @@ c_lreg                  00000054   defined in (C:\Program Files (x86)\COSMIC\CXS
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)uitof.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)vmul.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)umul.o
-c_ltor                  00009a60   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)ltor.o section .text
+c_ltor                  00009a59   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)ltor.o section .text
                                    used in Debug\calcvi.o Debug\main.o
                                            Debug\uart.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cnorm.o
@@ -1006,19 +1006,19 @@ c_ltor                  00009a60   defined in (C:\Program Files (x86)\COSMIC\CXS
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)sqrt.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)itob.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)ildiv0.o
-c_lursh                 00009a72   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)lursh.o section .text
+c_lursh                 00009a6b   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)lursh.o section .text
                                    used in Debug\uart.o
-c_lzmp                  00009a81   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)lzmp.o section .text
+c_lzmp                  00009a7a   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)lzmp.o section .text
                                    used in Debug\main.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libis0.sm8)itob.o
-c_okadd                 000096ad   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fadd.o section .text
-c_okdiv                 000097b2   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fdiv.o section .text
+c_okadd                 000096a6   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fadd.o section .text
+c_okdiv                 000097ab   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fdiv.o section .text
                                    *** not used ***
-c_okmul                 00009871   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fmul.o section .text
+c_okmul                 0000986a   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fmul.o section .text
                                    *** not used ***
-c_oksub                 00009699   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fadd.o section .text
+c_oksub                 00009692   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fadd.o section .text
                                    *** not used ***
-c_rtol                  00009a94   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)rtol.o section .text
+c_rtol                  00009a8d   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)rtol.o section .text
                                    used in Debug\calcvi.o Debug\uart.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cprint.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cnorm.o
@@ -1028,11 +1028,11 @@ c_rtol                  00009a94   defined in (C:\Program Files (x86)\COSMIC\CXS
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fgadd.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fgdiv.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)fgmul.o
-c_uitof                 00009aa6   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)uitof.o section .text
+c_uitof                 00009a9f   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)uitof.o section .text
                                    used in Debug\calcvi.o
-c_umul                  00009ae2   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)umul.o section .text
+c_umul                  00009adb   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)umul.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)vmul.o
-c_vmul                  00009aca   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)vmul.o section .text
+c_vmul                  00009ac3   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)vmul.o section .text
                                    used in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libfs0.sm8)cnorm.o
 c_x                     00000058   defined in (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)xreg.o section .ubsct
                                    used in C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\crtsi0.sm8
@@ -1055,4 +1055,4 @@ c_y                     0000005b   defined in (C:\Program Files (x86)\COSMIC\CXS
                                            Debug\uart.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)vmul.o
                                            (C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Lib\libm0.sm8)umul.o
-f_NonHandledInterrupt   00009b1e   defined in Debug\stm8_interrupt_vector.o section .text
+f_NonHandledInterrupt   00009b17   defined in Debug\stm8_interrupt_vector.o section .text

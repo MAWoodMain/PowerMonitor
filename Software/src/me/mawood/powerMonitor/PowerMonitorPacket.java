@@ -1,20 +1,18 @@
 package me.mawood.powerMonitor;
 
 import java.io.UnsupportedEncodingException;
-import java.math.BigDecimal;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
 
 public class PowerMonitorPacket
 {
-    class Power
+    class PowerMeasurement
     {
         private final double apparentPower;
         private final double realPower;
-        public Power(double apparentPower, double realPower)
+        public PowerMeasurement(double apparentPower, double realPower)
         {
             this.apparentPower = apparentPower;
             this.realPower = realPower;
@@ -46,7 +44,7 @@ public class PowerMonitorPacket
     }
 
     private final double vRMS;
-    private final HashMap<Byte,Power> channels;
+    private final HashMap<Byte,PowerMeasurement> channels;
 
     public PowerMonitorPacket(byte[] packet) throws UnsupportedEncodingException
     {
@@ -64,8 +62,29 @@ public class PowerMonitorPacket
             channelNo = buffer.get();
             apparent = getDouble(buffer);
             real = getDouble(buffer);
-            channels.put(channelNo,new Power(apparent,real));
+            channels.put(channelNo,new PowerMeasurement(apparent,real));
         }
+    }
+
+    public boolean hasChannel(byte channelNumber)
+    {
+        return channels.containsKey(channelNumber);
+    }
+
+    public double getRealPower(byte channelNumber)
+    {
+        if (!channels.containsKey(channelNumber))
+            throw new IllegalArgumentException("Channel '" + channelNumber + "' not present");
+
+        return channels.get(channelNumber).getRealPower();
+    }
+
+    public double getApparentPower(byte channelNumber)
+    {
+        if (!channels.containsKey(channelNumber))
+            throw new IllegalArgumentException("Channel '" + channelNumber + "' not present");
+
+        return channels.get(channelNumber).getApparentPower();
     }
 
     private double getDouble(ByteBuffer byteBuffer)
