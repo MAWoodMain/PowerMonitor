@@ -5,5 +5,6 @@ public enum UnitType
     CURRENT,
     VOLTAGE,
     POWER,
-    ENERGY
+    ENERGY,
+    POWER_FACTOR
 }

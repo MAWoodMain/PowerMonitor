@@ -65,7 +65,7 @@ public class CurrentClamp implements PacketEventListener
         {
             // TODO: implement compensation/calibration for current
             iRmsMetrics.add(new Metric<>(
-                    config.calibrateValue(packet.getIRms(channelNumber)), Current.AMPS));
+                    config.offsetValue(config.scaleValue(packet.getIRms(channelNumber))), Current.AMPS));
         }
     }
 

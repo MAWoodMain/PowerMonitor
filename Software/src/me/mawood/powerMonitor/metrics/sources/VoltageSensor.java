@@ -58,17 +58,7 @@ public class VoltageSensor implements PacketEventListener
     private void processPacket(Packet packet)
     {
         vRmsMetrics.add(new Metric<>(
-                (getScaleFactor()*packet.getVRms())+getOffset(), Voltage.VOLTS));
-    }
-    private double getOffset()
-    {
-        return 0;
-    }
-
-    public double getScaleFactor()
-    {
-        return (config.getMainsRms()*VoltageSenseConfig.getMagicMainsConstant())/
-                (config.getTransformerRms()*VoltageSenseConfig.getMagicTransformerConstant());
+                config.offsetValue(config.scaleValue(packet.getVRms())), Voltage.VOLTS));
     }
 
     public VoltageSenseConfig getConfig()

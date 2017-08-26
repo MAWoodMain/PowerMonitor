@@ -30,4 +30,15 @@ public enum VoltageSenseConfig
     {
         return 1.195;
     }
+
+    public double scaleValue(double value)
+    {
+        return ((mainsRms*12)/ (transformerRms*1.195))*value;
+    }
+
+    public double offsetValue(double value)
+    {
+        return value;
+    }
 }
+

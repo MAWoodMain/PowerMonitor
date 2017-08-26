@@ -3,6 +3,7 @@ package me.mawood.powerMonitor.metrics.sources;
 import me.mawood.powerMonitor.metrics.Metric;
 import me.mawood.powerMonitor.metrics.sources.configs.VoltageSenseConfig;
 import me.mawood.powerMonitor.metrics.units.Power;
+import me.mawood.powerMonitor.metrics.units.PowerFactor;
 import me.mawood.powerMonitor.packets.Packet;
 import me.mawood.powerMonitor.packets.PacketCollector;
 import me.mawood.powerMonitor.packets.PacketEventListener;
@@ -36,9 +37,24 @@ public class PowerSensor implements PacketEventListener
         return realPowerMetrics;
     }
 
+    public Metric<Power> getRunningAverageApparentPowerMetric()
+    {
+        return new Metric<>(voltageSensor.getRunningAverageVRmsMetric().getValue()*currentClamp.getRunningAverageIRmsMetric().getValue(), Power.VA);
+    }
+
+    public Metric<Power> getRunningAverageReactivePowerMetric()
+    {
+        return new Metric<>(Math.sqrt((Math.pow(getRunningAverageApparentPowerMetric().getValue(),2))-(Math.pow(getRunningAverageRealPowerMetric().getValue(),2))), Power.VAR);
+    }
+
     public Metric<Power> getRunningAverageRealPowerMetric()
     {
         return new Metric<>(realPowerMetrics.stream().mapToDouble(Metric::getValue).sum()/ realPowerMetrics.size(), Power.WATTS);
+    }
+
+    public Metric<PowerFactor> getRunningAveragePowerFactorMetric()
+    {
+        return new Metric<>(getRunningAverageRealPowerMetric().getValue()/getRunningAverageApparentPowerMetric().getValue(),PowerFactor.POWER_FACTOR);
     }
 
     public Metric<Power> getRunningAverageRealPowerMetricAndClear()
@@ -63,10 +79,15 @@ public class PowerSensor implements PacketEventListener
     {
         if(packet.hasChannel(currentClamp.getChannelNumber()))
         {
-            realPowerMetrics.add(new Metric<>(
-                    (getScaleFactor()*packet.getRealPower(currentClamp.getChannelNumber()))+getOffset(), Power.WATTS));
+            double value = packet.getRealPower(currentClamp.getChannelNumber());
+            value = currentClamp.getConfig().scaleValue(value);
+            value = voltageSensor.getConfig().scaleValue(value);
+            value = currentClamp.getConfig().offsetValue(value);
+            value = voltageSensor.getConfig().offsetValue(value);
+            realPowerMetrics.add(new Metric<>(value, Power.WATTS));
         }
     }
+
     private double getOffset()
     {
         return 0;
@@ -82,7 +103,7 @@ public class PowerSensor implements PacketEventListener
     @Override
     public String toString()
     {
-        return String.format("Power Sensor: {Real Power: {%s}}",
-                getRunningAverageRealPowerMetric());
+        return String.format("Power Sensor: {Real Power: {%s}, Apparent Power: {%s}, Reactive Power: {%s}, Power Factor: {%s}}",
+                getRunningAverageRealPowerMetric(), getRunningAverageApparentPowerMetric(), getRunningAverageReactivePowerMetric(), getRunningAveragePowerFactorMetric());
     }
 }

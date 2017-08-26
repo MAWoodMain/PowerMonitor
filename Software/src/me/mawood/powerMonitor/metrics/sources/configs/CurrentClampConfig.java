@@ -31,8 +31,13 @@ public enum CurrentClampConfig
     public double getSamplingResistor() {return this.samplingResistor;}
     public int getTurnsFactor() {return turnsFactor;}
 
-    public double calibrateValue(double value)
+    public double scaleValue(double value)
     {
-        return (calibrationFactor*(turnsFactor/samplingResistor)*value)+calibrationOffset;
+        return calibrationFactor*(turnsFactor/samplingResistor)*value;
+    }
+
+    public double offsetValue(double value)
+    {
+        return value + calibrationOffset;
     }
 }
