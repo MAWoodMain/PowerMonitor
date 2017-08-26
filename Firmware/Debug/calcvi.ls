@@ -7,419 +7,403 @@
 3320  0002               _PHASECAL:
 3321  0002               L7622:
 3322  0002 3fd99999      	dc.w	16345,-26215
-3466                     ; 24 void calcVI(const char vPin, const char iPin, const unsigned int crossings)
-3466                     ; 25 {
-3468                     	switch	.text
-3469  0000               _calcVI:
-3471  0000 89            	pushw	x
-3472  0001 5214          	subw	sp,#20
-3473       00000014      OFST:	set	20
-3476                     ; 26 	const float SupplyVoltage = 3.3;
-3478  0003 ce001c        	ldw	x,L7632+2
-3479  0006 1f0f          	ldw	(OFST-5,sp),x
-3480  0008 ce001a        	ldw	x,L7632
-3481  000b 1f0d          	ldw	(OFST-7,sp),x
-3482                     ; 27   unsigned int crossCount = 0;
-3484  000d 5f            	clrw	x
-3485  000e 1f11          	ldw	(OFST-3,sp),x
-3486                     ; 28   unsigned int numberOfSamples = 0;
-3488  0010 5f            	clrw	x
-3489  0011 1f13          	ldw	(OFST-1,sp),x
-3490                     ; 31 	float VCAL = 210.0;
-3492  0013 ce0018        	ldw	x,L7732+2
-3493  0016 1f0b          	ldw	(OFST-9,sp),x
-3494  0018 ce0016        	ldw	x,L7732
-3495  001b 1f09          	ldw	(OFST-11,sp),x
-3496                     ; 32 	float ICAL = 1800/372; // 1800 turns / burden resistor valuer for 5A clamp 372 Ohms ~4.8387
-3498  001d a604          	ld	a,#4
-3499  001f cd0000        	call	c_ctof
-3501  0022 96            	ldw	x,sp
-3502  0023 1c0005        	addw	x,#OFST-15
-3503  0026 cd0000        	call	c_rtol
-3505                     ; 35   sumV = 0;
-3507  0029 ae0000        	ldw	x,#0
-3508  002c bf10          	ldw	_sumV+2,x
-3509  002e ae0000        	ldw	x,#0
-3510  0031 bf0e          	ldw	_sumV,x
-3511                     ; 36   sumI = 0;
-3513  0033 ae0000        	ldw	x,#0
-3514  0036 bf0c          	ldw	_sumI+2,x
-3515  0038 ae0000        	ldw	x,#0
-3516  003b bf0a          	ldw	_sumI,x
-3517                     ; 37   sumP = 0;	
-3519  003d ae0000        	ldw	x,#0
-3520  0040 bf04          	ldw	_sumP+2,x
-3521  0042 ae0000        	ldw	x,#0
-3522  0045 bf02          	ldw	_sumP,x
-3523  0047               L3042:
-3524                     ; 40     startV = readChannel(vPin);
-3526  0047 7b15          	ld	a,(OFST+1,sp)
-3527  0049 5f            	clrw	x
-3528  004a 97            	ld	xl,a
-3529  004b cd0000        	call	_readChannel
-3531  004e bf00          	ldw	_startV,x
-3532                     ; 42 	} while (!((startV<(ADC_COUNTS*0.55))&&(startV>(ADC_COUNTS*0.45)))); 
-3534  0050 9c            	rvf
-3535  0051 be00          	ldw	x,_startV
-3536  0053 cd0000        	call	c_itof
-3538  0056 ae0012        	ldw	x,#L5142
-3539  0059 cd0000        	call	c_fcmp
-3541  005c 2ee9          	jrsge	L3042
-3543  005e 9c            	rvf
-3544  005f be00          	ldw	x,_startV
-3545  0061 cd0000        	call	c_itof
-3547  0064 ae000e        	ldw	x,#L5242
-3548  0067 cd0000        	call	c_fcmp
-3550  006a 2ddb          	jrsle	L3042
-3552  006c ac850185      	jpf	L3342
-3553  0070               L1342:
-3554                     ; 47     numberOfSamples++;                       //Count number of times looped.
-3556  0070 1e13          	ldw	x,(OFST-1,sp)
-3557  0072 1c0001        	addw	x,#1
-3558  0075 1f13          	ldw	(OFST-1,sp),x
-3559                     ; 48     lastFilteredV = filteredV;               //Used for delay/phase compensation
-3561  0077 be24          	ldw	x,_filteredV+2
-3562  0079 bf28          	ldw	_lastFilteredV+2,x
-3563  007b be22          	ldw	x,_filteredV
-3564  007d bf26          	ldw	_lastFilteredV,x
-3565                     ; 53     sampleV = readChannel(vPin);                 //Read in raw voltage signal
-3567  007f 7b15          	ld	a,(OFST+1,sp)
-3568  0081 5f            	clrw	x
-3569  0082 97            	ld	xl,a
-3570  0083 cd0000        	call	_readChannel
-3572  0086 bf34          	ldw	_sampleV,x
-3573                     ; 54     sampleI = readChannel(iPin);                 //Read in raw current signal
-3575  0088 7b16          	ld	a,(OFST+2,sp)
-3576  008a 5f            	clrw	x
-3577  008b 97            	ld	xl,a
-3578  008c cd0000        	call	_readChannel
-3580  008f bf32          	ldw	_sampleI,x
-3581                     ; 60     offsetV = offsetV + ((sampleV-offsetV)/1024);
-3583  0091 be34          	ldw	x,_sampleV
-3584  0093 cd0000        	call	c_itof
-3586  0096 ae001a        	ldw	x,#_offsetV
-3587  0099 cd0000        	call	c_fsub
-3589  009c ae000a        	ldw	x,#L3442
-3590  009f cd0000        	call	c_fdiv
-3592  00a2 ae001a        	ldw	x,#_offsetV
-3593  00a5 cd0000        	call	c_fgadd
-3595                     ; 61     filteredV = sampleV - offsetV;
-3597  00a8 be34          	ldw	x,_sampleV
-3598  00aa cd0000        	call	c_itof
-3600  00ad ae001a        	ldw	x,#_offsetV
-3601  00b0 cd0000        	call	c_fsub
-3603  00b3 ae0022        	ldw	x,#_filteredV
-3604  00b6 cd0000        	call	c_rtol
-3606                     ; 62     offsetI = offsetI + ((sampleI-offsetI)/1024);
-3608  00b9 be32          	ldw	x,_sampleI
-3609  00bb cd0000        	call	c_itof
-3611  00be ae0016        	ldw	x,#_offsetI
-3612  00c1 cd0000        	call	c_fsub
-3614  00c4 ae000a        	ldw	x,#L3442
-3615  00c7 cd0000        	call	c_fdiv
-3617  00ca ae0016        	ldw	x,#_offsetI
-3618  00cd cd0000        	call	c_fgadd
-3620                     ; 63     filteredI = sampleI - offsetI;
-3622  00d0 be32          	ldw	x,_sampleI
-3623  00d2 cd0000        	call	c_itof
-3625  00d5 ae0016        	ldw	x,#_offsetI
-3626  00d8 cd0000        	call	c_fsub
-3628  00db ae001e        	ldw	x,#_filteredI
-3629  00de cd0000        	call	c_rtol
-3631                     ; 69     sumV += filteredV * filteredV;
-3633  00e1 ae0022        	ldw	x,#_filteredV
-3634  00e4 cd0000        	call	c_ltor
-3636  00e7 ae0022        	ldw	x,#_filteredV
-3637  00ea cd0000        	call	c_fmul
-3639  00ed ae000e        	ldw	x,#_sumV
-3640  00f0 cd0000        	call	c_fgadd
-3642                     ; 75     sumI += filteredI * filteredI;
-3644  00f3 ae001e        	ldw	x,#_filteredI
-3645  00f6 cd0000        	call	c_ltor
-3647  00f9 ae001e        	ldw	x,#_filteredI
-3648  00fc cd0000        	call	c_fmul
-3650  00ff ae000a        	ldw	x,#_sumI
-3651  0102 cd0000        	call	c_fgadd
-3653                     ; 80     phaseShiftedV = lastFilteredV + PHASECAL * (filteredV - lastFilteredV);
-3655  0105 ae0022        	ldw	x,#_filteredV
-3656  0108 cd0000        	call	c_ltor
-3658  010b ae0026        	ldw	x,#_lastFilteredV
-3659  010e cd0000        	call	c_fsub
-3661  0111 ae0002        	ldw	x,#L7622
-3662  0114 cd0000        	call	c_fmul
-3664  0117 ae0026        	ldw	x,#_lastFilteredV
-3665  011a cd0000        	call	c_fadd
-3667  011d ae0012        	ldw	x,#_phaseShiftedV
-3668  0120 cd0000        	call	c_rtol
-3670                     ; 85     instP = phaseShiftedV * filteredI;          //Instantaneous Power
-3672  0123 ae0012        	ldw	x,#_phaseShiftedV
-3673  0126 cd0000        	call	c_ltor
-3675  0129 ae001e        	ldw	x,#_filteredI
-3676  012c cd0000        	call	c_fmul
-3678  012f ae0006        	ldw	x,#_instP
-3679  0132 cd0000        	call	c_rtol
-3681                     ; 86     sumP +=instP;                               //Sum
-3683  0135 ae0006        	ldw	x,#_instP
-3684  0138 cd0000        	call	c_ltor
-3686  013b ae0002        	ldw	x,#_sumP
-3687  013e cd0000        	call	c_fgadd
-3689                     ; 93     lastVCross = checkVCross;
-3691                     	btst		_checkVCross
-3692  0146 90110001      	bccm	_lastVCross
-3693                     ; 95 		checkVCross = sampleV > startV;
-3695  014a 9c            	rvf
-3696  014b be34          	ldw	x,_sampleV
-3697  014d b300          	cpw	x,_startV
-3698  014f 2c02          	jrsgt	L61
-3699  0151 2006          	jp	L6
-3700  0153               L61:
-3701  0153 72100000      	bset	_checkVCross
-3702  0157 2004          	jra	L01
-3703  0159               L6:
-3704  0159 72110000      	bres	_checkVCross
-3705  015d               L01:
-3706                     ; 100     if (numberOfSamples==1) lastVCross = checkVCross;
-3708  015d 1e13          	ldw	x,(OFST-1,sp)
-3709  015f a30001        	cpw	x,#1
-3710  0162 2609          	jrne	L7442
-3713                     	btst		_checkVCross
-3714  0169 90110001      	bccm	_lastVCross
-3715  016d               L7442:
-3716                     ; 102     if (lastVCross != checkVCross) crossCount++;
-3718  016d 7201000107    	btjf	_lastVCross,L21
-3719  0172 720000000e    	btjt	_checkVCross,L3342
-3720  0177 2005          	jra	L41
-3721  0179               L21:
-3722  0179 7201000007    	btjf	_checkVCross,L3342
-3723  017e               L41:
-3726  017e 1e11          	ldw	x,(OFST-3,sp)
-3727  0180 1c0001        	addw	x,#1
-3728  0183 1f11          	ldw	(OFST-3,sp),x
-3729  0185               L3342:
-3730                     ; 44 	while(crossCount < crossings)
-3732  0185 1e11          	ldw	x,(OFST-3,sp)
-3733  0187 1319          	cpw	x,(OFST+5,sp)
-3734  0189 2403          	jruge	L02
-3735  018b cc0070        	jp	L1342
-3736  018e               L02:
-3737                     ; 111   V_RATIO = VCAL *(SupplyVoltage / ADC_COUNTS);
-3739  018e 96            	ldw	x,sp
-3740  018f 1c000d        	addw	x,#OFST-7
-3741  0192 cd0000        	call	c_ltor
-3743  0195 ae0006        	ldw	x,#L7542
-3744  0198 cd0000        	call	c_fdiv
-3746  019b 96            	ldw	x,sp
-3747  019c 1c0009        	addw	x,#OFST-11
-3748  019f cd0000        	call	c_fmul
-3750  01a2 96            	ldw	x,sp
-3751  01a3 1c0009        	addw	x,#OFST-11
-3752  01a6 cd0000        	call	c_rtol
-3754                     ; 112   Vrms = V_RATIO * sqrt(sumV / numberOfSamples);
-3756  01a9 1e13          	ldw	x,(OFST-1,sp)
-3757  01ab cd0000        	call	c_uitof
-3759  01ae 96            	ldw	x,sp
-3760  01af 1c0001        	addw	x,#OFST-19
-3761  01b2 cd0000        	call	c_rtol
-3763  01b5 ae000e        	ldw	x,#_sumV
-3764  01b8 cd0000        	call	c_ltor
-3766  01bb 96            	ldw	x,sp
-3767  01bc 1c0001        	addw	x,#OFST-19
-3768  01bf cd0000        	call	c_fdiv
-3770  01c2 be02          	ldw	x,c_lreg+2
-3771  01c4 89            	pushw	x
-3772  01c5 be00          	ldw	x,c_lreg
-3773  01c7 89            	pushw	x
-3774  01c8 cd0000        	call	_sqrt
-3776  01cb 5b04          	addw	sp,#4
-3777  01cd 96            	ldw	x,sp
-3778  01ce 1c0009        	addw	x,#OFST-11
-3779  01d1 cd0000        	call	c_fmul
-3781  01d4 ae003a        	ldw	x,#_Vrms
-3782  01d7 cd0000        	call	c_rtol
-3784                     ; 114   I_RATIO = SupplyVoltage / ADC_COUNTS;//ICAL *(SupplyVoltage / ADC_COUNTS);
-3786  01da 96            	ldw	x,sp
-3787  01db 1c000d        	addw	x,#OFST-7
-3788  01de cd0000        	call	c_ltor
-3790  01e1 ae0006        	ldw	x,#L7542
-3791  01e4 cd0000        	call	c_fdiv
-3793  01e7 96            	ldw	x,sp
-3794  01e8 1c000d        	addw	x,#OFST-7
-3795  01eb cd0000        	call	c_rtol
-3797                     ; 115   Irms = I_RATIO * sqrt(sumI / numberOfSamples);
-3799  01ee 1e13          	ldw	x,(OFST-1,sp)
-3800  01f0 cd0000        	call	c_uitof
-3802  01f3 96            	ldw	x,sp
-3803  01f4 1c0001        	addw	x,#OFST-19
-3804  01f7 cd0000        	call	c_rtol
-3806  01fa ae000a        	ldw	x,#_sumI
-3807  01fd cd0000        	call	c_ltor
-3809  0200 96            	ldw	x,sp
-3810  0201 1c0001        	addw	x,#OFST-19
-3811  0204 cd0000        	call	c_fdiv
-3813  0207 be02          	ldw	x,c_lreg+2
-3814  0209 89            	pushw	x
-3815  020a be00          	ldw	x,c_lreg
-3816  020c 89            	pushw	x
-3817  020d cd0000        	call	_sqrt
-3819  0210 5b04          	addw	sp,#4
-3820  0212 96            	ldw	x,sp
-3821  0213 1c000d        	addw	x,#OFST-7
-3822  0216 cd0000        	call	c_fmul
-3824  0219 ae0036        	ldw	x,#_Irms
-3825  021c cd0000        	call	c_rtol
-3827                     ; 118   realPower = V_RATIO * I_RATIO * sumP / numberOfSamples;
-3829  021f 1e13          	ldw	x,(OFST-1,sp)
-3830  0221 cd0000        	call	c_uitof
-3832  0224 96            	ldw	x,sp
-3833  0225 1c0001        	addw	x,#OFST-19
-3834  0228 cd0000        	call	c_rtol
-3836  022b 96            	ldw	x,sp
-3837  022c 1c0009        	addw	x,#OFST-11
-3838  022f cd0000        	call	c_ltor
-3840  0232 96            	ldw	x,sp
-3841  0233 1c000d        	addw	x,#OFST-7
-3842  0236 cd0000        	call	c_fmul
-3844  0239 ae0002        	ldw	x,#_sumP
-3845  023c cd0000        	call	c_fmul
-3847  023f 96            	ldw	x,sp
-3848  0240 1c0001        	addw	x,#OFST-19
-3849  0243 cd0000        	call	c_fdiv
-3851  0246 ae0046        	ldw	x,#_realPower
-3852  0249 cd0000        	call	c_rtol
-3854                     ; 119   apparentPower = Vrms * Irms;
-3856  024c ae003a        	ldw	x,#_Vrms
-3857  024f cd0000        	call	c_ltor
-3859  0252 ae0036        	ldw	x,#_Irms
-3860  0255 cd0000        	call	c_fmul
-3862  0258 ae0042        	ldw	x,#_apparentPower
-3863  025b cd0000        	call	c_rtol
-3865                     ; 121 }
-3868  025e 5b16          	addw	sp,#22
-3869  0260 81            	ret
-3893                     ; 123 float getRealPower()
-3893                     ; 124 {
-3894                     	switch	.text
-3895  0261               _getRealPower:
-3899                     ; 125 	return realPower;
-3901  0261 ae0046        	ldw	x,#_realPower
-3902  0264 cd0000        	call	c_ltor
-3906  0267 81            	ret
-3930                     ; 128 float getApparentPower()
-3930                     ; 129 {
-3931                     	switch	.text
-3932  0268               _getApparentPower:
-3936                     ; 130 	return apparentPower;
-3938  0268 ae0042        	ldw	x,#_apparentPower
-3939  026b cd0000        	call	c_ltor
-3943  026e 81            	ret
-3967                     ; 133 float getVrms()
-3967                     ; 134 {
-3968                     	switch	.text
-3969  026f               _getVrms:
-3973                     ; 135 	return Vrms;
-3975  026f ae003a        	ldw	x,#_Vrms
-3976  0272 cd0000        	call	c_ltor
-3980  0275 81            	ret
-4213                     .bit:	section	.data,bit
-4214  0000               _checkVCross:
-4215  0000 00            	ds.b	1
-4216                     	xdef	_checkVCross
-4217  0001               _lastVCross:
-4218  0001 00            	ds.b	1
-4219                     	xdef	_lastVCross
-4220                     	switch	.ubsct
-4221  0000               _startV:
-4222  0000 0000          	ds.b	2
-4223                     	xdef	_startV
-4224  0002               _sumP:
-4225  0002 00000000      	ds.b	4
-4226                     	xdef	_sumP
-4227  0006               _instP:
-4228  0006 00000000      	ds.b	4
-4229                     	xdef	_instP
-4230  000a               _sumI:
-4231  000a 00000000      	ds.b	4
-4232                     	xdef	_sumI
-4233  000e               _sumV:
-4234  000e 00000000      	ds.b	4
-4235                     	xdef	_sumV
-4236  0012               _phaseShiftedV:
-4237  0012 00000000      	ds.b	4
-4238                     	xdef	_phaseShiftedV
-4239  0016               _offsetI:
-4240  0016 00000000      	ds.b	4
-4241                     	xdef	_offsetI
-4242  001a               _offsetV:
-4243  001a 00000000      	ds.b	4
-4244                     	xdef	_offsetV
-4245  001e               _filteredI:
-4246  001e 00000000      	ds.b	4
-4247                     	xdef	_filteredI
-4248  0022               _filteredV:
-4249  0022 00000000      	ds.b	4
-4250                     	xdef	_filteredV
-4251  0026               _lastFilteredV:
-4252  0026 00000000      	ds.b	4
-4253                     	xdef	_lastFilteredV
-4254  002a               _ICAL:
-4255  002a 00000000      	ds.b	4
-4256                     	xdef	_ICAL
-4257  002e               _VCAL:
-4258  002e 00000000      	ds.b	4
-4259                     	xdef	_VCAL
-4260  0032               _sampleI:
-4261  0032 0000          	ds.b	2
-4262                     	xdef	_sampleI
-4263  0034               _sampleV:
-4264  0034 0000          	ds.b	2
-4265                     	xdef	_sampleV
-4266  0036               _Irms:
-4267  0036 00000000      	ds.b	4
-4268                     	xdef	_Irms
-4269  003a               _Vrms:
-4270  003a 00000000      	ds.b	4
-4271                     	xdef	_Vrms
-4272  003e               _powerFactor:
-4273  003e 00000000      	ds.b	4
-4274                     	xdef	_powerFactor
-4275  0042               _apparentPower:
-4276  0042 00000000      	ds.b	4
-4277                     	xdef	_apparentPower
-4278  0046               _realPower:
-4279  0046 00000000      	ds.b	4
-4280                     	xdef	_realPower
-4281                     	xdef	_getVrms
-4282                     	xdef	_getRealPower
-4283                     	xdef	_getApparentPower
-4284                     	xdef	_calcVI
-4285                     	xdef	_PHASECAL
-4286                     	xdef	_ADC_COUNTS
-4287                     	xref	_readChannel
-4288                     	xref	_sqrt
-4289                     	switch	.const
-4290  0006               L7542:
-4291  0006 45800000      	dc.w	17792,0
-4292  000a               L3442:
-4293  000a 44800000      	dc.w	17536,0
-4294  000e               L5242:
-4295  000e 44e66666      	dc.w	17638,26214
-4296  0012               L5142:
-4297  0012 450ccccc      	dc.w	17676,-13108
-4298  0016               L7732:
-4299  0016 43520000      	dc.w	17234,0
-4300  001a               L7632:
-4301  001a 40533333      	dc.w	16467,13107
-4302                     	xref.b	c_lreg
-4303                     	xref.b	c_x
-4323                     	xref	c_uitof
-4324                     	xref	c_fadd
-4325                     	xref	c_fmul
-4326                     	xref	c_ltor
-4327                     	xref	c_fgadd
-4328                     	xref	c_fdiv
-4329                     	xref	c_fsub
-4330                     	xref	c_fcmp
-4331                     	xref	c_itof
-4332                     	xref	c_rtol
-4333                     	xref	c_ctof
-4334                     	end
+3456                     ; 24 void calcVI(const char vPin, const char iPin, const unsigned int crossings)
+3456                     ; 25 {
+3458                     	switch	.text
+3459  0000               _calcVI:
+3461  0000 89            	pushw	x
+3462  0001 5214          	subw	sp,#20
+3463       00000014      OFST:	set	20
+3466                     ; 26 	const float SupplyVoltage = 3.3;
+3468  0003 ce001c        	ldw	x,L3632+2
+3469  0006 1f0f          	ldw	(OFST-5,sp),x
+3470  0008 ce001a        	ldw	x,L3632
+3471  000b 1f0d          	ldw	(OFST-7,sp),x
+3472                     ; 27   unsigned int crossCount = 0;
+3474  000d 5f            	clrw	x
+3475  000e 1f11          	ldw	(OFST-3,sp),x
+3476                     ; 28   unsigned int numberOfSamples = 0;
+3478  0010 5f            	clrw	x
+3479  0011 1f13          	ldw	(OFST-1,sp),x
+3480                     ; 31 	float VCAL = 210.0;
+3482  0013 ce0018        	ldw	x,L3732+2
+3483  0016 1f07          	ldw	(OFST-13,sp),x
+3484  0018 ce0016        	ldw	x,L3732
+3485  001b 1f05          	ldw	(OFST-15,sp),x
+3486                     ; 34   sumV = 0;
+3488  001d ae0000        	ldw	x,#0
+3489  0020 bf14          	ldw	_sumV+2,x
+3490  0022 ae0000        	ldw	x,#0
+3491  0025 bf12          	ldw	_sumV,x
+3492                     ; 35   sumI = 0;
+3494  0027 ae0000        	ldw	x,#0
+3495  002a bf10          	ldw	_sumI+2,x
+3496  002c ae0000        	ldw	x,#0
+3497  002f bf0e          	ldw	_sumI,x
+3498                     ; 36   sumP = 0;	
+3500  0031 ae0000        	ldw	x,#0
+3501  0034 bf08          	ldw	_sumP+2,x
+3502  0036 ae0000        	ldw	x,#0
+3503  0039 bf06          	ldw	_sumP,x
+3504  003b               L7732:
+3505                     ; 39     startV = readChannel(vPin);
+3507  003b 7b15          	ld	a,(OFST+1,sp)
+3508  003d 5f            	clrw	x
+3509  003e 97            	ld	xl,a
+3510  003f cd0000        	call	_readChannel
+3512  0042 bf04          	ldw	_startV,x
+3513                     ; 41 	} while (!((startV<(ADC_COUNTS*0.55))&&(startV>(ADC_COUNTS*0.45)))); 
+3515  0044 9c            	rvf
+3516  0045 be04          	ldw	x,_startV
+3517  0047 cd0000        	call	c_itof
+3519  004a ae0012        	ldw	x,#L1142
+3520  004d cd0000        	call	c_fcmp
+3522  0050 2ee9          	jrsge	L7732
+3524  0052 9c            	rvf
+3525  0053 be04          	ldw	x,_startV
+3526  0055 cd0000        	call	c_itof
+3528  0058 ae000e        	ldw	x,#L1242
+3529  005b cd0000        	call	c_fcmp
+3531  005e 2ddb          	jrsle	L7732
+3533  0060 ac790179      	jpf	L7242
+3534  0064               L5242:
+3535                     ; 46     numberOfSamples++;                       //Count number of times looped.
+3537  0064 1e13          	ldw	x,(OFST-1,sp)
+3538  0066 1c0001        	addw	x,#1
+3539  0069 1f13          	ldw	(OFST-1,sp),x
+3540                     ; 47     lastFilteredV = filteredV;               //Used for delay/phase compensation
+3542  006b be28          	ldw	x,_filteredV+2
+3543  006d bf2c          	ldw	_lastFilteredV+2,x
+3544  006f be26          	ldw	x,_filteredV
+3545  0071 bf2a          	ldw	_lastFilteredV,x
+3546                     ; 52     sampleV = readChannel(vPin);                 //Read in raw voltage signal
+3548  0073 7b15          	ld	a,(OFST+1,sp)
+3549  0075 5f            	clrw	x
+3550  0076 97            	ld	xl,a
+3551  0077 cd0000        	call	_readChannel
+3553  007a bf38          	ldw	_sampleV,x
+3554                     ; 53     sampleI = readChannel(iPin);                 //Read in raw current signal
+3556  007c 7b16          	ld	a,(OFST+2,sp)
+3557  007e 5f            	clrw	x
+3558  007f 97            	ld	xl,a
+3559  0080 cd0000        	call	_readChannel
+3561  0083 bf36          	ldw	_sampleI,x
+3562                     ; 59     offsetV = offsetV + ((sampleV-offsetV)/1024);
+3564  0085 be38          	ldw	x,_sampleV
+3565  0087 cd0000        	call	c_itof
+3567  008a ae001e        	ldw	x,#_offsetV
+3568  008d cd0000        	call	c_fsub
+3570  0090 ae000a        	ldw	x,#L7342
+3571  0093 cd0000        	call	c_fdiv
+3573  0096 ae001e        	ldw	x,#_offsetV
+3574  0099 cd0000        	call	c_fgadd
+3576                     ; 60     filteredV = sampleV - offsetV;
+3578  009c be38          	ldw	x,_sampleV
+3579  009e cd0000        	call	c_itof
+3581  00a1 ae001e        	ldw	x,#_offsetV
+3582  00a4 cd0000        	call	c_fsub
+3584  00a7 ae0026        	ldw	x,#_filteredV
+3585  00aa cd0000        	call	c_rtol
+3587                     ; 61     offsetI = offsetI + ((sampleI-offsetI)/1024);
+3589  00ad be36          	ldw	x,_sampleI
+3590  00af cd0000        	call	c_itof
+3592  00b2 ae001a        	ldw	x,#_offsetI
+3593  00b5 cd0000        	call	c_fsub
+3595  00b8 ae000a        	ldw	x,#L7342
+3596  00bb cd0000        	call	c_fdiv
+3598  00be ae001a        	ldw	x,#_offsetI
+3599  00c1 cd0000        	call	c_fgadd
+3601                     ; 62     filteredI = sampleI - offsetI;
+3603  00c4 be36          	ldw	x,_sampleI
+3604  00c6 cd0000        	call	c_itof
+3606  00c9 ae001a        	ldw	x,#_offsetI
+3607  00cc cd0000        	call	c_fsub
+3609  00cf ae0022        	ldw	x,#_filteredI
+3610  00d2 cd0000        	call	c_rtol
+3612                     ; 68     sumV += filteredV * filteredV;
+3614  00d5 ae0026        	ldw	x,#_filteredV
+3615  00d8 cd0000        	call	c_ltor
+3617  00db ae0026        	ldw	x,#_filteredV
+3618  00de cd0000        	call	c_fmul
+3620  00e1 ae0012        	ldw	x,#_sumV
+3621  00e4 cd0000        	call	c_fgadd
+3623                     ; 74     sumI += filteredI * filteredI;
+3625  00e7 ae0022        	ldw	x,#_filteredI
+3626  00ea cd0000        	call	c_ltor
+3628  00ed ae0022        	ldw	x,#_filteredI
+3629  00f0 cd0000        	call	c_fmul
+3631  00f3 ae000e        	ldw	x,#_sumI
+3632  00f6 cd0000        	call	c_fgadd
+3634                     ; 79     phaseShiftedV = lastFilteredV + PHASECAL * (filteredV - lastFilteredV);
+3636  00f9 ae0026        	ldw	x,#_filteredV
+3637  00fc cd0000        	call	c_ltor
+3639  00ff ae002a        	ldw	x,#_lastFilteredV
+3640  0102 cd0000        	call	c_fsub
+3642  0105 ae0002        	ldw	x,#L7622
+3643  0108 cd0000        	call	c_fmul
+3645  010b ae002a        	ldw	x,#_lastFilteredV
+3646  010e cd0000        	call	c_fadd
+3648  0111 ae0016        	ldw	x,#_phaseShiftedV
+3649  0114 cd0000        	call	c_rtol
+3651                     ; 84     instP = phaseShiftedV * filteredI;          //Instantaneous Power
+3653  0117 ae0016        	ldw	x,#_phaseShiftedV
+3654  011a cd0000        	call	c_ltor
+3656  011d ae0022        	ldw	x,#_filteredI
+3657  0120 cd0000        	call	c_fmul
+3659  0123 ae000a        	ldw	x,#_instP
+3660  0126 cd0000        	call	c_rtol
+3662                     ; 85     sumP +=instP;                               //Sum
+3664  0129 ae000a        	ldw	x,#_instP
+3665  012c cd0000        	call	c_ltor
+3667  012f ae0006        	ldw	x,#_sumP
+3668  0132 cd0000        	call	c_fgadd
+3670                     ; 92     lastVCross = checkVCross;
+3672                     	btst		_checkVCross
+3673  013a 90110001      	bccm	_lastVCross
+3674                     ; 94 		checkVCross = sampleV > startV;
+3676  013e 9c            	rvf
+3677  013f be38          	ldw	x,_sampleV
+3678  0141 b304          	cpw	x,_startV
+3679  0143 2c02          	jrsgt	L61
+3680  0145 2006          	jp	L6
+3681  0147               L61:
+3682  0147 72100000      	bset	_checkVCross
+3683  014b 2004          	jra	L01
+3684  014d               L6:
+3685  014d 72110000      	bres	_checkVCross
+3686  0151               L01:
+3687                     ; 99     if (numberOfSamples==1) lastVCross = checkVCross;
+3689  0151 1e13          	ldw	x,(OFST-1,sp)
+3690  0153 a30001        	cpw	x,#1
+3691  0156 2609          	jrne	L3442
+3694                     	btst		_checkVCross
+3695  015d 90110001      	bccm	_lastVCross
+3696  0161               L3442:
+3697                     ; 101     if (lastVCross != checkVCross) crossCount++;
+3699  0161 7201000107    	btjf	_lastVCross,L21
+3700  0166 720000000e    	btjt	_checkVCross,L7242
+3701  016b 2005          	jra	L41
+3702  016d               L21:
+3703  016d 7201000007    	btjf	_checkVCross,L7242
+3704  0172               L41:
+3707  0172 1e11          	ldw	x,(OFST-3,sp)
+3708  0174 1c0001        	addw	x,#1
+3709  0177 1f11          	ldw	(OFST-3,sp),x
+3710  0179               L7242:
+3711                     ; 43 	while(crossCount < crossings)
+3713  0179 1e11          	ldw	x,(OFST-3,sp)
+3714  017b 1319          	cpw	x,(OFST+5,sp)
+3715  017d 2403          	jruge	L02
+3716  017f cc0064        	jp	L5242
+3717  0182               L02:
+3718                     ; 110   V_RATIO = SupplyVoltage / ADC_COUNTS;//VCAL *(SupplyVoltage / ADC_COUNTS);
+3720  0182 96            	ldw	x,sp
+3721  0183 1c000d        	addw	x,#OFST-7
+3722  0186 cd0000        	call	c_ltor
+3724  0189 ae0006        	ldw	x,#L3542
+3725  018c cd0000        	call	c_fdiv
+3727  018f 96            	ldw	x,sp
+3728  0190 1c0009        	addw	x,#OFST-11
+3729  0193 cd0000        	call	c_rtol
+3731                     ; 111   Vrms = V_RATIO * sqrt(sumV / numberOfSamples);
+3733  0196 1e13          	ldw	x,(OFST-1,sp)
+3734  0198 cd0000        	call	c_uitof
+3736  019b 96            	ldw	x,sp
+3737  019c 1c0001        	addw	x,#OFST-19
+3738  019f cd0000        	call	c_rtol
+3740  01a2 ae0012        	ldw	x,#_sumV
+3741  01a5 cd0000        	call	c_ltor
+3743  01a8 96            	ldw	x,sp
+3744  01a9 1c0001        	addw	x,#OFST-19
+3745  01ac cd0000        	call	c_fdiv
+3747  01af be02          	ldw	x,c_lreg+2
+3748  01b1 89            	pushw	x
+3749  01b2 be00          	ldw	x,c_lreg
+3750  01b4 89            	pushw	x
+3751  01b5 cd0000        	call	_sqrt
+3753  01b8 5b04          	addw	sp,#4
+3754  01ba 96            	ldw	x,sp
+3755  01bb 1c0009        	addw	x,#OFST-11
+3756  01be cd0000        	call	c_fmul
+3758  01c1 ae003e        	ldw	x,#_Vrms
+3759  01c4 cd0000        	call	c_rtol
+3761                     ; 113   I_RATIO = SupplyVoltage / ADC_COUNTS;//ICAL *(SupplyVoltage / ADC_COUNTS);
+3763  01c7 96            	ldw	x,sp
+3764  01c8 1c000d        	addw	x,#OFST-7
+3765  01cb cd0000        	call	c_ltor
+3767  01ce ae0006        	ldw	x,#L3542
+3768  01d1 cd0000        	call	c_fdiv
+3770  01d4 96            	ldw	x,sp
+3771  01d5 1c000d        	addw	x,#OFST-7
+3772  01d8 cd0000        	call	c_rtol
+3774                     ; 114   Irms = I_RATIO * sqrt(sumI / numberOfSamples);
+3776  01db 1e13          	ldw	x,(OFST-1,sp)
+3777  01dd cd0000        	call	c_uitof
+3779  01e0 96            	ldw	x,sp
+3780  01e1 1c0001        	addw	x,#OFST-19
+3781  01e4 cd0000        	call	c_rtol
+3783  01e7 ae000e        	ldw	x,#_sumI
+3784  01ea cd0000        	call	c_ltor
+3786  01ed 96            	ldw	x,sp
+3787  01ee 1c0001        	addw	x,#OFST-19
+3788  01f1 cd0000        	call	c_fdiv
+3790  01f4 be02          	ldw	x,c_lreg+2
+3791  01f6 89            	pushw	x
+3792  01f7 be00          	ldw	x,c_lreg
+3793  01f9 89            	pushw	x
+3794  01fa cd0000        	call	_sqrt
+3796  01fd 5b04          	addw	sp,#4
+3797  01ff 96            	ldw	x,sp
+3798  0200 1c000d        	addw	x,#OFST-7
+3799  0203 cd0000        	call	c_fmul
+3801  0206 ae003a        	ldw	x,#_Irms
+3802  0209 cd0000        	call	c_rtol
+3804                     ; 117   realPower = V_RATIO * I_RATIO * sumP / numberOfSamples;
+3806  020c 1e13          	ldw	x,(OFST-1,sp)
+3807  020e cd0000        	call	c_uitof
+3809  0211 96            	ldw	x,sp
+3810  0212 1c0001        	addw	x,#OFST-19
+3811  0215 cd0000        	call	c_rtol
+3813  0218 96            	ldw	x,sp
+3814  0219 1c0009        	addw	x,#OFST-11
+3815  021c cd0000        	call	c_ltor
+3817  021f 96            	ldw	x,sp
+3818  0220 1c000d        	addw	x,#OFST-7
+3819  0223 cd0000        	call	c_fmul
+3821  0226 ae0006        	ldw	x,#_sumP
+3822  0229 cd0000        	call	c_fmul
+3824  022c 96            	ldw	x,sp
+3825  022d 1c0001        	addw	x,#OFST-19
+3826  0230 cd0000        	call	c_fdiv
+3828  0233 ae0046        	ldw	x,#_realPower
+3829  0236 cd0000        	call	c_rtol
+3831                     ; 120 }
+3834  0239 5b16          	addw	sp,#22
+3835  023b 81            	ret
+3859                     ; 122 float getRealPower()
+3859                     ; 123 {
+3860                     	switch	.text
+3861  023c               _getRealPower:
+3865                     ; 124 	return realPower;
+3867  023c ae0046        	ldw	x,#_realPower
+3868  023f cd0000        	call	c_ltor
+3872  0242 81            	ret
+3896                     ; 127 float getIrms()
+3896                     ; 128 {
+3897                     	switch	.text
+3898  0243               _getIrms:
+3902                     ; 129 	return Irms;
+3904  0243 ae003a        	ldw	x,#_Irms
+3905  0246 cd0000        	call	c_ltor
+3909  0249 81            	ret
+3933                     ; 132 float getVrms()
+3933                     ; 133 {
+3934                     	switch	.text
+3935  024a               _getVrms:
+3939                     ; 134 	return Vrms;
+3941  024a ae003e        	ldw	x,#_Vrms
+3942  024d cd0000        	call	c_ltor
+3946  0250 81            	ret
+4179                     	switch	.ubsct
+4180  0000               _apparentPower:
+4181  0000 00000000      	ds.b	4
+4182                     	xdef	_apparentPower
+4183                     .bit:	section	.data,bit
+4184  0000               _checkVCross:
+4185  0000 00            	ds.b	1
+4186                     	xdef	_checkVCross
+4187  0001               _lastVCross:
+4188  0001 00            	ds.b	1
+4189                     	xdef	_lastVCross
+4190                     	switch	.ubsct
+4191  0004               _startV:
+4192  0004 0000          	ds.b	2
+4193                     	xdef	_startV
+4194  0006               _sumP:
+4195  0006 00000000      	ds.b	4
+4196                     	xdef	_sumP
+4197  000a               _instP:
+4198  000a 00000000      	ds.b	4
+4199                     	xdef	_instP
+4200  000e               _sumI:
+4201  000e 00000000      	ds.b	4
+4202                     	xdef	_sumI
+4203  0012               _sumV:
+4204  0012 00000000      	ds.b	4
+4205                     	xdef	_sumV
+4206  0016               _phaseShiftedV:
+4207  0016 00000000      	ds.b	4
+4208                     	xdef	_phaseShiftedV
+4209  001a               _offsetI:
+4210  001a 00000000      	ds.b	4
+4211                     	xdef	_offsetI
+4212  001e               _offsetV:
+4213  001e 00000000      	ds.b	4
+4214                     	xdef	_offsetV
+4215  0022               _filteredI:
+4216  0022 00000000      	ds.b	4
+4217                     	xdef	_filteredI
+4218  0026               _filteredV:
+4219  0026 00000000      	ds.b	4
+4220                     	xdef	_filteredV
+4221  002a               _lastFilteredV:
+4222  002a 00000000      	ds.b	4
+4223                     	xdef	_lastFilteredV
+4224  002e               _ICAL:
+4225  002e 00000000      	ds.b	4
+4226                     	xdef	_ICAL
+4227  0032               _VCAL:
+4228  0032 00000000      	ds.b	4
+4229                     	xdef	_VCAL
+4230  0036               _sampleI:
+4231  0036 0000          	ds.b	2
+4232                     	xdef	_sampleI
+4233  0038               _sampleV:
+4234  0038 0000          	ds.b	2
+4235                     	xdef	_sampleV
+4236  003a               _Irms:
+4237  003a 00000000      	ds.b	4
+4238                     	xdef	_Irms
+4239  003e               _Vrms:
+4240  003e 00000000      	ds.b	4
+4241                     	xdef	_Vrms
+4242  0042               _powerFactor:
+4243  0042 00000000      	ds.b	4
+4244                     	xdef	_powerFactor
+4245  0046               _realPower:
+4246  0046 00000000      	ds.b	4
+4247                     	xdef	_realPower
+4248                     	xdef	_getRealPower
+4249                     	xdef	_getIrms
+4250                     	xdef	_getVrms
+4251                     	xdef	_calcVI
+4252                     	xdef	_PHASECAL
+4253                     	xdef	_ADC_COUNTS
+4254                     	xref	_readChannel
+4255                     	xref	_sqrt
+4256                     	switch	.const
+4257  0006               L3542:
+4258  0006 45800000      	dc.w	17792,0
+4259  000a               L7342:
+4260  000a 44800000      	dc.w	17536,0
+4261  000e               L1242:
+4262  000e 44e66666      	dc.w	17638,26214
+4263  0012               L1142:
+4264  0012 450ccccc      	dc.w	17676,-13108
+4265  0016               L3732:
+4266  0016 43520000      	dc.w	17234,0
+4267  001a               L3632:
+4268  001a 40533333      	dc.w	16467,13107
+4269                     	xref.b	c_lreg
+4270                     	xref.b	c_x
+4290                     	xref	c_uitof
+4291                     	xref	c_fadd
+4292                     	xref	c_fmul
+4293                     	xref	c_ltor
+4294                     	xref	c_rtol
+4295                     	xref	c_fgadd
+4296                     	xref	c_fdiv
+4297                     	xref	c_fsub
+4298                     	xref	c_fcmp
+4299                     	xref	c_itof
+4300                     	end

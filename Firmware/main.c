@@ -51,7 +51,7 @@ void loop()
 			sendFloatAsString(getVrms());
 		}
 		sendChar(i);
-		sendFloatAsString(getApparentPower());
+		sendFloatAsString(getIrms());
 		sendFloatAsString(getRealPower());
 		//app = getApparentPower();
 		//real = getRealPower();

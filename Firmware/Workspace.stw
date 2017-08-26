@@ -6,7 +6,3 @@ Keyword=ST7Workspace-V0.7
 [Project0]
 Filename=powermonitor.stp
 Dependencies=
-[Options]
-ActiveProject=powermonitor
-ActiveConfig=Debug
-AddSortedElements=0

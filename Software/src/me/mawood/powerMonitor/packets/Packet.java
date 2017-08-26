@@ -1,4 +1,4 @@
-package me.mawood.powerMonitor;
+package me.mawood.powerMonitor.packets;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
@@ -6,21 +6,21 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class PowerMonitorPacket
+public class Packet
 {
-    class PowerMeasurement
+    class Measurement
     {
-        private final double apparentPower;
+        private final double iRms;
         private final double realPower;
-        public PowerMeasurement(double apparentPower, double realPower)
+        public Measurement(double iRms, double realPower)
         {
-            this.apparentPower = apparentPower;
+            this.iRms = iRms;
             this.realPower = realPower;
         }
 
-        public double getApparentPower()
+        public double getIRms()
         {
-            return apparentPower;
+            return iRms;
         }
 
         public double getRealPower()
@@ -32,21 +32,21 @@ public class PowerMonitorPacket
         public String toString()
         {
             return "Power{" +
-                    "apparentPower=" + apparentPower +
+                    "iRms=" + iRms +
                     ", realPower=" + realPower +
                     '}';
         }
 
         public String toCSV()
         {
-            return apparentPower + "," + realPower;
+            return iRms + "," + realPower;
         }
     }
 
-    private final double vRMS;
-    private final HashMap<Byte,PowerMeasurement> channels;
+    private final double vRms;
+    private final HashMap<Byte,Measurement> channels;
 
-    public PowerMonitorPacket(byte[] packet) throws UnsupportedEncodingException
+    public Packet(byte[] packet) throws UnsupportedEncodingException
     {
         channels = new HashMap<>();
 
@@ -55,20 +55,25 @@ public class PowerMonitorPacket
 
         ByteBuffer buffer = ByteBuffer.wrap(packet);
         byte channelNo;
-        double apparent, real;
-        vRMS = getDouble(buffer);
+        double iRms, real;
+        vRms = getDouble(buffer);
         for(int i = 0; i < (packet.length - 10)/20; i++)
         {
             channelNo = buffer.get();
-            apparent = getDouble(buffer);
+            iRms = getDouble(buffer);
             real = getDouble(buffer);
-            channels.put(channelNo,new PowerMeasurement(apparent,real));
+            channels.put(channelNo,new Measurement(iRms,real));
         }
     }
 
     public boolean hasChannel(byte channelNumber)
     {
         return channels.containsKey(channelNumber);
+    }
+
+    public double getVRms()
+    {
+        return vRms;
     }
 
     public double getRealPower(byte channelNumber)
@@ -79,12 +84,12 @@ public class PowerMonitorPacket
         return channels.get(channelNumber).getRealPower();
     }
 
-    public double getApparentPower(byte channelNumber)
+    public double getIRms(byte channelNumber)
     {
         if (!channels.containsKey(channelNumber))
             throw new IllegalArgumentException("Channel '" + channelNumber + "' not present");
 
-        return channels.get(channelNumber).getApparentPower();
+        return channels.get(channelNumber).getIRms();
     }
 
     private double getDouble(ByteBuffer byteBuffer)
@@ -106,15 +111,15 @@ public class PowerMonitorPacket
     @Override
     public String toString()
     {
-        return "PowerMonitorPacket{" +
-                "vRMS=" + vRMS +
+        return "Packet{" +
+                "vRms=" + vRms +
                 ", channels=" + channels +
                 '}';
     }
 
     public String toCSV()
     {
-        StringBuilder output = new StringBuilder(vRMS + ",");
+        StringBuilder output = new StringBuilder(vRms + ",");
         for(byte key:channels.keySet()) output.append(channels.get(key).toCSV()).append(",");
         return output.toString().substring(0,output.length()-1);
     }

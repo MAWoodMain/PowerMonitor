@@ -85,8 +85,8 @@
 3539                     ; 53 		sendChar(i);
 3541  006b 7b04          	ld	a,(OFST+0,sp)
 3542  006d cd0000        	call	_sendChar
-3544                     ; 54 		sendFloatAsString(getApparentPower());
-3546  0070 cd0000        	call	_getApparentPower
+3544                     ; 54 		sendFloatAsString(getIrms());
+3546  0070 cd0000        	call	_getIrms
 3548  0073 be02          	ldw	x,c_lreg+2
 3549  0075 89            	pushw	x
 3550  0076 be00          	ldw	x,c_lreg
@@ -121,9 +121,9 @@
 3603                     	xdef	_main
 3604                     	xdef	_loop
 3605                     	xdef	_setup
-3606                     	xref	_getVrms
-3607                     	xref	_getRealPower
-3608                     	xref	_getApparentPower
+3606                     	xref	_getRealPower
+3607                     	xref	_getIrms
+3608                     	xref	_getVrms
 3609                     	xref	_calcVI
 3610                     	xref	_ADC_INIT
 3611                     	xref.b	_VOLTAGE_CHANNEL

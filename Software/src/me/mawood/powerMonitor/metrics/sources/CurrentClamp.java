@@ -1,88 +1,71 @@
 package me.mawood.powerMonitor.metrics.sources;
 
-import me.mawood.powerMonitor.*;
 import me.mawood.powerMonitor.metrics.Metric;
-import me.mawood.powerMonitor.metrics.units.Power;
+import me.mawood.powerMonitor.metrics.sources.configs.CurrentClampConfig;
+import me.mawood.powerMonitor.metrics.units.Current;
+import me.mawood.powerMonitor.packets.PacketCollector;
+import me.mawood.powerMonitor.packets.PacketEventListener;
+import me.mawood.powerMonitor.packets.Packet;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 public class CurrentClamp implements PacketEventListener
 {
-    private final Collection<Metric<Power>> apparentMetric;
-    private final Collection<Metric<Power>> realMetric;
+    private final Collection<Metric<Current>> iRmsMetrics;
 
     private final byte channelNumber;
     private final CurrentClampConfig config;
 
-    public CurrentClamp(byte channelNumber, CurrentClampConfig config, PowerMonitor powerMonitor)
+    public CurrentClamp(byte channelNumber, CurrentClampConfig config, PacketCollector packetCollector)
     {
         this(channelNumber,config);
-        powerMonitor.addPacketEventListener(this);
+        packetCollector.addPacketEventListener(this);
     }
 
     public CurrentClamp(byte channelNumber,CurrentClampConfig config)
     {
         this.channelNumber = channelNumber;
         this.config = config;
-        realMetric = new ArrayList<>();
-        apparentMetric = new ArrayList<>();
+        iRmsMetrics = new ArrayList<>();
     }
 
-    public Collection<Metric<Power>> getApparentMetric()
+    public Collection<Metric<Current>> getIRmsMetrics()
     {
-        return apparentMetric;
+        return iRmsMetrics;
     }
 
-    public Collection<Metric<Power>> getRealMetric()
+
+    public Metric<Current> getRunningAverageIRmsMetric()
     {
-        return realMetric;
+        return new Metric<>(iRmsMetrics.stream().mapToDouble(Metric::getValue).sum()/ iRmsMetrics.size(), Current.AMPS);
     }
 
-    public Metric<Power> getRunningAverageApparentMetric()
+    public Metric<Current> getRunningAverageIRmsMetricAndClear()
     {
-        return new Metric<>(apparentMetric.stream().mapToDouble(Metric::getValue).sum()/apparentMetric.size(), Power.WATTS);
-    }
-
-    public Metric<Power> getRunningAverageApparentMetricAndClear()
-    {
-        Metric<Power> metric = getRunningAverageApparentMetric();
-        apparentMetric.clear();
-        return metric;
-    }
-
-    public Metric<Power> getRunningAverageRealMetric()
-    {
-        return new Metric<>(realMetric.stream().mapToDouble(Metric::getValue).sum()/realMetric.size(), Power.WATTS);
-    }
-
-    public Metric<Power> getRunningAverageRealMetricAndClear()
-    {
-        Metric<Power> metric = getRunningAverageRealMetric();
-        realMetric.clear();
+        Metric<Current> metric = getRunningAverageIRmsMetric();
+        iRmsMetrics.clear();
         return metric;
     }
 
     public void clearMetrics()
     {
-        apparentMetric.clear();
-        realMetric.clear();
+        iRmsMetrics.clear();
     }
 
     @Override
-    public void handleNewPackets(Collection<PowerMonitorPacket> newPackets)
+    public void handleNewPackets(Collection<Packet> newPackets)
     {
-        for(PowerMonitorPacket packet:newPackets) processPacket(packet);
+        for(Packet packet:newPackets) processPacket(packet);
     }
 
-    private void processPacket(PowerMonitorPacket packet)
+    private void processPacket(Packet packet)
     {
         if(packet.hasChannel(channelNumber))
         {
-            apparentMetric.add(new Metric<>(
-                    (getScaleFactor()*packet.getApparentPower(channelNumber))+getOffset(), Power.WATTS));
-            realMetric.add(new Metric<>(
-                    (getScaleFactor()*packet.getRealPower(channelNumber))+getOffset(), Power.WATTS));
+            // TODO: implement compensation/calibration for current
+            iRmsMetrics.add(new Metric<>(
+                    (getScaleFactor()*packet.getIRms(channelNumber))+getOffset(), Current.AMPS));
         }
     }
 
@@ -97,10 +80,20 @@ public class CurrentClamp implements PacketEventListener
         return 0;
     }
 
+    public CurrentClampConfig getConfig()
+    {
+        return config;
+    }
+
+    public byte getChannelNumber()
+    {
+        return channelNumber;
+    }
+
     @Override
     public String toString()
     {
-        return String.format("Current Clamp: {Channel: %d, Apparent: %s, Real: %s}",
-                channelNumber,getRunningAverageApparentMetricAndClear(),getRunningAverageRealMetricAndClear());
+        return String.format("Current Clamp: {Channel: %d, IRms: {%s}}",
+                channelNumber,getRunningAverageIRmsMetric());
     }
 }

@@ -13,7 +13,7 @@ import java.util.Arrays;
 import static java.lang.Thread.sleep;
 
 /**
- * PowerMonitor
+ * PacketCollector
  * Created by Matthew Wood on 19/08/2017.
  */
 class STM8PowerMonitorOld implements SerialDataEventListener, Runnable, PowerMonitor

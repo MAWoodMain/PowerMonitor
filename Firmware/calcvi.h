@@ -8,11 +8,12 @@ extern const int ADC_COUNTS;
 extern const float PHASECAL;
 
 void calcVI(char vPin, char iPin, unsigned int crossings);
-float getApparentPower(void);
-float getRealPower(void);
-float getVrms(void);
 
-extern float realPower,apparentPower,powerFactor,Vrms,Irms;
+float getVrms(void);
+float getIrms(void);
+float getRealPower(void);
+
+extern float realPower,powerFactor,Vrms,Irms;
 
 extern int sampleV,sampleI;
 
