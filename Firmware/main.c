@@ -39,29 +39,19 @@ void loop()
 {
 	float app,real;
 	unsigned long appL,realL;
-	long i = 0;
+	int i = 0;
+	PC_ODR |= 1 << 6;
+	calcVI(8);
+	PC_ODR &= ~(1 << 6);
+	sendString("PM_START");
+	sendFloatAsString(getVrms());
 	
 	while(i<HARDWARE_CHANNEL_NUM)
 	{
-		calcVI(VOLTAGE_CHANNEL, CHANNELS[i], 10);
-		if(i==0) 
-		{
-			sendString("PM_START");
-			//sendFloatAsLong(getVrms());
-			sendFloatAsString(getVrms());
-		}
 		sendChar(i);
-		sendFloatAsString(getIrms());
-		sendFloatAsString(getRealPower());
-		//app = getApparentPower();
-		//real = getRealPower();
-		//appL = app*1000000.0;
-		//sendLong(appL);
-		//realL = real*1000000.0;
-		//sendLong(realL);
+		sendFloatAsString(getIrms(i));
+		sendFloatAsString(getRealPower(i));
 		i++;
 	}
 	i = 0;
-	//while(i < 47456) i++;
-	//while(i > 0) i--;
 }

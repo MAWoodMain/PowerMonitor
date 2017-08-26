@@ -16,7 +16,7 @@ void ADC_INIT()
 	ADC1_CR1 = 0x01;
 	// 384 (max) adc clock cycles sampling time
 	// Channels 1-24
-	ADC1_CR2 = 0x07;
+	ADC1_CR2 = 0x02;
 	// Channel 24 Vrefint and TS
 	ADC1_CR3 = 0xE0;
 }

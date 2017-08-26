@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 
 public class STM8PacketCollector extends Thread implements SerialDataEventListener, PacketCollector
@@ -179,18 +180,21 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
 
     public static void main(String[] args) throws IOException, InterruptedException
     {
-        STM8PacketCollector packetCollector = new STM8PacketCollector();
+        STM8PacketCollector packetCollector = new STM8PacketCollector(1000);
         VoltageSensor vs = new VoltageSensor(VoltageSenseConfig.UK9V,packetCollector);
-        CurrentClamp clamp0 = new CurrentClamp((byte)0, CurrentClampConfig.SCT013_5A1V,packetCollector);
-        CurrentClamp clamp1 = new CurrentClamp((byte)1,CurrentClampConfig.SCT013_5A1V,packetCollector);
-        PowerSensor ps = new PowerSensor(vs,clamp0,packetCollector);
+        HashMap<Integer, CurrentClamp> clamps = new HashMap<>();
+        for (int i = 0; i < 9; i++)
+            clamps.put(i,new CurrentClamp((byte)i, CurrentClampConfig.SCT013_5A1V,packetCollector));
+        PowerSensor ps = new PowerSensor(vs,clamps.get(8),packetCollector);
         packetCollector.addPacketEventListener(e -> {
             System.out.println(vs);
-            System.out.println(clamp0);
-            System.out.println(clamp1);
+            System.out.println(clamps.get(0));
+            System.out.println(clamps.get(4));
+            System.out.println(clamps.get(8));
             System.out.println(ps);
             // Clear out consumed metrics
-            vs.clearMetrics(); clamp0.clearMetrics(); clamp1.clearMetrics(); ps.clearMetrics();
+            vs.clearMetrics();
+            for(int key:clamps.keySet()) clamps.get(key).clearMetrics();
         });
         Thread.sleep(60000);
         packetCollector.close();

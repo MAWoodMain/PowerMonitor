@@ -7,23 +7,26 @@
 extern const int ADC_COUNTS;
 extern const float PHASECAL;
 
-void calcVI(char vPin, char iPin, unsigned int crossings);
+void calcVI(unsigned int crossings);
 
 float getVrms(void);
-float getIrms(void);
-float getRealPower(void);
+float getIrms(unsigned int channelNo);
+float getRealPower(unsigned int channelNo);
 
-extern float realPower,powerFactor,Vrms,Irms;
+extern float Vrms;
+extern float realPower[];
+extern float Irms[];
 
-extern int sampleV,sampleI;
-
-extern float VCAL,ICAL;
+extern int sampleV;
+extern int sampleI[];
 
 extern float lastFilteredV,filteredV,filteredI,offsetV,offsetI;
 
 extern float phaseShiftedV;
 
-extern double sumV,sumI,instP,sumP;
+extern double sumV,instP;
+extern double sumI[];
+extern double sumP[];
 
 extern int startV;
 

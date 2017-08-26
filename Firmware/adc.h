@@ -6,6 +6,7 @@
 #define HARDWARE_CHANNEL_NUM 9
 
 extern unsigned char CHANNELS[HARDWARE_CHANNEL_NUM];
+extern unsigned int CHANNEL_COUNT;
 extern unsigned char VOLTAGE_CHANNEL;
 
 void ADC_INIT(void);
