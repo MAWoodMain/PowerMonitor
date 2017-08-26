@@ -184,12 +184,10 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
         VoltageSensor vs = new VoltageSensor(VoltageSenseConfig.UK9V,packetCollector);
         HashMap<Integer, CurrentClamp> clamps = new HashMap<>();
         for (int i = 0; i < 9; i++)
-            clamps.put(i,new CurrentClamp((byte)i, CurrentClampConfig.SCT013_5A1V,packetCollector));
+            clamps.put(i,new CurrentClamp((byte)i, CurrentClampConfig.SCT013_20A1V,packetCollector));
         PowerSensor ps = new PowerSensor(vs,clamps.get(8),packetCollector);
         packetCollector.addPacketEventListener(e -> {
             System.out.println(vs);
-            System.out.println(clamps.get(0));
-            System.out.println(clamps.get(4));
             System.out.println(clamps.get(8));
             System.out.println(ps);
             // Clear out consumed metrics

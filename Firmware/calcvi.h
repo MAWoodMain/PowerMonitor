@@ -4,8 +4,9 @@
 #include <math.h>
 #include "adc.h"
 
-extern const int ADC_COUNTS;
-extern const float PHASECAL;
+#define ADC_COUNTS 4096
+#define PHASECAL 1.7
+#define VCC 3.3
 
 void calcVI(unsigned int crossings);
 
@@ -13,23 +14,13 @@ float getVrms(void);
 float getIrms(unsigned int channelNo);
 float getRealPower(unsigned int channelNo);
 
-extern float Vrms;
-extern float realPower[];
-extern float Irms[];
 
-extern int sampleV;
-extern int sampleI[];
+extern int startV,sampleV,sampleI[];
 
-extern float lastFilteredV,filteredV,filteredI,offsetV,offsetI;
-
-extern float phaseShiftedV;
-
-extern double sumV,instP;
-extern double sumI[];
-extern double sumP[];
-
-extern int startV;
-
+extern float lastFilteredV,filteredV,filteredI,offsetV,offsetI,phaseShiftedV;
+extern double sumV,instP,sumI[],sumP[];
 extern bool lastVCross,checkVCross;
+
+extern float Vrms,realPower[],Irms[];
 
 #endif

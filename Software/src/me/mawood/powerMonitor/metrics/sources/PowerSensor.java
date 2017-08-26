@@ -80,10 +80,12 @@ public class PowerSensor implements PacketEventListener
         if(packet.hasChannel(currentClamp.getChannelNumber()))
         {
             double value = packet.getRealPower(currentClamp.getChannelNumber());
+            //System.out.printf("Before: %.4f", value);
             value = currentClamp.getConfig().scaleValue(value);
             value = voltageSensor.getConfig().scaleValue(value);
             value = currentClamp.getConfig().offsetValue(value);
             value = voltageSensor.getConfig().offsetValue(value);
+            //System.out.printf(" After: %.4f\n", value);
             realPowerMetrics.add(new Metric<>(value, Power.WATTS));
         }
     }
