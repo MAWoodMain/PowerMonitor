@@ -1,6 +1,5 @@
 package me.mawood.powerMonitor.packets;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -46,12 +45,12 @@ public class Packet
     private final double vRms;
     private final HashMap<Byte,Measurement> channels;
 
-    public Packet(byte[] packet) throws UnsupportedEncodingException
+    public Packet(byte[] packet)
     {
         channels = new HashMap<>();
 
         // expected structure
-        // {VRMS(double) 9*(ChannelNumber(byte) ChannelApparentPower(double) ChannelRealPower(double))}
+        // {VRms(double) 9*(ChannelNumber(byte) ChannelApparentPower(double) ChannelRealPower(double))}
 
         ByteBuffer buffer = ByteBuffer.wrap(packet);
         byte channelNo;

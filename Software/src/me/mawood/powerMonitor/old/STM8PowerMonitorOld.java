@@ -1,6 +1,5 @@
 package me.mawood.powerMonitor.old;
 
-import com.pi4j.io.i2c.I2CFactory;
 import com.pi4j.io.serial.*;
 
 import java.io.IOException;
@@ -23,7 +22,7 @@ class STM8PowerMonitorOld implements SerialDataEventListener, Runnable, PowerMon
     //private final I2CDevice device;
     private Serial serial;
     private SerialConfig config;
-    private MetricsBuffer rawMetricsBuffer,newRawMetricsBuffer;
+    private MetricsBuffer rawMetricsBuffer;
 
     // run control variables
     private volatile boolean msgArrived;
@@ -32,13 +31,13 @@ class STM8PowerMonitorOld implements SerialDataEventListener, Runnable, PowerMon
     private volatile int samplesInBuffer;
 
 
-    STM8PowerMonitorOld() throws IOException, I2CFactory.UnsupportedBusNumberException
+    STM8PowerMonitorOld()
     {
         this(DEFAULT_I2C_ADDRESS);
     }
 
     @SuppressWarnings("WeakerAccess")
-    STM8PowerMonitorOld(byte address) throws IOException, I2CFactory.UnsupportedBusNumberException
+    STM8PowerMonitorOld(byte address)
     {
         //device = I2CFactory.getInstance(I2CBus.BUS_1).getDevice(address);
         //configureRTC();
@@ -214,7 +213,7 @@ class STM8PowerMonitorOld implements SerialDataEventListener, Runnable, PowerMon
                     {
                         serialBytes = serialDataEvent.getBytes();
                         System.out.println("Received: " + Arrays.toString(serialBytes));
-                        newRawMetricsBuffer = new MetricsBuffer(serialBytes);
+                        MetricsBuffer newRawMetricsBuffer = new MetricsBuffer(serialBytes);
                         newRawMetricsBuffer.printMetricsBuffer();
                         if (samplesInBuffer == 0)
                         {

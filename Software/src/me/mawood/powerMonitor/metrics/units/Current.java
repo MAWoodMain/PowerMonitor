@@ -3,7 +3,7 @@ package me.mawood.powerMonitor.metrics.units;
 public enum Current implements Unit
 {
     AMPS("A", "Amps"),
-    MILLI_AMPS("mA", "Milliamps");
+    MILLI_AMPS("mA", "milli-amps");
 
     final String symbol;
     final String name;

@@ -64,6 +64,7 @@ class MetricsBuffer
         }
 
     }
+    @SuppressWarnings({"MethodDoesntCallSuperMethod", "CloneDoesntDeclareCloneNotSupportedException"})
     @Override
     protected MetricsBuffer clone()
     {

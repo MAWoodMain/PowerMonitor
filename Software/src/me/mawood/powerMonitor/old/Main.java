@@ -1,14 +1,10 @@
 package me.mawood.powerMonitor.old;
 
-import com.pi4j.io.i2c.I2CFactory;
 import me.mawood.powerMonitor.old.STM8PowerMonitorOld;
-import org.eclipse.paho.client.mqttv3.MqttException;
-
-import java.io.IOException;
 
 public class Main
 {
-    public static void main(String[] args) throws IOException, I2CFactory.UnsupportedBusNumberException, InterruptedException, MqttException
+    public static void main(String[] args) throws InterruptedException
     {
         STM8PowerMonitorOld powerMonitor = new STM8PowerMonitorOld();
 

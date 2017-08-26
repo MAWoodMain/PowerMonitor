@@ -1,7 +1,6 @@
 package me.mawood.powerMonitor.metrics.sources;
 
 import me.mawood.powerMonitor.metrics.Metric;
-import me.mawood.powerMonitor.metrics.sources.configs.VoltageSenseConfig;
 import me.mawood.powerMonitor.metrics.units.Power;
 import me.mawood.powerMonitor.metrics.units.PowerFactor;
 import me.mawood.powerMonitor.packets.Packet;
@@ -88,18 +87,6 @@ public class PowerSensor implements PacketEventListener
             //System.out.printf(" After: %.4f\n", value);
             realPowerMetrics.add(new Metric<>(value, Power.WATTS));
         }
-    }
-
-    private double getOffset()
-    {
-        return 0;
-    }
-
-    public double getScaleFactor()
-    {
-        return (currentClamp.getConfig().getTurnsFactor() / currentClamp.getConfig().getSamplingResistor())*
-                ((voltageSensor.getConfig().getMainsRms()* VoltageSenseConfig.getMagicMainsConstant())/
-                        (voltageSensor.getConfig().getTransformerRms()*VoltageSenseConfig.getMagicTransformerConstant()));
     }
 
     @Override

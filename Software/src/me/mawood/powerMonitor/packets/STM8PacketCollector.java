@@ -20,7 +20,6 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
     private static final int PACKET_LENGTH;
     private final Collection<Byte> incomingBytes;
     private final Collection<Byte> bytes;
-    private final Collection<Packet> packets;
 
     private final Collection<PacketEventListener> listeners;
 
@@ -49,7 +48,6 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
         this.extractionPeriod = extractionPeriod;
         this.bytes = new ArrayList<>();
         this.incomingBytes = new ArrayList<>();
-        this.packets = new ArrayList<>();
         this.listeners = new ArrayList<>();
         this.serial = SerialFactory.createInstance();
 
@@ -87,11 +85,8 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
                     try
                     {
                         newPackets.add(new Packet(packet));
-                    } catch (IllegalArgumentException | UnsupportedEncodingException ignored) {
-                        System.out.println(ignored);
-                    }
+                    } catch (IllegalArgumentException ignored) {}
                 }
-                packets.addAll(newPackets);
                 alertPacketListeners(newPackets);
 
             }

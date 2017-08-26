@@ -3,7 +3,7 @@ package me.mawood.powerMonitor.metrics.units;
 public enum Voltage implements Unit
 {
     VOLTS("V", "Volts"),
-    MILLI_VOLTS("mV", "millivolts");
+    MILLI_VOLTS("mV", "milli-volts");
 
     final String symbol;
     final String name;
