@@ -65,19 +65,8 @@ public class CurrentClamp implements PacketEventListener
         {
             // TODO: implement compensation/calibration for current
             iRmsMetrics.add(new Metric<>(
-                    (getScaleFactor()*packet.getIRms(channelNumber))+getOffset(), Current.AMPS));
+                    config.calibrateValue(packet.getIRms(channelNumber)), Current.AMPS));
         }
-    }
-
-    private double getScaleFactor()
-    {
-        return ((double)config.getTurnsFactor())/config.getSamplingResistor();
-    }
-
-    private double getOffset()
-    {
-        // TODO: add cal
-        return 0;
     }
 
     public CurrentClampConfig getConfig()
