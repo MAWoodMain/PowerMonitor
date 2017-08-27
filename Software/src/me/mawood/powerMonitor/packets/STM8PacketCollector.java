@@ -1,11 +1,6 @@
 package me.mawood.powerMonitor.packets;
 
 import com.pi4j.io.serial.*;
-import me.mawood.powerMonitor.metrics.monitors.CurrentMonitor;
-import me.mawood.powerMonitor.metrics.monitors.RealPowerMonitor;
-import me.mawood.powerMonitor.metrics.monitors.VoltageMonitor;
-import me.mawood.powerMonitor.metrics.monitors.configs.CurrentClampConfig;
-import me.mawood.powerMonitor.metrics.monitors.configs.VoltageSenseConfig;
 
 import java.io.IOException;
 import java.time.Instant;

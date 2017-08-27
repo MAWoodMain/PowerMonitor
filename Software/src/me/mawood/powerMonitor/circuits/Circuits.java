@@ -1,6 +1,6 @@
-package me.mawood.powerMonitor;
+package me.mawood.powerMonitor.circuits;
 
-import me.mawood.powerMonitor.metrics.monitors.configs.CurrentClampConfig;
+import me.mawood.powerMonitor.packets.monitors.configs.CurrentClampConfig;
 
 public interface Circuits
 {

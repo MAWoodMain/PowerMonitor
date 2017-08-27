@@ -1,8 +1,8 @@
 package me.mawood.powerMonitor.metrics;
 
-import me.mawood.powerMonitor.metrics.monitors.CurrentMonitor;
-import me.mawood.powerMonitor.metrics.monitors.RealPowerMonitor;
-import me.mawood.powerMonitor.metrics.monitors.VoltageMonitor;
+import me.mawood.powerMonitor.packets.monitors.CurrentMonitor;
+import me.mawood.powerMonitor.packets.monitors.RealPowerMonitor;
+import me.mawood.powerMonitor.packets.monitors.VoltageMonitor;
 import me.mawood.powerMonitor.metrics.units.Current;
 import me.mawood.powerMonitor.metrics.units.Power;
 import me.mawood.powerMonitor.metrics.units.Unit;

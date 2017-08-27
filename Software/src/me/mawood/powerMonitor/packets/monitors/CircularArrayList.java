@@ -1,4 +1,4 @@
-package me.mawood.powerMonitor.metrics.monitors;
+package me.mawood.powerMonitor.packets.monitors;
 
 import java.util.*;
 

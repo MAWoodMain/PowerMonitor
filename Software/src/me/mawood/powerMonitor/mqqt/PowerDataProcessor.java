@@ -1,5 +1,6 @@
-package me.mawood.powerMonitor;
+package me.mawood.powerMonitor.mqqt;
 
+import me.mawood.powerMonitor.circuits.Circuits;
 import me.mawood.powerMonitor.metrics.InvalidDataException;
 import me.mawood.powerMonitor.metrics.Metric;
 import me.mawood.powerMonitor.metrics.PowerMetricCalculator;
@@ -16,9 +17,9 @@ import java.time.format.FormatStyle;
 import java.util.Locale;
 import java.util.Map;
 
-import static me.mawood.powerMonitor.Home.*;
+import static me.mawood.powerMonitor.circuits.HomeCircuits.*;
 
-class PowerDataProcessor extends Thread implements MqttCallback
+public class PowerDataProcessor extends Thread implements MqttCallback
 {
     private class ChannelMap
     {
@@ -52,7 +53,7 @@ class PowerDataProcessor extends Thread implements MqttCallback
     /**
      * PowerDataProcessor   Constructor
      */
-    PowerDataProcessor(Map<Circuits, PowerMetricCalculator> circuitMap) throws MqttException
+    public PowerDataProcessor(Map<Circuits, PowerMetricCalculator> circuitMap) throws MqttException
     {
         this.circuitMap = circuitMap;
         noMessagesSentOK = 0;

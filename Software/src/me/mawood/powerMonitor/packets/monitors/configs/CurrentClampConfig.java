@@ -1,4 +1,4 @@
-package me.mawood.powerMonitor.metrics.monitors.configs;
+package me.mawood.powerMonitor.packets.monitors.configs;
 
 public enum CurrentClampConfig
 {

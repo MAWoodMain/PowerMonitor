@@ -1,4 +1,4 @@
-package me.mawood.powerMonitor.old;
+package me.mawood.powerMonitor.mqqt;
 
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;

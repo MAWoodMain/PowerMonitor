@@ -1,10 +1,13 @@
 package me.mawood.powerMonitor;
 
+import me.mawood.powerMonitor.circuits.Circuits;
+import me.mawood.powerMonitor.circuits.HomeCircuits;
 import me.mawood.powerMonitor.metrics.PowerMetricCalculator;
-import me.mawood.powerMonitor.metrics.monitors.CurrentMonitor;
-import me.mawood.powerMonitor.metrics.monitors.RealPowerMonitor;
-import me.mawood.powerMonitor.metrics.monitors.VoltageMonitor;
-import me.mawood.powerMonitor.metrics.monitors.configs.VoltageSenseConfig;
+import me.mawood.powerMonitor.mqqt.PowerDataProcessor;
+import me.mawood.powerMonitor.packets.monitors.CurrentMonitor;
+import me.mawood.powerMonitor.packets.monitors.RealPowerMonitor;
+import me.mawood.powerMonitor.packets.monitors.VoltageMonitor;
+import me.mawood.powerMonitor.packets.monitors.configs.VoltageSenseConfig;
 import me.mawood.powerMonitor.packets.STM8PacketCollector;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
@@ -20,7 +23,7 @@ public class Main
 
         HashMap<Circuits, PowerMetricCalculator> circuitMap = new HashMap<>();
 
-        for(Circuits circuit:Home.values())
+        for(Circuits circuit: HomeCircuits.values())
         {
             circuitMap.put(circuit, new PowerMetricCalculator(vm,
                     new CurrentMonitor(100000, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector),

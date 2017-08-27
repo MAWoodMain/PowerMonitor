@@ -1,8 +1,8 @@
-package me.mawood.powerMonitor;
+package me.mawood.powerMonitor.circuits;
 
-import me.mawood.powerMonitor.metrics.monitors.configs.CurrentClampConfig;
+import me.mawood.powerMonitor.packets.monitors.configs.CurrentClampConfig;
 
-public enum Home implements Circuits
+public enum HomeCircuits implements Circuits
 {
     UPSTAIRS_LIGHTING("Upstairs Lighting", 1, CurrentClampConfig.SCT013_5A1V),
     DOWNSTAIRS_LIGHTING("Downstairs Lighting", 2, CurrentClampConfig.SCT013_5A1V),
@@ -18,7 +18,7 @@ public enum Home implements Circuits
     int channelNumber;
     CurrentClampConfig clampConfig;
 
-    Home(String displayName, int channelNumber, CurrentClampConfig clampConfig)
+    HomeCircuits(String displayName, int channelNumber, CurrentClampConfig clampConfig)
     {
         this.displayName = displayName;
         this.channelNumber = channelNumber;

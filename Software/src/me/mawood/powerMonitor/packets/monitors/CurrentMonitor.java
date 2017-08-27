@@ -1,7 +1,7 @@
-package me.mawood.powerMonitor.metrics.monitors;
+package me.mawood.powerMonitor.packets.monitors;
 
 import me.mawood.powerMonitor.metrics.Metric;
-import me.mawood.powerMonitor.metrics.monitors.configs.CurrentClampConfig;
+import me.mawood.powerMonitor.packets.monitors.configs.CurrentClampConfig;
 import me.mawood.powerMonitor.metrics.units.Current;
 import me.mawood.powerMonitor.packets.Packet;
 import me.mawood.powerMonitor.packets.PacketCollector;
