@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Locale;
 
-public class Metric<T extends Unit>
+public class Metric<T extends Unit> implements Comparable<Metric>
 {
     private final double value;
     private final Instant timestamp;
@@ -39,5 +39,10 @@ public class Metric<T extends Unit>
                         .withLocale( Locale.UK )
                         .withZone( ZoneId.systemDefault() );
         return String.format("Metric: {%.03f %s at %s}", value,unit.getSymbol(), formatter.format(timestamp));
+    }
+    @Override
+    public int compareTo(Metric o)
+    {
+        return (int)(timestamp.toEpochMilli() - o.timestamp.toEpochMilli());
     }
 }

@@ -176,34 +176,4 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
         this.interrupt();
         serial.close();
     }
-
-    public static void main(String[] args) throws IOException, InterruptedException
-    {
-        STM8PacketCollector packetCollector = new STM8PacketCollector(1000);
-        VoltageMonitor vm = new VoltageMonitor(100, VoltageSenseConfig.UK9V, packetCollector);
-        CurrentMonitor cm = new CurrentMonitor(100, CurrentClampConfig.SCT013_20A1V, (byte)1, packetCollector);
-        RealPowerMonitor pm = new RealPowerMonitor(100, VoltageSenseConfig.UK9V, CurrentClampConfig.SCT013_20A1V, (byte)1, packetCollector);
-        packetCollector.addPacketEventListener(e -> {
-            System.out.println(vm);
-            System.out.println(cm);
-            System.out.println(pm);
-                });
-        /*packetCollector.addPacketEventListener(e -> {
-            for(Packet packet:e) System.out.println(packet.toCSV());
-        });
-        VoltageSensor vs = new VoltageSensor(VoltageSenseConfig.UK9V,packetCollector);
-        HashMap<Integer, CurrentClamp> clamps = new HashMap<>();
-        for (int i = 1; i < 10; i++)
-            clamps.put(i,new CurrentClamp((byte)i, CurrentClampConfig.SCT013_20A1V,packetCollector));
-        PowerSensor ps = new PowerSensor(vs,clamps.get(9),packetCollector);
-        packetCollector.addPacketEventListener(e -> {
-            System.out.println(vs);
-            System.out.println(clamps.get(9));
-            System.out.println(ps);
-            // Clear out consumed metrics
-        });*/
-        Thread.sleep(60000);
-        packetCollector.close();
-        System.exit(1);
-    }
 }
