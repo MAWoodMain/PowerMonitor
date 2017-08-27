@@ -7,17 +7,35 @@ Number=1.3
 [Root.Source Files.adc.c.Config.0]
 ExternDep= adc.c "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Hstm8\mods0.h"  adc.h stm8l051f3.h
 
+[Root.Source Files.adc.c.Config.1]
+ExternDep= adc.c "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\HSTM8\mods0.h"  adc.h stm8l051f3.h
+
 [Root.Source Files.calcvi.c.Config.0]
 ExternDep= calcvi.c  "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Hstm8\mods0.h" calcvi.h  "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Hstm8\stdbool.h"  "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Hstm8\math.h" adc.h stm8l051f3.h
+
+[Root.Source Files.calcvi.c.Config.1]
+ExternDep= calcvi.c  "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\HSTM8\mods0.h" calcvi.h  "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\HSTM8\stdbool.h"  "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\HSTM8\math.h" adc.h stm8l051f3.h
 
 [Root.Source Files.main.c.Config.0]
 ExternDep= main.c "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Hstm8\mods0.h"  stm8l051f3.h uart.h "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Hstm8\float.h"  "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Hstm8\string.h"  "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Hstm8\stdio.h" rtc.h adc.h  calcvi.h "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Hstm8\stdbool.h"  "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Hstm8\math.h"
 
+[Root.Source Files.main.c.Config.1]
+ExternDep= main.c  "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\HSTM8\mods0.h" stm8l051f3.h uart.h  "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\HSTM8\float.h"  "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\HSTM8\string.h"  "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\HSTM8\stdio.h" rtc.h adc.h  calcvi.h "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\HSTM8\stdbool.h"  "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\HSTM8\math.h"
+
 [Root.Source Files.rtc.c.Config.0]
 ExternDep= rtc.c "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Hstm8\mods0.h"  rtc.h stm8l051f3.h
+
+[Root.Source Files.rtc.c.Config.1]
+ExternDep= rtc.c "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\HSTM8\mods0.h"  rtc.h stm8l051f3.h
 
 [Root.Source Files.stm8_interrupt_vector.c.Config.0]
 ExternDep= stm8_interrupt_vector.c  "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Hstm8\mods0.h"
 
+[Root.Source Files.stm8_interrupt_vector.c.Config.1]
+ExternDep= stm8_interrupt_vector.c  "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\HSTM8\mods0.h"
+
 [Root.Source Files.uart.c.Config.0]
 ExternDep= uart.c "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Hstm8\mods0.h"  uart.h "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Hstm8\float.h"  "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Hstm8\string.h"  "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\Hstm8\stdio.h" stm8l051f3.h
+
+[Root.Source Files.uart.c.Config.1]
+ExternDep= uart.c  "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\HSTM8\mods0.h" uart.h  "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\HSTM8\float.h"  "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\HSTM8\string.h"  "C:\Program Files (x86)\COSMIC\CXSTM8_EVAL\HSTM8\stdio.h" stm8l051f3.h
