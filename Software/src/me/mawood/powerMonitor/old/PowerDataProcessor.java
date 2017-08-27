@@ -1,5 +1,5 @@
 package me.mawood.powerMonitor.old;
-import me.mawood.powerMonitor.metrics.sources.configs.CurrentClampConfig;
+import me.mawood.powerMonitor.metrics.monitors.configs.CurrentClampConfig;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 

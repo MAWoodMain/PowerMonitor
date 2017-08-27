@@ -17,8 +17,8 @@ float getRealPower(unsigned int channelNo);
 
 extern int startV,sampleV,sampleI[];
 
-extern float lastFilteredV,filteredV,filteredI,offsetV,offsetI,phaseShiftedV;
-extern double sumV,instP,sumI[],sumP[];
+extern float lastOffsetV,offsetV,offsetI,vOffset,iOffset,phaseShiftedV;
+extern double sumVSquared,instP,sumISquared[],sumP[];
 extern bool lastVCross,checkVCross;
 
 extern float Vrms,realPower[],Irms[];

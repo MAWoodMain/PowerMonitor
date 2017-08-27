@@ -2,8 +2,13 @@ package me.mawood.powerMonitor.packets;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Locale;
 
 public class Packet
 {
@@ -42,14 +47,16 @@ public class Packet
         }
     }
 
+    private final Instant timestamp;
     private final double vRms;
     private final HashMap<Byte,Measurement> channels;
 
-    public Packet(byte[] packet)
+    public Packet(byte[] packet, Instant timestamp)
     {
+        this.timestamp = timestamp;
         channels = new HashMap<>();
 
-        // expected structure
+        // expected structure - doubles are stored as 10 byte string, with no 0 termination
         // {VRms(double) 9*(ChannelNumber(byte) ChannelApparentPower(double) ChannelRealPower(double))}
 
         ByteBuffer buffer = ByteBuffer.wrap(packet);
@@ -91,6 +98,11 @@ public class Packet
         return channels.get(channelNumber).getIRms();
     }
 
+    public Instant getTimestamp()
+    {
+        return timestamp;
+    }
+
     private double getDouble(ByteBuffer byteBuffer)
     {
         byte[] buffer = new byte[10];
@@ -110,7 +122,12 @@ public class Packet
     @Override
     public String toString()
     {
+        final DateTimeFormatter formatter =
+                DateTimeFormatter.ofLocalizedDateTime( FormatStyle.MEDIUM )
+                        .withLocale( Locale.UK )
+                        .withZone( ZoneId.systemDefault() );
         return "Packet{" +
+                "timestamp=" + formatter.format(timestamp) +
                 "vRms=" + vRms +
                 ", channels=" + channels +
                 '}';
@@ -118,7 +135,7 @@ public class Packet
 
     public String toCSV()
     {
-        StringBuilder output = new StringBuilder(vRms + ",");
+        StringBuilder output = new StringBuilder(timestamp.toEpochMilli() + ", " + vRms + ",");
         for(byte key:channels.keySet()) output.append(channels.get(key).toCSV()).append(",");
         return output.toString().substring(0,output.length()-1);
     }

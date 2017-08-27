@@ -48,7 +48,7 @@ void loop()
 	
 	while(i<HARDWARE_CHANNEL_NUM)
 	{
-		sendChar(i);
+		sendChar(i+1);
 		sendFloatAsString(getIrms(i));
 		sendFloatAsString(getRealPower(i));
 		i++;

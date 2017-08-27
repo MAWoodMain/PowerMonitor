@@ -1,25 +1,22 @@
 package me.mawood.powerMonitor.packets;
 
 import com.pi4j.io.serial.*;
-import me.mawood.powerMonitor.metrics.sources.PowerSensor;
-import me.mawood.powerMonitor.metrics.sources.VoltageSensor;
-import me.mawood.powerMonitor.metrics.sources.configs.CurrentClampConfig;
-import me.mawood.powerMonitor.metrics.sources.CurrentClamp;
-import me.mawood.powerMonitor.metrics.sources.configs.VoltageSenseConfig;
+import me.mawood.powerMonitor.metrics.monitors.CurrentMonitor;
+import me.mawood.powerMonitor.metrics.monitors.RealPowerMonitor;
+import me.mawood.powerMonitor.metrics.monitors.VoltageMonitor;
+import me.mawood.powerMonitor.metrics.monitors.configs.CurrentClampConfig;
+import me.mawood.powerMonitor.metrics.monitors.configs.VoltageSenseConfig;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.time.Instant;
+import java.util.*;
 
 public class STM8PacketCollector extends Thread implements SerialDataEventListener, PacketCollector
 {
     private static final byte[] START_SEQUENCE;
     private static final int PACKET_LENGTH;
-    private final Collection<Byte> incomingBytes;
-    private final Collection<Byte> bytes;
+    private final List<Byte> incomingBytes;
+    private final List<Byte> bytes;
 
     private final Collection<PacketEventListener> listeners;
 
@@ -40,7 +37,7 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
 
     public STM8PacketCollector() throws IOException, InterruptedException
     {
-        this(3000);
+        this(1000);
     }
 
     public STM8PacketCollector(long extractionPeriod) throws IOException, InterruptedException
@@ -67,10 +64,11 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
     public void run()
     {
         long time;
-        Collection<Packet> newPackets;
+        List<Packet> newPackets;
         super.run();
         while(!Thread.interrupted())
         {
+            //process list of serial bytes accumulated for period
             time = System.currentTimeMillis();
             if(incomingBytes.size() > 0)
             {
@@ -80,16 +78,22 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
                     incomingBytes.clear();
                 }
                 newPackets = new ArrayList<>();
-                for(byte[] packet:extractPackets(bytes))
+                Instant sampleStart = Instant.now().minusMillis(extractionPeriod);
+                int i = 0;
+                Collection<byte[]> rawPackets = extractPackets(bytes);
+                for(byte[] packet:rawPackets)
                 {
+                    sampleStart = sampleStart.plusMillis(extractionPeriod/rawPackets.size());
                     try
                     {
-                        newPackets.add(new Packet(packet));
+                        newPackets.add(new Packet(packet, sampleStart)); // full serial packet without start sequence
                     } catch (IllegalArgumentException ignored) {}
+                    i++;
                 }
                 alertPacketListeners(newPackets);
 
             }
+            //accumulate packets for the period (assume top half of while is short time)
             while(time + extractionPeriod > System.currentTimeMillis())
             {
                 // wait half the remaining time
@@ -176,19 +180,28 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
     public static void main(String[] args) throws IOException, InterruptedException
     {
         STM8PacketCollector packetCollector = new STM8PacketCollector(1000);
+        VoltageMonitor vm = new VoltageMonitor(100, VoltageSenseConfig.UK9V, packetCollector);
+        CurrentMonitor cm = new CurrentMonitor(100, CurrentClampConfig.SCT013_20A1V, (byte)1, packetCollector);
+        RealPowerMonitor pm = new RealPowerMonitor(100, VoltageSenseConfig.UK9V, CurrentClampConfig.SCT013_20A1V, (byte)1, packetCollector);
+        packetCollector.addPacketEventListener(e -> {
+            System.out.println(vm);
+            System.out.println(cm);
+            System.out.println(pm);
+                });
+        /*packetCollector.addPacketEventListener(e -> {
+            for(Packet packet:e) System.out.println(packet.toCSV());
+        });
         VoltageSensor vs = new VoltageSensor(VoltageSenseConfig.UK9V,packetCollector);
         HashMap<Integer, CurrentClamp> clamps = new HashMap<>();
-        for (int i = 0; i < 9; i++)
+        for (int i = 1; i < 10; i++)
             clamps.put(i,new CurrentClamp((byte)i, CurrentClampConfig.SCT013_20A1V,packetCollector));
-        PowerSensor ps = new PowerSensor(vs,clamps.get(8),packetCollector);
+        PowerSensor ps = new PowerSensor(vs,clamps.get(9),packetCollector);
         packetCollector.addPacketEventListener(e -> {
             System.out.println(vs);
-            System.out.println(clamps.get(8));
+            System.out.println(clamps.get(9));
             System.out.println(ps);
             // Clear out consumed metrics
-            vs.clearMetrics();
-            for(int key:clamps.keySet()) clamps.get(key).clearMetrics();
-        });
+        });*/
         Thread.sleep(60000);
         packetCollector.close();
         System.exit(1);

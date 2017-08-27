@@ -67,64 +67,65 @@
 3519  0052 89            	pushw	x
 3520  0053 cd0000        	call	_sendFloatAsString
 3522  0056 5b04          	addw	sp,#4
-3524  0058 202c          	jra	L5432
+3524  0058 202d          	jra	L5432
 3525  005a               L3432:
-3526                     ; 51 		sendChar(i);
+3526                     ; 51 		sendChar(i+1);
 3528  005a 7b02          	ld	a,(OFST+0,sp)
-3529  005c cd0000        	call	_sendChar
-3531                     ; 52 		sendFloatAsString(getIrms(i));
-3533  005f 1e01          	ldw	x,(OFST-1,sp)
-3534  0061 cd0000        	call	_getIrms
-3536  0064 be02          	ldw	x,c_lreg+2
-3537  0066 89            	pushw	x
-3538  0067 be00          	ldw	x,c_lreg
-3539  0069 89            	pushw	x
-3540  006a cd0000        	call	_sendFloatAsString
-3542  006d 5b04          	addw	sp,#4
-3543                     ; 53 		sendFloatAsString(getRealPower(i));
-3545  006f 1e01          	ldw	x,(OFST-1,sp)
-3546  0071 cd0000        	call	_getRealPower
-3548  0074 be02          	ldw	x,c_lreg+2
-3549  0076 89            	pushw	x
-3550  0077 be00          	ldw	x,c_lreg
-3551  0079 89            	pushw	x
-3552  007a cd0000        	call	_sendFloatAsString
-3554  007d 5b04          	addw	sp,#4
-3555                     ; 54 		i++;
-3557  007f 1e01          	ldw	x,(OFST-1,sp)
-3558  0081 1c0001        	addw	x,#1
-3559  0084 1f01          	ldw	(OFST-1,sp),x
-3560  0086               L5432:
-3561                     ; 49 	while(i<HARDWARE_CHANNEL_NUM)
-3563  0086 9c            	rvf
-3564  0087 1e01          	ldw	x,(OFST-1,sp)
-3565  0089 a30009        	cpw	x,#9
-3566  008c 2fcc          	jrslt	L3432
-3567                     ; 56 	i = 0;
-3569                     ; 57 }
-3572  008e 85            	popw	x
-3573  008f 81            	ret
-3586                     	xdef	_main
-3587                     	xdef	_loop
-3588                     	xdef	_setup
-3589                     	xref	_getRealPower
-3590                     	xref	_getIrms
-3591                     	xref	_getVrms
-3592                     	xref	_calcVI
-3593                     	xref	_ADC_INIT
-3594                     	xref	_RTC_INIT
-3595                     	xref	_sendFloatAsString
-3596                     	xref	_sendString
-3597                     	xref	_sendChar
-3598                     	xref	_UART_INIT
-3599                     .const:	section	.text
-3600  0000               L1432:
-3601  0000 504d5f535441  	dc.b	"PM_START",0
-3602  0009               L1232:
-3603  0009 41444320496e  	dc.b	"ADC Initialised",0
-3604  0019               L7132:
-3605  0019 52544320496e  	dc.b	"RTC Initialised",0
-3606  0029               L5132:
-3607  0029 554152542049  	dc.b	"UART Initialised",0
-3608                     	xref.b	c_lreg
-3628                     	end
+3529  005c 4c            	inc	a
+3530  005d cd0000        	call	_sendChar
+3532                     ; 52 		sendFloatAsString(getIrms(i));
+3534  0060 1e01          	ldw	x,(OFST-1,sp)
+3535  0062 cd0000        	call	_getIrms
+3537  0065 be02          	ldw	x,c_lreg+2
+3538  0067 89            	pushw	x
+3539  0068 be00          	ldw	x,c_lreg
+3540  006a 89            	pushw	x
+3541  006b cd0000        	call	_sendFloatAsString
+3543  006e 5b04          	addw	sp,#4
+3544                     ; 53 		sendFloatAsString(getRealPower(i));
+3546  0070 1e01          	ldw	x,(OFST-1,sp)
+3547  0072 cd0000        	call	_getRealPower
+3549  0075 be02          	ldw	x,c_lreg+2
+3550  0077 89            	pushw	x
+3551  0078 be00          	ldw	x,c_lreg
+3552  007a 89            	pushw	x
+3553  007b cd0000        	call	_sendFloatAsString
+3555  007e 5b04          	addw	sp,#4
+3556                     ; 54 		i++;
+3558  0080 1e01          	ldw	x,(OFST-1,sp)
+3559  0082 1c0001        	addw	x,#1
+3560  0085 1f01          	ldw	(OFST-1,sp),x
+3561  0087               L5432:
+3562                     ; 49 	while(i<HARDWARE_CHANNEL_NUM)
+3564  0087 9c            	rvf
+3565  0088 1e01          	ldw	x,(OFST-1,sp)
+3566  008a a30009        	cpw	x,#9
+3567  008d 2fcb          	jrslt	L3432
+3568                     ; 56 	i = 0;
+3570                     ; 57 }
+3573  008f 85            	popw	x
+3574  0090 81            	ret
+3587                     	xdef	_main
+3588                     	xdef	_loop
+3589                     	xdef	_setup
+3590                     	xref	_getRealPower
+3591                     	xref	_getIrms
+3592                     	xref	_getVrms
+3593                     	xref	_calcVI
+3594                     	xref	_ADC_INIT
+3595                     	xref	_RTC_INIT
+3596                     	xref	_sendFloatAsString
+3597                     	xref	_sendString
+3598                     	xref	_sendChar
+3599                     	xref	_UART_INIT
+3600                     .const:	section	.text
+3601  0000               L1432:
+3602  0000 504d5f535441  	dc.b	"PM_START",0
+3603  0009               L1232:
+3604  0009 41444320496e  	dc.b	"ADC Initialised",0
+3605  0019               L7132:
+3606  0019 52544320496e  	dc.b	"RTC Initialised",0
+3607  0029               L5132:
+3608  0029 554152542049  	dc.b	"UART Initialised",0
+3609                     	xref.b	c_lreg
+3629                     	end

@@ -2,9 +2,9 @@
 
 int startV, sampleV, sampleI[HARDWARE_CHANNEL_NUM];
 
-float Vrms,realPower[HARDWARE_CHANNEL_NUM],Irms[HARDWARE_CHANNEL_NUM],lastFilteredV,filteredV,filteredI,offsetV,offsetI,phaseShiftedV;
+float Vrms,realPower[HARDWARE_CHANNEL_NUM],Irms[HARDWARE_CHANNEL_NUM],lastOffsetV,offsetV,offsetI,vOffset,iOffset,phaseShiftedV;
 
-double sumV, instP, sumI[HARDWARE_CHANNEL_NUM], sumP[HARDWARE_CHANNEL_NUM];
+double sumVSquared, instP, sumISquared[HARDWARE_CHANNEL_NUM], sumP[HARDWARE_CHANNEL_NUM];
 
 bool lastVCross,checkVCross;
 
@@ -16,14 +16,14 @@ void calcVI(const unsigned int crossings)
 {
     unsigned int crossCount = 0;
     unsigned int numberOfSamples = 0;
-    Double VoltsPerCount;
+    double VoltsPerCount;
     int i;
 	
     //Reset accumulators
-    sumV = 0;
+    sumVSquared = 0;
 	for(i = 0; i < HARDWARE_CHANNEL_NUM; i++)
 	{
-		sumI[i] = 0;
+		sumISquared[i] = 0;
 		sumP[i] = 0;
 	}
 	
@@ -43,22 +43,23 @@ void calcVI(const unsigned int crossings)
 		for(i = 0; i < HARDWARE_CHANNEL_NUM; i++)
 			sampleI[i] = readChannel(CHANNELS[i]);
 
-        lastFilteredV = filteredV;
+        lastOffsetV = offsetV;
         // low pass filter to move sample voltage to +/- 1.65v scale rather than 0-3.3v scale
-        offsetV = offsetV + ((sampleV-offsetV)/1024);
-        filteredV = sampleV - offsetV;
+        vOffset = vOffset + ((sampleV-vOffset)/1024);
+        offsetV = sampleV - vOffset;
 
-        sumV += filteredV * filteredV;
+        sumVSquared += offsetV * offsetV;
 
-        phaseShiftedV = lastFilteredV + PHASECAL * (filteredV - lastFilteredV);
+        phaseShiftedV = lastOffsetV + PHASECAL * (offsetV - lastOffsetV); //??????
 		
 		for(i = 0; i < HARDWARE_CHANNEL_NUM; i++)
 		{
             // low pass filter to move sample voltage to +/- 1.65v scale rather than 0-3.3v scale
-			offsetI = offsetI + ((sampleI[i]-offsetI)/1024);
-			filteredI = sampleI[i] - offsetI;
-			sumI[i] += filteredI * filteredI;
-			instP = phaseShiftedV * filteredI;
+			iOffset = iOffset + ((sampleI[i]-iOffset)/1024);
+			offsetI = sampleI[i] - iOffset;
+			sumISquared[i] += offsetI * offsetI;
+			
+			instP = phaseShiftedV * offsetI; //??????
 			sumP[i] +=instP;
 		}
 		// check for a voltage zero crossing i.e completion of a half wave and increment cross count if so
@@ -68,12 +69,13 @@ void calcVI(const unsigned int crossings)
         if (lastVCross != checkVCross) crossCount++;
     }
     // post loop calculations
-	VoltsPerCount = VCC / ADC_COUNTS;
-    Vrms = VoltsPerCount * sqrt(sumV / numberOfSamples);
+	VoltsPerCount = VCC / ADC_COUNTS; //constant 3.3/4096
+    Vrms = VoltsPerCount * sqrt(sumVSquared / numberOfSamples);
 
 	for(i = 0; i < HARDWARE_CHANNEL_NUM; i++)
 	{
-		Irms[i] = VoltsPerCount * sqrt(sumI[i] / numberOfSamples);
+		Irms[i] = VoltsPerCount * sqrt(sumISquared[i] / numberOfSamples);
+		// VoltsPerCount applies to current and voltage in power as P=VI
 		realPower[i] = VoltsPerCount * VoltsPerCount * sumP[i] / numberOfSamples;
 	}
 }
