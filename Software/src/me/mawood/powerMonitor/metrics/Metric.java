@@ -8,14 +8,14 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Locale;
 
-public class Metric<T extends Unit> implements Comparable<Metric>
+public class Metric implements Comparable<Metric>
 {
     private final double value;
     private final Instant timestamp;
     // Using generics to facilitate unit conversion later.
-    private final T unit;
+    private final Unit unit;
 
-    public Metric(double value,Instant timestamp, T unit)
+    public Metric(double value,Instant timestamp, Unit unit)
     {
         this.value = value;
         this.timestamp = timestamp;

@@ -6,7 +6,7 @@ import me.mawood.powerMonitor.metrics.units.Current;
 import me.mawood.powerMonitor.packets.Packet;
 import me.mawood.powerMonitor.packets.PacketCollector;
 
-public class CurrentMonitor extends Monitor<Metric<Current>>
+public class CurrentMonitor extends Monitor<Metric>
 {
     private final byte channelNumber;
     private final CurrentClampConfig config;
@@ -20,9 +20,9 @@ public class CurrentMonitor extends Monitor<Metric<Current>>
     }
 
     @Override
-    protected Metric<Current> processPacket(Packet packet)
+    protected Metric processPacket(Packet packet)
     {
-        return new Metric<>(
+        return new Metric(
                 config.offsetValue(config.scaleValue(packet.getIRms(channelNumber))), packet.getTimestamp(), Current.AMPS);
     }
 

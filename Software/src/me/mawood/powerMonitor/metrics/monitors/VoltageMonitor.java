@@ -6,7 +6,7 @@ import me.mawood.powerMonitor.metrics.units.Voltage;
 import me.mawood.powerMonitor.packets.Packet;
 import me.mawood.powerMonitor.packets.PacketCollector;
 
-public class VoltageMonitor extends Monitor<Metric<Voltage>>
+public class VoltageMonitor extends Monitor<Metric>
 {
     private final VoltageSenseConfig config;
 
@@ -18,9 +18,9 @@ public class VoltageMonitor extends Monitor<Metric<Voltage>>
     }
 
     @Override
-    protected Metric<Voltage> processPacket(Packet packet)
+    protected Metric processPacket(Packet packet)
     {
-        return new Metric<>(
+        return new Metric(
                 config.offsetValue(config.scaleValue(packet.getVRms())), packet.getTimestamp(), Voltage.VOLTS);
     }
 

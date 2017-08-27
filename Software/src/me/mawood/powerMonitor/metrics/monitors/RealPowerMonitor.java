@@ -7,7 +7,7 @@ import me.mawood.powerMonitor.metrics.units.Power;
 import me.mawood.powerMonitor.packets.Packet;
 import me.mawood.powerMonitor.packets.PacketCollector;
 
-public class RealPowerMonitor extends Monitor<Metric<Power>>
+public class RealPowerMonitor extends Monitor<Metric>
 {
 
     private final byte channelNumber;
@@ -24,7 +24,7 @@ public class RealPowerMonitor extends Monitor<Metric<Power>>
     }
 
     @Override
-    protected Metric<Power> processPacket(Packet packet)
+    protected Metric processPacket(Packet packet)
     {
         double value = packet.getRealPower(channelNumber);
         // Scale
@@ -34,7 +34,7 @@ public class RealPowerMonitor extends Monitor<Metric<Power>>
         value = currentConfig.offsetValue(value);
         value = voltageConfig.offsetValue(value);
 
-        return new Metric<>(value,packet.getTimestamp(), Power.WATTS);
+        return new Metric(value,packet.getTimestamp(), Power.WATTS);
     }
 
     @Override
