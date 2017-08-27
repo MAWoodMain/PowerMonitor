@@ -119,4 +119,10 @@ public class CircularArrayList<E> extends AbstractList<E> implements RandomAcces
             throw new IndexOutOfBoundsException("Error while retrieving the newest element. The Circular Array list is empty.");
         return buf.get(i);
     }
+
+    @Override
+    public Iterator<E> iterator()
+    {
+        return buf.iterator();
+    }
 }

@@ -45,6 +45,7 @@ public abstract class Monitor<E extends Metric> implements PacketEventListener
         while(it.hasNext())
         {
             value = it.next();
+            if(value == null) continue;
             if(value.getTimestamp().isBefore(endTime) && value.getTimestamp().isAfter(startTime)) output.add(value);
         }
         Collections.sort(output);
