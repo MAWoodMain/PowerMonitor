@@ -77,7 +77,7 @@ public class PowerMetricCalculator
             case VA:
                 Metric voltage = getLatestMetric(Voltage.VOLTS);
                 Metric current = getLatestMetric(Current.AMPS);
-                return new Metric(voltage.getValue()/current.getValue(),voltage.getTimestamp(), metricType);
+                return new Metric(voltage.getValue()*current.getValue(),voltage.getTimestamp(), metricType);
             case VAR:
                 Metric apparent = getLatestMetric(Power.VA);
                 Metric real = getLatestMetric(Power.WATTS);
@@ -103,7 +103,7 @@ public class PowerMetricCalculator
                 List<Metric> voltage = getMetricsBetween(Voltage.VOLTS,startTime,endTime);
                 List<Metric> current = getMetricsBetween(Current.AMPS,startTime,endTime);
                 for (int i = 0; i < Math.min(voltage.size(), current.size()); i++)
-                    output.add(new Metric(voltage.get(i).getValue()/current.get(i).getValue(),voltage.get(i).getTimestamp(), metricType));
+                    output.add(new Metric(voltage.get(i).getValue()*current.get(i).getValue(),voltage.get(i).getTimestamp(), metricType));
                 return output;
             case VAR:
                 List<Metric> apparent = getMetricsBetween(Power.VA,startTime,endTime);
