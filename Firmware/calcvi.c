@@ -29,8 +29,8 @@ void calcVI(const unsigned int crossings)
 	
 	do
 	{
-      startV = readChannel(VOLTAGE_CHANNEL);
-	  // keep trying until voltage is within 5% of a crossing point (offset zero)
+		startV = readChannel(VOLTAGE_CHANNEL);
+		// keep trying until voltage is within 5% of a crossing point (offset zero)
 	} while (!((startV<(ADC_COUNTS*0.55))&&(startV>(ADC_COUNTS*0.45)))); 
 	
 	while(crossCount < crossings)
