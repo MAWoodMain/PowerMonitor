@@ -31,6 +31,11 @@ public class Metric implements Comparable<Metric>
         return timestamp;
     }
 
+    public Unit getUnit()
+    {
+        return unit;
+    }
+
     @Override
     public String toString()
     {

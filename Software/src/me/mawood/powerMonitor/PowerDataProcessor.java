@@ -1,6 +1,7 @@
 package me.mawood.powerMonitor;
 
 import me.mawood.powerMonitor.metrics.InvalidDataException;
+import me.mawood.powerMonitor.metrics.Metric;
 import me.mawood.powerMonitor.metrics.PowerMetricCalculator;
 import me.mawood.powerMonitor.metrics.units.Power;
 import me.mawood.powerMonitor.metrics.units.Voltage;
@@ -9,9 +10,13 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import javax.naming.OperationNotSupportedException;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.Locale;
 import java.util.Map;
 
-import static me.mawood.powerMonitor.Circuits.*;
+import static me.mawood.powerMonitor.Home.*;
 
 class PowerDataProcessor extends Thread implements MqttCallback
 {
@@ -31,8 +36,11 @@ class PowerDataProcessor extends Thread implements MqttCallback
         }
     }
 
-    private final String clientId = "PMon10";
-    private final MqttClient publisherClientPMOn10;
+    private static final String CLIENT_ID = "PMon10";
+    private static final String TOPIC = "/emon/" + CLIENT_ID;
+    private static final String BROKER = "tcp://localhost:1883";
+
+    private final MqttClient mqttClient;
     private final MqttConnectOptions connOpts;
 
     private long noMessagesSentOK;
@@ -49,14 +57,13 @@ class PowerDataProcessor extends Thread implements MqttCallback
         this.circuitMap = circuitMap;
         noMessagesSentOK = 0;
 
-        String broker = "tcp://localhost:1883";
-        publisherClientPMOn10 = new MqttClient(broker, clientId, new MemoryPersistence());
+        mqttClient = new MqttClient(BROKER, CLIENT_ID, new MemoryPersistence());
         // set up MQTT stream definitions
         connOpts = new MqttConnectOptions();
         connOpts.setCleanSession(true);
-        System.out.println("Connecting PowerDataProcessor to broker: " + broker);
+        System.out.println("Connecting PowerDataProcessor to broker: " + BROKER);
         // make connection to MQTT broker
-        publisherClientPMOn10.connect(connOpts);
+        mqttClient.connect(connOpts);
         System.out.println("PowerDataProcessor Connected");
         this.start();
     }
@@ -77,7 +84,7 @@ class PowerDataProcessor extends Thread implements MqttCallback
         // code to reconnect to the broker
         try
         {
-            publisherClientPMOn10.connect(connOpts);
+            mqttClient.connect(connOpts);
         } catch (MqttException me)
         {
             handleMQTTException(me);
@@ -137,7 +144,7 @@ class PowerDataProcessor extends Thread implements MqttCallback
     {
         try
         {
-            publisherClientPMOn10.disconnect();
+            mqttClient.disconnect();
             System.out.println("Disconnected");
         } catch (MqttException me)
         {
@@ -150,7 +157,7 @@ class PowerDataProcessor extends Thread implements MqttCallback
     /**
      * publishToBroker - send a message to the MQTT broker
      *
-     * @param subTopic - fully qualified topic identifier
+     * @param subTopic - fully qualified TOPIC identifier
      * @param content  - message content "key data"
      */
     private void publishToBroker(String subTopic, String content)
@@ -161,8 +168,31 @@ class PowerDataProcessor extends Thread implements MqttCallback
         {
             MqttMessage message = new MqttMessage(content.getBytes());
             message.setQos(qos);
-            publisherClientPMOn10.publish(subTopic, message);
-            //System.out.println("Message published");
+            mqttClient.publish(subTopic, message);
+           // System.out.println("Message published to " + subTopic);
+        } catch (MqttException me)
+        {
+            handleMQTTException(me);
+        }
+    }
+
+
+    private void publishMetricToBroker(String subTopic, Metric metric)
+    {
+        final int qos = 2; //The message is always delivered exactly once
+
+        final DateTimeFormatter formatter =
+                DateTimeFormatter.ofLocalizedDateTime( FormatStyle.MEDIUM )
+                        .withLocale( Locale.UK )
+                        .withZone( ZoneId.systemDefault() );
+
+        String content = String.format("%.03f %s at %s", metric.getValue(),metric.getUnit().getSymbol(), formatter.format(metric.getTimestamp()));
+
+        try
+        {
+            MqttMessage message = new MqttMessage(content.getBytes());
+            message.setQos(qos);
+            mqttClient.publish(subTopic, message);
         } catch (MqttException me)
         {
             handleMQTTException(me);
@@ -179,27 +209,30 @@ class PowerDataProcessor extends Thread implements MqttCallback
     @Override
     public void run()
     {
-        String baseTopic = "emon";
-        String topic = baseTopic + "/" + clientId;
         String subTopic;
         long startTime;
+        try
+        {
+            // wait for first readings to be ready
+            Thread.sleep(2010);
+        } catch (InterruptedException ignored) {}
         while (!Thread.interrupted())
         {
             startTime = System.currentTimeMillis();
             //rawMetricsBuffer.printMetricsBuffer();
             try
             {
-                subTopic = topic + "/Voltage";
-                publishToBroker(subTopic, 3 + " " + circuitMap.get(WHOLE_HOUSE).getAverageBetween(Voltage.VOLTS, Instant.now().minusSeconds(1), Instant.now()));
+                subTopic = TOPIC + "/Voltage";
+                publishMetricToBroker(subTopic, circuitMap.get(WHOLE_HOUSE).getAverageBetween(Voltage.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1)));
                 for(Circuits circuit:circuitMap.keySet())
                 {
-                    subTopic = topic + "/" + circuit.getDisplayName().replace(" ", "_");
-                    publishToBroker(subTopic, 1 + " " + circuitMap.get(circuit).getAverageBetween(Power.VA, Instant.now().minusSeconds(1), Instant.now()));
-                    publishToBroker(subTopic, 2 + " " + circuitMap.get(circuit).getAverageBetween(Power.WATTS, Instant.now().minusSeconds(1), Instant.now()));
+                    subTopic = TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
+                    publishMetricToBroker(subTopic, circuitMap.get(circuit).getAverageBetween(Power.VA, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1)));
+                    publishMetricToBroker(subTopic, circuitMap.get(circuit).getAverageBetween(Power.WATTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1)));
                 }
                 /*for (int channel = 1; channel < 10; channel++)
                 {
-                    subTopic = topic + "/" + adcChannels[channel + 1].name;
+                    subTopic = TOPIC + "/" + adcChannels[channel + 1].name;
                     publishToBroker(subTopic, 1 + " " + scaledPowerData[channel].apparentPower);
                     publishToBroker(subTopic, 2 + " " + scaledPowerData[channel].realPower);
                 }*/

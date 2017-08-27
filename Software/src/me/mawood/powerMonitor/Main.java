@@ -20,7 +20,7 @@ public class Main
 
         HashMap<Circuits, PowerMetricCalculator> circuitMap = new HashMap<>();
 
-        for(Circuits circuit:Circuits.values())
+        for(Circuits circuit:Home.values())
         {
             circuitMap.put(circuit, new PowerMetricCalculator(vm,
                     new CurrentMonitor(100000, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector),
