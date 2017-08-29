@@ -38,7 +38,7 @@ public class PowerDataProcessor extends Thread implements MqttCallback
     }
 
     private static final String CLIENT_ID = "PMon10";
-    private static final String TOPIC = "/emon/" + CLIENT_ID;
+    private static final String TOPIC = "emon/" + CLIENT_ID;
     private static final String BROKER = "tcp://localhost:1883";
 
     private final MqttClient mqttClient;
@@ -163,6 +163,7 @@ public class PowerDataProcessor extends Thread implements MqttCallback
      */
     private void publishToBroker(String subTopic, String content)
     {
+        System.out.println("'"+subTopic+"'"+"'"+content+"'");
         final int qos = 2; //The message is always delivered exactly once
 
         try
@@ -187,7 +188,8 @@ public class PowerDataProcessor extends Thread implements MqttCallback
                         .withLocale( Locale.UK )
                         .withZone( ZoneId.systemDefault() );
 
-        String content = String.format("%.03f %s at %s", metric.getValue(),metric.getUnit().getSymbol(), formatter.format(metric.getTimestamp()));
+        //String content = String.format("%.03f %s at %s", metric.getValue(),metric.getUnit().getSymbol(), formatter.format(metric.getTimestamp()));
+        String content = String.format("%.03f", metric.getValue());
 
         try
         {
@@ -198,6 +200,17 @@ public class PowerDataProcessor extends Thread implements MqttCallback
         {
             handleMQTTException(me);
         }
+    }
+
+    private void publishCircuitToBroker(Circuits circuit) throws InvalidDataException, OperationNotSupportedException
+    {
+
+        String subTopic = TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
+        Metric apparent = circuitMap.get(circuit).getAverageBetween(Power.VA, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
+        publishToBroker(subTopic, String.format("ApparentPower %.03f", apparent.getValue()));
+        subTopic = TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
+        Metric real = circuitMap.get(circuit).getAverageBetween(Power.WATTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
+        publishToBroker(subTopic, String.format("RealPower %.03f", real.getValue()));
     }
 
     //
@@ -223,20 +236,14 @@ public class PowerDataProcessor extends Thread implements MqttCallback
             //rawMetricsBuffer.printMetricsBuffer();
             try
             {
-                subTopic = TOPIC + "/Voltage";
-                publishMetricToBroker(subTopic, circuitMap.get(WHOLE_HOUSE).getAverageBetween(Voltage.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1)));
+                subTopic = TOPIC + "/" +WHOLE_HOUSE.getDisplayName().replace(" ", "_");
+                Metric voltage = circuitMap.get(WHOLE_HOUSE).getAverageBetween(Voltage.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
+                publishToBroker(subTopic,String.format("Voltage %.03f", voltage.getValue()));
+
                 for(Circuits circuit:circuitMap.keySet())
                 {
-                    subTopic = TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
-                    publishMetricToBroker(subTopic, circuitMap.get(circuit).getAverageBetween(Power.VA, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1)));
-                    publishMetricToBroker(subTopic, circuitMap.get(circuit).getAverageBetween(Power.WATTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1)));
+                    publishCircuitToBroker(circuit);
                 }
-                /*for (int channel = 1; channel < 10; channel++)
-                {
-                    subTopic = TOPIC + "/" + adcChannels[channel + 1].name;
-                    publishToBroker(subTopic, 1 + " " + scaledPowerData[channel].apparentPower);
-                    publishToBroker(subTopic, 2 + " " + scaledPowerData[channel].realPower);
-                }*/
 
             } catch (OperationNotSupportedException | InvalidDataException e)
             {

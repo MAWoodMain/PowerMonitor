@@ -5,7 +5,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import static java.lang.Thread.sleep;
 
-class PowerDataSubscriber implements  Runnable, MqttCallback
+public class PowerDataSubscriber implements  Runnable, MqttCallback
 {
     // run control variables
     private volatile boolean msgArrived;
@@ -22,10 +22,10 @@ class PowerDataSubscriber implements  Runnable, MqttCallback
     public void messageArrived(String s, MqttMessage mqttMessage) throws Exception
     {
         msgArrived = true;
-        System.out.println("-------------------------------------------------");
-        System.out.println("| Topic:" + s);
-        System.out.println("| Message: " + new String(mqttMessage.getPayload()));
-        System.out.println("-------------------------------------------------");
+        //System.out.println("-------------------------------------------------");
+        System.out.println("| Topic: '" +s+ "'"+" Message: '" + new String(mqttMessage.getPayload())+ "'");
+        //System.out.println("| Message: " + new String(mqttMessage.getPayload()));
+        //System.out.println("-------------------------------------------------");
 
     }
     @Override
@@ -42,7 +42,7 @@ class PowerDataSubscriber implements  Runnable, MqttCallback
     private final MqttClient subscriberClientPMon10;
     private int nbrMessagesReceivedOK;
 
-    PowerDataSubscriber() throws MqttException
+    public PowerDataSubscriber() throws MqttException
     {
         subscriberClientPMon10 = new MqttClient(broker, clientId, new MemoryPersistence());
         subscriberClientPMon10.setCallback(this);
@@ -51,7 +51,7 @@ class PowerDataSubscriber implements  Runnable, MqttCallback
         System.out.println("Connecting PowerDataSubscriber to broker: "+broker);
         subscriberClientPMon10.connect(connOpts);
         System.out.println("PowerDataSubscriber Connected");
-        subscriberClientPMon10.subscribe(topic, qos);
+        subscriberClientPMon10.subscribe("emon/#", qos);
 
     }
 
