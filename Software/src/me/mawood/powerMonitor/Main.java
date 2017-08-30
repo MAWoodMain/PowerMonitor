@@ -34,7 +34,7 @@ public class Main
         //Thread.sleep(2*1000);
         //PowerDataSubscriber pds = new PowerDataSubscriber();
 
-        Thread.sleep(60*1000);
+        Thread.sleep(5*60*1000);
         packetCollector.close();
         pdp.interrupt();
         System.exit(1);

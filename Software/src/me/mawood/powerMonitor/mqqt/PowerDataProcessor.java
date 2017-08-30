@@ -62,6 +62,9 @@ public class PowerDataProcessor extends Thread implements MqttCallback
         // set up MQTT stream definitions
         connOpts = new MqttConnectOptions();
         connOpts.setCleanSession(true);
+        connOpts.setUserName("emonpi");
+        String pw = "emonpimqtt2016";
+        connOpts.setPassword(pw.toCharArray());
         System.out.println("Connecting PowerDataProcessor to broker: " + BROKER);
         // make connection to MQTT broker
         mqttClient.connect(connOpts);
@@ -206,11 +209,11 @@ public class PowerDataProcessor extends Thread implements MqttCallback
     {
 
         String subTopic = TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
-        Metric apparent = circuitMap.get(circuit).getAverageBetween(Power.VA, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
-        publishToBroker(subTopic, String.format("ApparentPower %.03f", apparent.getValue()));
+        //Metric apparent = circuitMap.get(circuit).getAverageBetween(Power.VA, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
+        //publishToBroker(subTopic, String.format("ApparentPower %.03f", apparent.getValue()));
         subTopic = TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
         Metric real = circuitMap.get(circuit).getAverageBetween(Power.WATTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
-        publishToBroker(subTopic, String.format("RealPower %.03f", real.getValue()));
+        publishToBroker(subTopic, String.format("%.03f", real.getValue()));
     }
 
     //
@@ -236,10 +239,11 @@ public class PowerDataProcessor extends Thread implements MqttCallback
             //rawMetricsBuffer.printMetricsBuffer();
             try
             {
+                /*
                 subTopic = TOPIC + "/" +WHOLE_HOUSE.getDisplayName().replace(" ", "_");
                 Metric voltage = circuitMap.get(WHOLE_HOUSE).getAverageBetween(Voltage.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
-                publishToBroker(subTopic,String.format("Voltage %.03f", voltage.getValue()));
-
+                publishToBroker(subTopic,String.format("%.03f", voltage.getValue()));
+                */
                 for(Circuits circuit:circuitMap.keySet())
                 {
                     publishCircuitToBroker(circuit);
