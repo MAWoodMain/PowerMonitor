@@ -4,7 +4,6 @@ import me.mawood.powerMonitor.circuits.Circuits;
 import me.mawood.powerMonitor.circuits.HomeCircuits;
 import me.mawood.powerMonitor.metrics.PowerMetricCalculator;
 import me.mawood.powerMonitor.mqqt.PowerDataProcessor;
-import me.mawood.powerMonitor.mqqt.PowerDataSubscriber;
 import me.mawood.powerMonitor.packets.monitors.CurrentMonitor;
 import me.mawood.powerMonitor.packets.monitors.RealPowerMonitor;
 import me.mawood.powerMonitor.packets.monitors.VoltageMonitor;
@@ -17,7 +16,7 @@ import java.util.HashMap;
 
 public class Main
 {
-    public static void main(String[] args) throws IOException, InterruptedException, MqttException
+    public static void main(String[] args) throws IOException, InterruptedException
     {
         STM8PacketCollector packetCollector = new STM8PacketCollector(1000);
         VoltageMonitor vm = new VoltageMonitor(100000, VoltageSenseConfig.UK9V, packetCollector);
@@ -30,13 +29,22 @@ public class Main
                     new CurrentMonitor(100000, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector),
                     new RealPowerMonitor(100000, VoltageSenseConfig.UK9V, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector)));
         }
-        PowerDataProcessor pdp = new PowerDataProcessor(circuitMap);
+        PowerDataProcessor pdp = null;
+        try
+        {
+            pdp = new PowerDataProcessor(circuitMap);
+        } catch (MqttException e)
+        {
+            PowerDataProcessor.handleMQTTException(e);
+            System.exit(9);
+        }
         //Thread.sleep(2*1000);
         //PowerDataSubscriber pds = new PowerDataSubscriber();
 
-        Thread.sleep(5*60*1000);
+        Thread.sleep(1*60*1000);
         packetCollector.close();
         pdp.interrupt();
+        Thread.sleep(2000); //give it time to clean up
         System.exit(1);
     }
 }

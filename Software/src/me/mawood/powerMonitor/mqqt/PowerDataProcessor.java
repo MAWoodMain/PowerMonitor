@@ -5,7 +5,6 @@ import me.mawood.powerMonitor.metrics.InvalidDataException;
 import me.mawood.powerMonitor.metrics.Metric;
 import me.mawood.powerMonitor.metrics.PowerMetricCalculator;
 import me.mawood.powerMonitor.metrics.units.Power;
-import me.mawood.powerMonitor.metrics.units.Voltage;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
@@ -16,8 +15,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Locale;
 import java.util.Map;
-
-import static me.mawood.powerMonitor.circuits.HomeCircuits.*;
 
 public class PowerDataProcessor extends Thread implements MqttCallback
 {
@@ -40,6 +37,9 @@ public class PowerDataProcessor extends Thread implements MqttCallback
     private static final String CLIENT_ID = "PMon10";
     private static final String TOPIC = "emon/" + CLIENT_ID;
     private static final String BROKER = "tcp://localhost:1883";
+    private static final String USERNAME = "emonpi";
+    private static final String PASSWORD = "emonpimqtt2016";
+    private static final double NOISE_FILTER = 2d; // ignore metrics whose absolute value is smaller than this
 
     private final MqttClient mqttClient;
     private final MqttConnectOptions connOpts;
@@ -62,9 +62,8 @@ public class PowerDataProcessor extends Thread implements MqttCallback
         // set up MQTT stream definitions
         connOpts = new MqttConnectOptions();
         connOpts.setCleanSession(true);
-        connOpts.setUserName("emonpi");
-        String pw = "emonpimqtt2016";
-        connOpts.setPassword(pw.toCharArray());
+        connOpts.setUserName(USERNAME);
+        connOpts.setPassword(PASSWORD.toCharArray());
         System.out.println("Connecting PowerDataProcessor to broker: " + BROKER);
         // make connection to MQTT broker
         mqttClient.connect(connOpts);
@@ -131,7 +130,7 @@ public class PowerDataProcessor extends Thread implements MqttCallback
      *
      * @param me The MQTT exception
      */
-    private void handleMQTTException(MqttException me)
+    public static void handleMQTTException(MqttException me)
     {
         System.out.println("reason " + me.getReasonCode());
         System.out.println("msg " + me.getMessage());
@@ -149,12 +148,11 @@ public class PowerDataProcessor extends Thread implements MqttCallback
         try
         {
             mqttClient.disconnect();
-            System.out.println("Disconnected");
         } catch (MqttException me)
         {
             handleMQTTException(me);
         }
-        System.out.println("PowerDataProcessor Disconnected");
+        System.out.println("PowerDataProcessor disconnected from MQTT Broker");
         System.out.println(noMessagesSentOK + " messages sent successfully");
     }
 
@@ -192,7 +190,9 @@ public class PowerDataProcessor extends Thread implements MqttCallback
                         .withZone( ZoneId.systemDefault() );
 
         //String content = String.format("%.03f %s at %s", metric.getValue(),metric.getUnit().getSymbol(), formatter.format(metric.getTimestamp()));
-        String content = String.format("%.03f", metric.getValue());
+        double value = metric.getValue();
+        if (Math.abs(value) < NOISE_FILTER) value = 0d;
+        String content = String.format("%.03f",value );
 
         try
         {
@@ -207,13 +207,14 @@ public class PowerDataProcessor extends Thread implements MqttCallback
 
     private void publishCircuitToBroker(Circuits circuit) throws InvalidDataException, OperationNotSupportedException
     {
-
         String subTopic = TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
         //Metric apparent = circuitMap.get(circuit).getAverageBetween(Power.VA, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
         //publishToBroker(subTopic, String.format("ApparentPower %.03f", apparent.getValue()));
         subTopic = TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
         Metric real = circuitMap.get(circuit).getAverageBetween(Power.WATTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
-        publishToBroker(subTopic, String.format("%.03f", real.getValue()));
+        double value = real.getValue();
+        if (Math.abs(value) < NOISE_FILTER) value = 0d;
+        publishToBroker(subTopic, String.format("%.03f",value));
     }
 
     //
@@ -260,7 +261,7 @@ public class PowerDataProcessor extends Thread implements MqttCallback
                 try
                 {
                     Thread.sleep(Math.max(0, ((startTime + 1000) - System.currentTimeMillis()) / 2));
-                } catch (InterruptedException ignored)
+                } catch (InterruptedException ignore)
                 {
                 }
             }
