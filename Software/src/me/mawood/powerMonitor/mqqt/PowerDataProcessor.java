@@ -164,7 +164,7 @@ public class PowerDataProcessor extends Thread implements MqttCallback
      */
     private void publishToBroker(String subTopic, String content)
     {
-        System.out.println("'"+subTopic+"'"+"'"+content+"'");
+        //System.out.println("'"+subTopic+"'"+"'"+content+"'");
         final int qos = 2; //The message is always delivered exactly once
 
         try
