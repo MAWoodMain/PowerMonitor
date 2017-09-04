@@ -68,7 +68,6 @@ public class PowerDataProcessor extends Thread implements MqttCallback
         // make connection to MQTT broker
         mqttClient.connect(connOpts);
         System.out.println("PowerDataProcessor Connected");
-        this.start();
     }
 
     //
@@ -207,10 +206,10 @@ public class PowerDataProcessor extends Thread implements MqttCallback
 
     private void publishCircuitToBroker(Circuits circuit) throws InvalidDataException, OperationNotSupportedException
     {
-        String subTopic = TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
+        String subTopic;
+        subTopic = TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
         //Metric apparent = circuitMap.get(circuit).getAverageBetween(Power.VA, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
         //publishToBroker(subTopic, String.format("ApparentPower %.03f", apparent.getValue()));
-        subTopic = TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
         Metric real = circuitMap.get(circuit).getAverageBetween(Power.WATTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
         double value = real.getValue();
         if (Math.abs(value) < NOISE_FILTER) value = 0d;

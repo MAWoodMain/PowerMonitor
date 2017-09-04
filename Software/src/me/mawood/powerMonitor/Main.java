@@ -33,14 +33,12 @@ public class Main
         try
         {
             pdp = new PowerDataProcessor(circuitMap);
+            pdp.start(); // run in separate thread
         } catch (MqttException e)
         {
             PowerDataProcessor.handleMQTTException(e);
             System.exit(9);
         }
-        //Thread.sleep(2*1000);
-        //PowerDataSubscriber pds = new PowerDataSubscriber();
-
         Thread.sleep(1*60*1000);
         packetCollector.close();
         pdp.interrupt();
