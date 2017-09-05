@@ -184,18 +184,11 @@ public class PowerDataProcessor extends Thread implements MqttCallback
     {
         final int qos = 2; //The message is always delivered exactly once
 
-        final DateTimeFormatter formatter =
-                DateTimeFormatter.ofLocalizedDateTime( FormatStyle.MEDIUM )
-                        .withLocale( Locale.UK )
-                        .withZone( ZoneId.systemDefault() );
-
         double value = metric.getValue();
         if (Math.abs(value) < NOISE_FILTER) value = 0d;
-        String content = String.format("%.03f %s at %s", value,metric.getUnit().getSymbol(), formatter.format(metric.getTimestamp()));
-
         try
         {
-            MqttMessage message = new MqttMessage(content.getBytes());
+            MqttMessage message = new MqttMessage(metric.toString().getBytes());
             message.setQos(qos);
             mqttClient.publish(subTopic, message);
         } catch (MqttException me)

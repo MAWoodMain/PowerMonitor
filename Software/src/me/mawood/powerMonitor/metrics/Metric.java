@@ -1,5 +1,6 @@
 package me.mawood.powerMonitor.metrics;
 
+import com.sun.org.apache.xpath.internal.SourceTree;
 import me.mawood.powerMonitor.metrics.units.Unit;
 
 import java.time.Instant;
@@ -40,10 +41,11 @@ public class Metric implements Comparable<Metric>
     public String toString()
     {
         final DateTimeFormatter formatter =
-                DateTimeFormatter.ofLocalizedDateTime( FormatStyle.MEDIUM )
+                DateTimeFormatter.ISO_LOCAL_DATE_TIME
                         .withLocale( Locale.UK )
                         .withZone( ZoneId.systemDefault() );
-        return String.format("Metric: {%.03f %s at %s}", value,unit.getSymbol(), formatter.format(timestamp));
+        //System.out.println(String.format("Metric: {%.03f %s at %s}", value,unit.getSymbol(), formatter.format(timestamp)));
+        return String.format("%.03f %s at %s", value,unit.getSymbol(), formatter.format(timestamp));
     }
     @Override
     public int compareTo(Metric o)
