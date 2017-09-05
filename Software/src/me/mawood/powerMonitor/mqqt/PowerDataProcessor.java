@@ -5,6 +5,7 @@ import me.mawood.powerMonitor.metrics.InvalidDataException;
 import me.mawood.powerMonitor.metrics.Metric;
 import me.mawood.powerMonitor.metrics.PowerMetricCalculator;
 import me.mawood.powerMonitor.metrics.units.Power;
+import me.mawood.powerMonitor.metrics.units.Voltage;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
@@ -188,10 +189,9 @@ public class PowerDataProcessor extends Thread implements MqttCallback
                         .withLocale( Locale.UK )
                         .withZone( ZoneId.systemDefault() );
 
-        //String content = String.format("%.03f %s at %s", metric.getValue(),metric.getUnit().getSymbol(), formatter.format(metric.getTimestamp()));
         double value = metric.getValue();
         if (Math.abs(value) < NOISE_FILTER) value = 0d;
-        String content = String.format("%.03f",value );
+        String content = String.format("%.03f %s at %s", value,metric.getUnit().getSymbol(), formatter.format(metric.getTimestamp()));
 
         try
         {
@@ -208,12 +208,15 @@ public class PowerDataProcessor extends Thread implements MqttCallback
     {
         String subTopic;
         subTopic = TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
-        //Metric apparent = circuitMap.get(circuit).getAverageBetween(Power.VA, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
-        //publishToBroker(subTopic, String.format("ApparentPower %.03f", apparent.getValue()));
+        Metric apparent = circuitMap.get(circuit).getAverageBetween(Power.VA, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
+        publishMetricToBroker(subTopic+"/ApparentPower" ,apparent);
         Metric real = circuitMap.get(circuit).getAverageBetween(Power.WATTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
-        double value = real.getValue();
-        if (Math.abs(value) < NOISE_FILTER) value = 0d;
-        publishToBroker(subTopic, String.format("%.03f",value));
+        publishMetricToBroker(subTopic + "/RealPower", real);
+        if(subTopic.contains("Whole_House"))
+        {
+            Metric voltage = circuitMap.get(circuit).getAverageBetween(Voltage.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
+            publishMetricToBroker(subTopic+"/Voltage",voltage);
+        }
     }
 
     //
@@ -239,11 +242,6 @@ public class PowerDataProcessor extends Thread implements MqttCallback
             //rawMetricsBuffer.printMetricsBuffer();
             try
             {
-                /*
-                subTopic = TOPIC + "/" +WHOLE_HOUSE.getDisplayName().replace(" ", "_");
-                Metric voltage = circuitMap.get(WHOLE_HOUSE).getAverageBetween(Voltage.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
-                publishToBroker(subTopic,String.format("%.03f", voltage.getValue()));
-                */
                 for(Circuits circuit:circuitMap.keySet())
                 {
                     publishCircuitToBroker(circuit);
