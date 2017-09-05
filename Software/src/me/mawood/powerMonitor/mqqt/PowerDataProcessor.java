@@ -172,7 +172,7 @@ public class PowerDataProcessor extends Thread implements MqttCallback
             MqttMessage message = new MqttMessage(content.getBytes());
             message.setQos(qos);
             mqttClient.publish(subTopic, message);
-           // System.out.println("Message published to " + subTopic);
+            // System.out.println("Message published to " + subTopic);
         } catch (MqttException me)
         {
             handleMQTTException(me);
@@ -202,13 +202,13 @@ public class PowerDataProcessor extends Thread implements MqttCallback
         String subTopic;
         subTopic = TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
         Metric apparent = circuitMap.get(circuit).getAverageBetween(Power.VA, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
-        publishMetricToBroker(subTopic+"/ApparentPower" ,apparent);
+        publishMetricToBroker(subTopic + "/ApparentPower", apparent);
         Metric real = circuitMap.get(circuit).getAverageBetween(Power.WATTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
         publishMetricToBroker(subTopic + "/RealPower", real);
-        if(subTopic.contains("Whole_House"))
+        if (subTopic.contains("Whole_House"))
         {
             Metric voltage = circuitMap.get(circuit).getAverageBetween(Voltage.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
-            publishMetricToBroker(subTopic+"/Voltage",voltage);
+            publishMetricToBroker(subTopic + "/Voltage", voltage);
         }
     }
 
@@ -228,22 +228,27 @@ public class PowerDataProcessor extends Thread implements MqttCallback
         {
             // wait for first readings to be ready
             Thread.sleep(2010);
-        } catch (InterruptedException ignored) {}
+        } catch (InterruptedException ignored)
+        {
+        }
         while (!Thread.interrupted())
         {
             startTime = System.currentTimeMillis();
             //rawMetricsBuffer.printMetricsBuffer();
-            try
+
+            for (Circuits circuit : circuitMap.keySet())
             {
-                for(Circuits circuit:circuitMap.keySet())
+
+                try
                 {
                     publishCircuitToBroker(circuit);
+                } catch (InvalidDataException | OperationNotSupportedException e)
+                {
+                    System.out.println("no data for circuit: " + circuit.getDisplayName());
                 }
-
-            } catch (OperationNotSupportedException | InvalidDataException e)
-            {
-                e.printStackTrace();
             }
+
+
             //Frequency
             while (startTime + 1000 > System.currentTimeMillis())
             {
