@@ -263,5 +263,6 @@ public class PowerDataProcessor extends Thread implements MqttCallback
         }
         shutdownDataProcessing();
         System.out.println("Data Processing Interrupted, exiting");
+        System.exit(0);
     }
 }

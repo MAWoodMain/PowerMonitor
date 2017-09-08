@@ -39,10 +39,5 @@ public class Main
             PowerDataProcessor.handleMQTTException(e);
             System.exit(9);
         }
-        Thread.sleep(1*60*1000);
-        packetCollector.close();
-        pdp.interrupt();
-        Thread.sleep(2000); //give it time to clean up
-        System.exit(1);
     }
 }
