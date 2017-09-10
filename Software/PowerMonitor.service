@@ -3,7 +3,7 @@ Description=Power Monitor - pull power monitoring data from RPi daughter board, 
 After=network.target
 
 [Service]
-WorkingDirectory=/var/PowerMonitor
+WorkingDirectory=/var/opt/PowerMonitor
 SyslogIdentifier=PowerMonitor
 ExecStart=/bin/sh -c "exec sudo java -cp classes:/opt/PowerMonitor/Software/lib/'*' -jar /opt/PowerMonitor/Software/out/artifacts/PowerMonitor_jar/PowerMonitor.jar"
 User=root
