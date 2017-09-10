@@ -5,7 +5,7 @@ After=network.target
 [Service]
 WorkingDirectory=/var/PowerMonitor
 SyslogIdentifier=PowerMonitor
-ExecStart=/bin/sh -c "exec java -jar opt/PowerMonitor/Software/out/artifacts/PowerMonitor_jar/PowerMonitor.jar"
+ExecStart=/bin/sh -c "exec sudo java -cp classes:/opt/PowerMonitor/Software/lib/'*' -jar /opt/PowerMonitor/Software/out/artifacts/PowerMonitor_jar/PowerMonitor.jar"
 User=root
 Type=simple
 
