@@ -9,9 +9,9 @@ import java.util.*;
 
 public abstract class Monitor<E extends Metric> implements PacketEventListener
 {
-    protected final CircularArrayList<E> ringBuffer;
+    final CircularArrayList<E> ringBuffer;
 
-    protected Monitor(int bufferSize)
+    Monitor(int bufferSize)
     {
         ringBuffer = new CircularArrayList<>(bufferSize);
     }

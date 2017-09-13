@@ -19,17 +19,17 @@ public class Main
     public static void main(String[] args) throws IOException, InterruptedException
     {
         STM8PacketCollector packetCollector = new STM8PacketCollector(1000);
-        VoltageMonitor vm = new VoltageMonitor(100000, VoltageSenseConfig.UK9V, packetCollector);
+        VoltageMonitor vm = new VoltageMonitor(1000, VoltageSenseConfig.UK9V, packetCollector);
 
         HashMap<Circuits, PowerMetricCalculator> circuitMap = new HashMap<>();
 
         for(Circuits circuit: HomeCircuits.values())
         {
             circuitMap.put(circuit, new PowerMetricCalculator(vm,
-                    new CurrentMonitor(100000, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector),
-                    new RealPowerMonitor(100000, VoltageSenseConfig.UK9V, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector)));
+                    new CurrentMonitor(1000, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector),
+                    new RealPowerMonitor(1000, VoltageSenseConfig.UK9V, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector)));
         }
-        PowerDataProcessor pdp = null;
+        PowerDataProcessor pdp;
         try
         {
             pdp = new PowerDataProcessor(circuitMap);

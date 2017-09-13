@@ -16,18 +16,18 @@ public class Packet
     {
         private final double iRms;
         private final double realPower;
-        public Measurement(double iRms, double realPower)
+        Measurement(double iRms, double realPower)
         {
             this.iRms = iRms;
             this.realPower = realPower;
         }
 
-        public double getIRms()
+        double getIRms()
         {
             return iRms;
         }
 
-        public double getRealPower()
+        double getRealPower()
         {
             return realPower;
         }
@@ -41,7 +41,7 @@ public class Packet
                     '}';
         }
 
-        public String toCSV()
+        String toCSV()
         {
             return iRms + "," + realPower;
         }

@@ -26,7 +26,7 @@ public class PowerMetricCalculator
         this.powerMonitor = powerMonitor;
     }
 
-    public Metric getLatestMetric(Unit metricType) throws OperationNotSupportedException
+    private Metric getLatestMetric(Unit metricType) throws OperationNotSupportedException
     {
         switch (metricType.getType())
         {
@@ -42,7 +42,7 @@ public class PowerMetricCalculator
 
     }
 
-    public List<Metric> getMetricsBetween(Unit metricType, Instant startTime, Instant endTime) throws OperationNotSupportedException
+    private List<Metric> getMetricsBetween(Unit metricType, Instant startTime, Instant endTime) throws OperationNotSupportedException
     {
         switch (metricType.getType())
         {

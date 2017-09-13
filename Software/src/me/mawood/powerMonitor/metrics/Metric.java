@@ -1,17 +1,17 @@
 package me.mawood.powerMonitor.metrics;
 
-import com.sun.org.apache.xpath.internal.SourceTree;
 import me.mawood.powerMonitor.metrics.units.Unit;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.Locale;
 
 public class Metric implements Comparable<Metric>
 {
-    private final double value;
+    private static final double NOISE_FILTER = 2d; // ignore metrics whose absolute value is smaller than this
+
+    private double value;
     private final Instant timestamp;
     // Using generics to facilitate unit conversion later.
     private final Unit unit;
@@ -51,5 +51,10 @@ public class Metric implements Comparable<Metric>
     public int compareTo(Metric o)
     {
         return (int)(timestamp.toEpochMilli() - o.timestamp.toEpochMilli());
+    }
+    public void suppressNoise()
+    {
+        if (Math.abs(value) < NOISE_FILTER) value = 0d;
+
     }
 }

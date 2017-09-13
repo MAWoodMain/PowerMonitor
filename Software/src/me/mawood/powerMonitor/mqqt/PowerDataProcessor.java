@@ -11,10 +11,6 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import javax.naming.OperationNotSupportedException;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
-import java.util.Locale;
 import java.util.Map;
 
 public class PowerDataProcessor extends Thread implements MqttCallback
@@ -40,7 +36,6 @@ public class PowerDataProcessor extends Thread implements MqttCallback
     private static final String BROKER = "tcp://localhost:1883";
     private static final String USERNAME = "emonpi";
     private static final String PASSWORD = "emonpimqtt2016";
-    private static final double NOISE_FILTER = 2d; // ignore metrics whose absolute value is smaller than this
 
     private final MqttClient mqttClient;
     private final MqttConnectOptions connOpts;
@@ -184,8 +179,7 @@ public class PowerDataProcessor extends Thread implements MqttCallback
     {
         final int qos = 2; //The message is always delivered exactly once
 
-        double value = metric.getValue();
-        if (Math.abs(value) < NOISE_FILTER) value = 0d;
+        metric.suppressNoise();
         try
         {
             MqttMessage message = new MqttMessage(metric.toString().getBytes());

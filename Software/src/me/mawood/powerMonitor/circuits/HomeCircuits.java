@@ -14,9 +14,9 @@ public enum HomeCircuits implements Circuits
     COOKER("Cooker", 8, CurrentClampConfig.SCT013_30A1V),
     WHOLE_HOUSE("Whole House", 9, CurrentClampConfig.SCT013_100A1V);
 
-    String displayName;
-    int channelNumber;
-    CurrentClampConfig clampConfig;
+    final String displayName;
+    final int channelNumber;
+    final CurrentClampConfig clampConfig;
 
     HomeCircuits(String displayName, int channelNumber, CurrentClampConfig clampConfig)
     {

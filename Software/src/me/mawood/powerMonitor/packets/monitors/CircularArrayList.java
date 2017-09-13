@@ -2,7 +2,7 @@ package me.mawood.powerMonitor.packets.monitors;
 
 import java.util.*;
 
-public class CircularArrayList<E> extends AbstractList<E> implements RandomAccess
+class CircularArrayList<E> extends AbstractList<E> implements RandomAccess
 {
 
     private final int n; // buffer length
@@ -13,7 +13,7 @@ public class CircularArrayList<E> extends AbstractList<E> implements RandomAcces
 
     public CircularArrayList(int capacity) {
         n = capacity + 1;
-        buf = new ArrayList<E>(Collections.nCopies(n, (E) null));
+        buf = new ArrayList<>(Collections.nCopies(n, null));
     }
 
     public int capacity() {
