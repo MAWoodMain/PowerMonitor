@@ -101,11 +101,12 @@ public class PowerDataProcessor extends Thread implements MqttCallback
     @Override
     public void messageArrived(String s, MqttMessage mqttMessage) throws Exception
     {
+        /*
         System.out.println("-------------------------------------------------");
         System.out.println("| Topic:" + s);
         System.out.println("| Message: " + new String(mqttMessage.getPayload()));
         System.out.println("-------------------------------------------------");
-
+        */
     }
 
     /**
@@ -238,7 +239,7 @@ public class PowerDataProcessor extends Thread implements MqttCallback
                     publishCircuitToBroker(circuit);
                 } catch (InvalidDataException | OperationNotSupportedException e)
                 {
-                    System.out.println("no data for circuit: " + circuit.getDisplayName());
+                    //System.out.println("no data for circuit: " + circuit.getDisplayName());
                 }
             }
 
