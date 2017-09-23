@@ -105,6 +105,7 @@ public class PowerDataAPIPublisher extends Thread
 
       private void AddReadingToDatabase(String deviceTag, String dataTypeTag, MetricReading reading)
     {
+        //System.out.printf("Adding %S reading to %s\n",dataTypeTag,deviceTag);
         readingAccessor.addReading(deviceTag,dataTypeTag,new Reading[]{new Reading(reading.getValue(),reading.getTimestamp().toEpochMilli())});
     }
 
