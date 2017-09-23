@@ -1,6 +1,6 @@
 package me.mawood.powerMonitor.processing;
 
-import me.mawood.powerMonitor.circuits.Circuits;
+import me.mawood.powerMonitor.circuits.Circuit;
 import me.mawood.powerMonitor.metrics.InvalidDataException;
 import me.mawood.powerMonitor.metrics.Reading;
 import me.mawood.powerMonitor.metrics.PowerMetricCalculator;
@@ -44,12 +44,12 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
 
     // run control variables
     private volatile boolean msgArrived;
-    private final Map<Circuits, PowerMetricCalculator> circuitMap;
+    private final Map<Circuit, PowerMetricCalculator> circuitMap;
 
     /**
      * PowerDataMQTTPublisher   Constructor
      */
-    public PowerDataMQTTPublisher(Map<Circuits, PowerMetricCalculator> circuitMap) throws MqttException
+    public PowerDataMQTTPublisher(Map<Circuit, PowerMetricCalculator> circuitMap) throws MqttException
     {
         this.circuitMap = circuitMap;
         noMessagesSentOK = 0;
@@ -192,7 +192,7 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
         }
     }
 
-    private void publishCircuitToBroker(Circuits circuit) throws InvalidDataException, OperationNotSupportedException
+    private void publishCircuitToBroker(Circuit circuit) throws InvalidDataException, OperationNotSupportedException
     {
         String subTopic;
         subTopic = TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
@@ -231,7 +231,7 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
             startTime = System.currentTimeMillis();
             //rawMetricsBuffer.printMetricsBuffer();
 
-            for (Circuits circuit : circuitMap.keySet())
+            for (Circuit circuit : circuitMap.keySet())
             {
 
                 try

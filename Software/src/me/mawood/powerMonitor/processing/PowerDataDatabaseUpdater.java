@@ -1,6 +1,8 @@
 package me.mawood.powerMonitor.processing;
 
-import me.mawood.powerMonitor.circuits.Circuits;
+import me.mawood.data_api_client.accessors.DeviceAccessor;
+import me.mawood.data_api_client.objects.Device;
+import me.mawood.powerMonitor.circuits.Circuit;
 import me.mawood.powerMonitor.metrics.InvalidDataException;
 import me.mawood.powerMonitor.metrics.Reading;
 import me.mawood.powerMonitor.metrics.PowerMetricCalculator;
@@ -8,7 +10,9 @@ import me.mawood.powerMonitor.metrics.units.Power;
 import me.mawood.powerMonitor.metrics.units.Voltage;
 
 import javax.naming.OperationNotSupportedException;
+import javax.ws.rs.BadRequestException;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 
 public class PowerDataDatabaseUpdater extends Thread
@@ -36,17 +40,38 @@ public class PowerDataDatabaseUpdater extends Thread
 
     // run control variables
     private volatile boolean msgArrived;
-    private final Map<Circuits, PowerMetricCalculator> circuitMap;
+    private final Map<Circuit, PowerMetricCalculator> circuitMap;
+    private final DeviceAccessor deviceAccessor;
+    private Map<Circuit, Device> deviceMap = new HashMap<>();
 
     /**
      * PowerDataMQTTPublisher   Constructor
      */
-    public PowerDataDatabaseUpdater(Map<Circuits, PowerMetricCalculator> circuitMap)
+    public PowerDataDatabaseUpdater(Map<Circuit, PowerMetricCalculator> circuitMap)
     {
+        deviceAccessor = new DeviceAccessor(API_URL);
+        Device device;
+
         this.circuitMap = circuitMap;
+        for (Circuit circuit : circuitMap.keySet())
+        {
+            try
+            {
+                device = deviceAccessor.getDevice(circuit.getTag());
+                deviceMap.put(circuit,device);
+            }
+            catch (BadRequestException e)
+            {
+                device = new Device();
+                device.setName(circuit.getDisplayName());
+                device.setTag(circuit.getTag());
+                deviceMap.put(circuit,device);
+                deviceAccessor.addDevice(device);
+            }
+        }
         noMessagesSentOK = 0;
         //connect to DB
-        System.out.println("PowerDataDatabaseUpdater Connected");
+        System.out.println("PowerDataDatabaseUpdater devices established");
     }
 
     /**
@@ -73,7 +98,7 @@ public class PowerDataDatabaseUpdater extends Thread
 
     }
 
-    private void updateCircuitInDatabase(Circuits circuit) throws InvalidDataException, OperationNotSupportedException
+    private void updateCircuitInDatabase(Circuit circuit) throws InvalidDataException, OperationNotSupportedException
     {
         String subTopic;
         subTopic =  "/" + circuit.getDisplayName().replace(" ", "_");
@@ -112,7 +137,7 @@ public class PowerDataDatabaseUpdater extends Thread
             startTime = System.currentTimeMillis();
             //rawMetricsBuffer.printMetricsBuffer();
 
-            for (Circuits circuit : circuitMap.keySet())
+            for (Circuit circuit : circuitMap.keySet())
             {
 
                 try

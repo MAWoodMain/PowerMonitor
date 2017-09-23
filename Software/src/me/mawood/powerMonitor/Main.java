@@ -1,6 +1,6 @@
 package me.mawood.powerMonitor;
 
-import me.mawood.powerMonitor.circuits.Circuits;
+import me.mawood.powerMonitor.circuits.Circuit;
 import me.mawood.powerMonitor.circuits.HomeCircuits;
 import me.mawood.powerMonitor.metrics.PowerMetricCalculator;
 import me.mawood.powerMonitor.processing.PowerDataDatabaseUpdater;
@@ -20,9 +20,9 @@ public class Main
         STM8PacketCollector packetCollector = new STM8PacketCollector(1000);
         VoltageMonitor vm = new VoltageMonitor(1000, VoltageSenseConfig.UK9V, packetCollector);
 
-        HashMap<Circuits, PowerMetricCalculator> circuitMap = new HashMap<>();
+        HashMap<Circuit, PowerMetricCalculator> circuitMap = new HashMap<>();
 
-        for(Circuits circuit: HomeCircuits.values())
+        for(Circuit circuit: HomeCircuits.values())
         {
             circuitMap.put(circuit, new PowerMetricCalculator(vm,
                     new CurrentMonitor(1000, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector),

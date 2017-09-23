@@ -2,7 +2,7 @@ package me.mawood.powerMonitor.circuits;
 
 import me.mawood.powerMonitor.packets.monitors.configs.CurrentClampConfig;
 
-public enum HomeCircuits implements Circuits
+public enum HomeCircuits implements Circuit
 {
     UPSTAIRS_LIGHTING("Upstairs Lighting", 1, CurrentClampConfig.SCT013_5A1V),
     DOWNSTAIRS_LIGHTING("Downstairs Lighting", 2, CurrentClampConfig.SCT013_5A1V),
