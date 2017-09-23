@@ -2,7 +2,7 @@ package me.mawood.powerMonitor.processing;
 
 import me.mawood.powerMonitor.circuits.Circuits;
 import me.mawood.powerMonitor.metrics.InvalidDataException;
-import me.mawood.powerMonitor.metrics.Metric;
+import me.mawood.powerMonitor.metrics.Reading;
 import me.mawood.powerMonitor.metrics.PowerMetricCalculator;
 import me.mawood.powerMonitor.metrics.units.Power;
 import me.mawood.powerMonitor.metrics.units.Voltage;
@@ -176,14 +176,14 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
     }
 
 
-    private void publishMetricToBroker(String subTopic, Metric metric)
+    private void publishMetricToBroker(String subTopic, Reading reading)
     {
         final int qos = 2; //The message is always delivered exactly once
 
-        metric.suppressNoise();
+        reading.suppressNoise();
         try
         {
-            MqttMessage message = new MqttMessage(metric.toString().getBytes());
+            MqttMessage message = new MqttMessage(reading.toString().getBytes());
             message.setQos(qos);
             mqttClient.publish(subTopic, message);
         } catch (MqttException me)
@@ -196,13 +196,13 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
     {
         String subTopic;
         subTopic = TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
-        Metric apparent = circuitMap.get(circuit).getAverageBetween(Power.VA, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
+        Reading apparent = circuitMap.get(circuit).getAverageBetween(Power.VA, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
         publishMetricToBroker(subTopic + "/ApparentPower", apparent);
-        Metric real = circuitMap.get(circuit).getAverageBetween(Power.WATTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
+        Reading real = circuitMap.get(circuit).getAverageBetween(Power.WATTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
         publishMetricToBroker(subTopic + "/RealPower", real);
         if (subTopic.contains("Whole_House"))
         {
-            Metric voltage = circuitMap.get(circuit).getAverageBetween(Voltage.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
+            Reading voltage = circuitMap.get(circuit).getAverageBetween(Voltage.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
             publishMetricToBroker(subTopic + "/Voltage", voltage);
         }
     }

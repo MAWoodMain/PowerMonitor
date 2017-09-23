@@ -7,7 +7,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
-public class Metric implements Comparable<Metric>
+public class Reading implements Comparable<Reading>
 {
     private static final double NOISE_FILTER = 2d; // ignore metrics whose absolute value is smaller than this
 
@@ -16,7 +16,7 @@ public class Metric implements Comparable<Metric>
     // Using generics to facilitate unit conversion later.
     private final Unit unit;
 
-    public Metric(double value,Instant timestamp, Unit unit)
+    public Reading(double value, Instant timestamp, Unit unit)
     {
         this.value = value;
         this.timestamp = timestamp;
@@ -44,11 +44,11 @@ public class Metric implements Comparable<Metric>
                 DateTimeFormatter.ISO_LOCAL_DATE_TIME
                         .withLocale( Locale.UK )
                         .withZone( ZoneId.systemDefault() );
-        //System.out.println(String.format("Metric: {%.03f %s at %s}", value,unit.getSymbol(), formatter.format(timestamp)));
+        //System.out.println(String.format("Reading: {%.03f %s at %s}", value,unit.getSymbol(), formatter.format(timestamp)));
         return String.format("%.03f %s at %s", value,unit.getSymbol(), formatter.format(timestamp));
     }
     @Override
-    public int compareTo(Metric o)
+    public int compareTo(Reading o)
     {
         return (int)(timestamp.toEpochMilli() - o.timestamp.toEpochMilli());
     }

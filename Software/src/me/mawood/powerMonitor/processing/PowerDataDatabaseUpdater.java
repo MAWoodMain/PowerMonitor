@@ -2,7 +2,7 @@ package me.mawood.powerMonitor.processing;
 
 import me.mawood.powerMonitor.circuits.Circuits;
 import me.mawood.powerMonitor.metrics.InvalidDataException;
-import me.mawood.powerMonitor.metrics.Metric;
+import me.mawood.powerMonitor.metrics.Reading;
 import me.mawood.powerMonitor.metrics.PowerMetricCalculator;
 import me.mawood.powerMonitor.metrics.units.Power;
 import me.mawood.powerMonitor.metrics.units.Voltage;
@@ -11,7 +11,7 @@ import javax.naming.OperationNotSupportedException;
 import java.time.Instant;
 import java.util.Map;
 
-public class PowerDataDataBaseUpdater extends Thread
+public class PowerDataDatabaseUpdater extends Thread
 {
     private class ChannelMap
     {
@@ -28,8 +28,9 @@ public class PowerDataDataBaseUpdater extends Thread
             this.name = name;
         }
     }
-    private static final String USERNAME = "emonpi";
-    private static final String PASSWORD = "emonpimqtt2016";
+    private static final String API_URL = "http://silent-fox/api/";
+    private static final String USERNAME = "gjwood";
+    private static final String PASSWORD = "P@ssw0rd";
 
     private long noMessagesSentOK;
 
@@ -40,51 +41,50 @@ public class PowerDataDataBaseUpdater extends Thread
     /**
      * PowerDataMQTTPublisher   Constructor
      */
-    public PowerDataDataBaseUpdater(Map<Circuits, PowerMetricCalculator> circuitMap)
+    public PowerDataDatabaseUpdater(Map<Circuits, PowerMetricCalculator> circuitMap)
     {
         this.circuitMap = circuitMap;
         noMessagesSentOK = 0;
         //connect to DB
-        System.out.println("PowerDataDataBaseUpdater Connected");
+        System.out.println("PowerDataDatabaseUpdater Connected");
     }
 
     /**
-     * shutdownDataProcessing   Tidy shutdown of the processor
+     * shutdownDatabaseProcessing   Tidy shutdown of the processor
      */
-    private void shutdownDataProcessing()
+    private void shutdownDatabaseProcessing()
     {
         System.out.println("PowerDataDataBaseUpdate disconnected from DB");
         System.out.println(noMessagesSentOK + " messages sent successfully");
     }
 
     /**
-     * publishToBroker - send a message to the MQTT broker
+     * updateDatabase - send a message to the MQTT broker
      *
-     * @param subTopic - fully qualified TOPIC identifier
+     * @param tag - fully qualified TOPIC identifier
      * @param content  - message content "key data"
      */
-    private void publishToBroker(String subTopic, String content)
+    private void updateDatabase(String tag, String content)
     {
     }
 
-
-    private void publishMetricToBroker(String subTopic, Metric metric)
+    private void AddReadingToDatabase(String tag, Reading reading)
     {
 
     }
 
-    private void publishCircuitToBroker(Circuits circuit) throws InvalidDataException, OperationNotSupportedException
+    private void updateCircuitInDatabase(Circuits circuit) throws InvalidDataException, OperationNotSupportedException
     {
         String subTopic;
         subTopic =  "/" + circuit.getDisplayName().replace(" ", "_");
-        Metric apparent = circuitMap.get(circuit).getAverageBetween(Power.VA, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
-        publishMetricToBroker(subTopic + "/ApparentPower", apparent);
-        Metric real = circuitMap.get(circuit).getAverageBetween(Power.WATTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
-        publishMetricToBroker(subTopic + "/RealPower", real);
+        Reading apparent = circuitMap.get(circuit).getAverageBetween(Power.VA, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
+        AddReadingToDatabase(subTopic + "/ApparentPower", apparent);
+        Reading real = circuitMap.get(circuit).getAverageBetween(Power.WATTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
+        AddReadingToDatabase(subTopic + "/RealPower", real);
         if (subTopic.contains("Whole_House"))
         {
-            Metric voltage = circuitMap.get(circuit).getAverageBetween(Voltage.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
-            publishMetricToBroker(subTopic + "/Voltage", voltage);
+            Reading voltage = circuitMap.get(circuit).getAverageBetween(Voltage.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
+            AddReadingToDatabase(subTopic + "/Voltage", voltage);
         }
     }
 
@@ -117,7 +117,7 @@ public class PowerDataDataBaseUpdater extends Thread
 
                 try
                 {
-                    publishCircuitToBroker(circuit);
+                    updateCircuitInDatabase(circuit);
                 } catch (InvalidDataException | OperationNotSupportedException e)
                 {
                     //System.out.println("no data for circuit: " + circuit.getDisplayName());
@@ -137,7 +137,7 @@ public class PowerDataDataBaseUpdater extends Thread
                 }
             }
         }
-        shutdownDataProcessing();
+        shutdownDatabaseProcessing();
         System.out.println("Data Processing Interrupted, exiting");
         System.exit(0);
     }

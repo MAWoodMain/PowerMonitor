@@ -1,13 +1,13 @@
 package me.mawood.powerMonitor.packets.monitors;
 
-import me.mawood.powerMonitor.metrics.Metric;
+import me.mawood.powerMonitor.metrics.Reading;
 import me.mawood.powerMonitor.packets.Packet;
 import me.mawood.powerMonitor.packets.PacketEventListener;
 
 import java.time.Instant;
 import java.util.*;
 
-public abstract class Monitor<E extends Metric> implements PacketEventListener
+public abstract class Monitor<E extends Reading> implements PacketEventListener
 {
     final CircularArrayList<E> ringBuffer;
 

@@ -7,4 +7,5 @@ public interface Circuits
     String getDisplayName();
     int getChannelNumber();
     CurrentClampConfig getClampConfig();
+    String getTag();
 }

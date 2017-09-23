@@ -15,12 +15,14 @@ public enum HomeCircuits implements Circuits
     WHOLE_HOUSE("Whole House", 9, CurrentClampConfig.SCT013_100A1V);
 
     final String displayName;
+    final String tag;
     final int channelNumber;
     final CurrentClampConfig clampConfig;
 
-    HomeCircuits(String displayName, int channelNumber, CurrentClampConfig clampConfig)
+    HomeCircuits(String displayName,  int channelNumber, CurrentClampConfig clampConfig)
     {
         this.displayName = displayName;
+        this.tag = displayName.replace(" ", "_").toLowerCase();
         this.channelNumber = channelNumber;
         this.clampConfig = clampConfig;
     }
@@ -35,5 +37,9 @@ public enum HomeCircuits implements Circuits
     public CurrentClampConfig getClampConfig()
     {
         return clampConfig;
+    }
+    public String getTag()
+    {
+        return tag;
     }
 }
