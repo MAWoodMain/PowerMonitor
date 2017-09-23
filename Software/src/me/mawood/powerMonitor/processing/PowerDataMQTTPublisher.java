@@ -1,4 +1,4 @@
-package me.mawood.powerMonitor.mqqt;
+package me.mawood.powerMonitor.processing;
 
 import me.mawood.powerMonitor.circuits.Circuits;
 import me.mawood.powerMonitor.metrics.InvalidDataException;
@@ -13,7 +13,7 @@ import javax.naming.OperationNotSupportedException;
 import java.time.Instant;
 import java.util.Map;
 
-public class PowerDataProcessor extends Thread implements MqttCallback
+public class PowerDataMQTTPublisher extends Thread implements MqttCallback
 {
     private class ChannelMap
     {
@@ -47,9 +47,9 @@ public class PowerDataProcessor extends Thread implements MqttCallback
     private final Map<Circuits, PowerMetricCalculator> circuitMap;
 
     /**
-     * PowerDataProcessor   Constructor
+     * PowerDataMQTTPublisher   Constructor
      */
-    public PowerDataProcessor(Map<Circuits, PowerMetricCalculator> circuitMap) throws MqttException
+    public PowerDataMQTTPublisher(Map<Circuits, PowerMetricCalculator> circuitMap) throws MqttException
     {
         this.circuitMap = circuitMap;
         noMessagesSentOK = 0;
@@ -60,10 +60,10 @@ public class PowerDataProcessor extends Thread implements MqttCallback
         connOpts.setCleanSession(true);
         connOpts.setUserName(USERNAME);
         connOpts.setPassword(PASSWORD.toCharArray());
-        System.out.println("Connecting PowerDataProcessor to broker: " + BROKER);
+        System.out.println("Connecting PowerDataMQTTPublisher to broker: " + BROKER);
         // make connection to MQTT broker
         mqttClient.connect(connOpts);
-        System.out.println("PowerDataProcessor Connected");
+        System.out.println("PowerDataMQTTPublisher Connected");
     }
 
     //
@@ -148,7 +148,7 @@ public class PowerDataProcessor extends Thread implements MqttCallback
         {
             handleMQTTException(me);
         }
-        System.out.println("PowerDataProcessor disconnected from MQTT Broker");
+        System.out.println("PowerDataMQTTPublisher disconnected from MQTT Broker");
         System.out.println(noMessagesSentOK + " messages sent successfully");
     }
 

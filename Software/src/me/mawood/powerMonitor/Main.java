@@ -3,7 +3,7 @@ package me.mawood.powerMonitor;
 import me.mawood.powerMonitor.circuits.Circuits;
 import me.mawood.powerMonitor.circuits.HomeCircuits;
 import me.mawood.powerMonitor.metrics.PowerMetricCalculator;
-import me.mawood.powerMonitor.mqqt.PowerDataProcessor;
+import me.mawood.powerMonitor.processing.PowerDataMQTTPublisher;
 import me.mawood.powerMonitor.packets.monitors.CurrentMonitor;
 import me.mawood.powerMonitor.packets.monitors.RealPowerMonitor;
 import me.mawood.powerMonitor.packets.monitors.VoltageMonitor;
@@ -29,14 +29,14 @@ public class Main
                     new CurrentMonitor(1000, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector),
                     new RealPowerMonitor(1000, VoltageSenseConfig.UK9V, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector)));
         }
-        PowerDataProcessor pdp;
+        PowerDataMQTTPublisher pdp;
         try
         {
-            pdp = new PowerDataProcessor(circuitMap);
+            pdp = new PowerDataMQTTPublisher(circuitMap);
             pdp.start(); // run in separate thread
         } catch (MqttException e)
         {
-            PowerDataProcessor.handleMQTTException(e);
+            PowerDataMQTTPublisher.handleMQTTException(e);
             System.exit(9);
         }
     }
