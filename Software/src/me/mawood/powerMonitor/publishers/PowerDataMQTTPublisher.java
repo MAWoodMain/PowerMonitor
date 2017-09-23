@@ -1,4 +1,4 @@
-package me.mawood.powerMonitor.processing;
+package me.mawood.powerMonitor.publishers;
 
 import me.mawood.powerMonitor.circuits.Circuit;
 import me.mawood.powerMonitor.metrics.InvalidDataException;
@@ -212,7 +212,7 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
     //
 
     /**
-     * run  The main processing loop
+     * run  The main publishers loop
      */
     @Override
     public void run()

@@ -1,4 +1,4 @@
-package me.mawood.powerMonitor.processing;
+package me.mawood.powerMonitor.publishers;
 
 import me.mawood.data_api_client.accessors.DataTypeAccessor;
 import me.mawood.data_api_client.accessors.DeviceAccessor;
@@ -18,7 +18,7 @@ import javax.ws.rs.BadRequestException;
 import java.time.Instant;
 import java.util.*;
 
-public class PowerDataDatabaseUpdater extends Thread
+public class PowerDataAPIPublisher extends Thread
 {
     private class ChannelMap
     {
@@ -35,9 +35,7 @@ public class PowerDataDatabaseUpdater extends Thread
             this.name = name;
         }
     }
-    private static final String API_URL = "http://silent-fox/api/";
-    private static final String USERNAME = "gjwood";
-    private static final String PASSWORD = "P@ssw0rd";
+    private static final String API_URL = "http://192.168.1.127/api/";
     private static final String VOLTAGE_DATA_TYPE = "Voltage";
     private static final String REAL_POWER_DATA_TYPE = "RealPower";
     private static final String APPARENT_POWER_DATA_TYPE = "ApparentPower";
@@ -54,13 +52,12 @@ public class PowerDataDatabaseUpdater extends Thread
     /**
      * PowerDataMQTTPublisher   Constructor
      */
-    public PowerDataDatabaseUpdater(Map<Circuit, PowerMetricCalculator> circuitMap)
+    public PowerDataAPIPublisher(Map<Circuit, PowerMetricCalculator> circuitMap)
     {
         DeviceAccessor deviceAccessor = new DeviceAccessor(API_URL);
         DataTypeAccessor dataTypeAccessor = new DataTypeAccessor(API_URL);
         readingAccessor = new ReadingAccessor(API_URL);
         Collection<DataType> dataTypes = dataTypeAccessor.getDataTypes();
-        Device device;
 
         if(dataTypes.isEmpty())
         {
@@ -83,6 +80,7 @@ public class PowerDataDatabaseUpdater extends Thread
             dataTypeAccessor.addDataType(dt);
         }
         this.circuitMap = circuitMap;
+        Device device;
         for (Circuit circuit : circuitMap.keySet())
         {
             try
@@ -102,48 +100,24 @@ public class PowerDataDatabaseUpdater extends Thread
         }
         noMessagesSentOK = 0;
         //connect to DB
-        System.out.println("PowerDataDatabaseUpdater devices established");
+        System.out.println("PowerDataAPIPublisher devices established");
     }
 
-    /**
-     * shutdownDatabaseProcessing   Tidy shutdown of the processor
-     */
-    private void shutdownDatabaseProcessing()
+      private void AddReadingToDatabase(String deviceTag, String dataTypeTag, MetricReading reading)
     {
-        System.out.println("PowerDataDataBaseUpdate disconnected from DB");
-        System.out.println(noMessagesSentOK + " messages sent successfully");
-    }
-
-    /**
-     * updateDatabase - send a message to the MQTT broker
-     *
-     * @param tag - fully qualified TOPIC identifier
-     * @param content  - message content "key data"
-     */
-    private void updateDatabase(String tag, String content)
-    {
-    }
-
-    private void AddReadingToDatabase(Device device, String dataTypeTag, MetricReading reading)
-    {
-        Reading[] readings = new Reading[1];
-        readings[0].setReading(reading.getValue());
-        readings[0].setTimestamp(reading.getTimestamp().toEpochMilli());
-        readingAccessor.addReading(device.getTag(),dataTypeTag,readings );
+        readingAccessor.addReading(deviceTag,dataTypeTag,new Reading[]{new Reading(reading.getValue(),reading.getTimestamp().toEpochMilli())});
     }
 
     private void updateCircuitInDatabase(Circuit circuit) throws InvalidDataException, OperationNotSupportedException
     {
-        String subTopic;
-        subTopic =  "/" + circuit.getDisplayName().replace(" ", "_");
         MetricReading apparent = circuitMap.get(circuit).getAverageBetween(Power.VA, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
-        AddReadingToDatabase(deviceMap.get(circuit),APPARENT_POWER_DATA_TYPE, apparent);
+        AddReadingToDatabase(deviceMap.get(circuit).getTag(),APPARENT_POWER_DATA_TYPE, apparent);
         MetricReading real = circuitMap.get(circuit).getAverageBetween(Power.WATTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
-        AddReadingToDatabase(deviceMap.get(circuit),REAL_POWER_DATA_TYPE, real);
-        if (subTopic.contains("Whole_House"))
+        AddReadingToDatabase(deviceMap.get(circuit).getTag(),REAL_POWER_DATA_TYPE, real);
+        if (circuit.getTag().equalsIgnoreCase("Whole_House"))
         {
             MetricReading voltage = circuitMap.get(circuit).getAverageBetween(Voltage.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
-            AddReadingToDatabase(deviceMap.get(circuit),VOLTAGE_DATA_TYPE, voltage);
+            AddReadingToDatabase(deviceMap.get(circuit).getTag(),VOLTAGE_DATA_TYPE, voltage);
         }
     }
 
@@ -152,7 +126,7 @@ public class PowerDataDatabaseUpdater extends Thread
     //
 
     /**
-     * run  The main processing loop
+     * run  The main publishers loop
      */
     @Override
     public void run()
@@ -196,7 +170,6 @@ public class PowerDataDatabaseUpdater extends Thread
                 }
             }
         }
-        shutdownDatabaseProcessing();
         System.out.println("Data Processing Interrupted, exiting");
         System.exit(0);
     }
