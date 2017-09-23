@@ -1,12 +1,12 @@
 package me.mawood.powerMonitor.packets.monitors;
 
-import me.mawood.powerMonitor.metrics.Reading;
+import me.mawood.powerMonitor.metrics.MetricReading;
 import me.mawood.powerMonitor.packets.monitors.configs.VoltageSenseConfig;
 import me.mawood.powerMonitor.metrics.units.Voltage;
 import me.mawood.powerMonitor.packets.Packet;
 import me.mawood.powerMonitor.packets.PacketCollector;
 
-public class VoltageMonitor extends Monitor<Reading>
+public class VoltageMonitor extends Monitor<MetricReading>
 {
     private final VoltageSenseConfig config;
 
@@ -18,9 +18,9 @@ public class VoltageMonitor extends Monitor<Reading>
     }
 
     @Override
-    protected Reading processPacket(Packet packet)
+    protected MetricReading processPacket(Packet packet)
     {
-        return new Reading(
+        return new MetricReading(
                 config.offsetValue(config.scaleValue(packet.getVRms())), packet.getTimestamp(), Voltage.VOLTS);
     }
 

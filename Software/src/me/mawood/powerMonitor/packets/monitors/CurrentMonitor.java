@@ -1,12 +1,12 @@
 package me.mawood.powerMonitor.packets.monitors;
 
-import me.mawood.powerMonitor.metrics.Reading;
+import me.mawood.powerMonitor.metrics.MetricReading;
 import me.mawood.powerMonitor.packets.monitors.configs.CurrentClampConfig;
 import me.mawood.powerMonitor.metrics.units.Current;
 import me.mawood.powerMonitor.packets.Packet;
 import me.mawood.powerMonitor.packets.PacketCollector;
 
-public class CurrentMonitor extends Monitor<Reading>
+public class CurrentMonitor extends Monitor<MetricReading>
 {
     private final byte channelNumber;
     private final CurrentClampConfig config;
@@ -20,9 +20,9 @@ public class CurrentMonitor extends Monitor<Reading>
     }
 
     @Override
-    protected Reading processPacket(Packet packet)
+    protected MetricReading processPacket(Packet packet)
     {
-        return new Reading(
+        return new MetricReading(
                 config.offsetValue(config.scaleValue(packet.getIRms(channelNumber))), packet.getTimestamp(), Current.AMPS);
     }
 

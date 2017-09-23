@@ -26,7 +26,7 @@ public class PowerMetricCalculator
         this.powerMonitor = powerMonitor;
     }
 
-    private Reading getLatestMetric(Unit metricType) throws OperationNotSupportedException
+    private MetricReading getLatestMetric(Unit metricType) throws OperationNotSupportedException
     {
         switch (metricType.getType())
         {
@@ -42,7 +42,7 @@ public class PowerMetricCalculator
 
     }
 
-    private List<Reading> getMetricsBetween(Unit metricType, Instant startTime, Instant endTime) throws OperationNotSupportedException
+    private List<MetricReading> getMetricsBetween(Unit metricType, Instant startTime, Instant endTime) throws OperationNotSupportedException
     {
         switch (metricType.getType())
         {
@@ -58,58 +58,58 @@ public class PowerMetricCalculator
 
     }
 
-    public Reading getAverageBetween(Unit metricType, Instant startTime, Instant endTime) throws OperationNotSupportedException, InvalidDataException
+    public MetricReading getAverageBetween(Unit metricType, Instant startTime, Instant endTime) throws OperationNotSupportedException, InvalidDataException
     {
-        List<Reading> data = getMetricsBetween(metricType,startTime,endTime);
+        List<MetricReading> data = getMetricsBetween(metricType,startTime,endTime);
         if(data.size() == 0) throw new InvalidDataException("No data available for given time period and metric");
-        return new Reading(data.stream().mapToDouble(Reading::getValue).average().getAsDouble(),data.get(data.size()-1).getTimestamp(),metricType);
+        return new MetricReading(data.stream().mapToDouble(MetricReading::getValue).average().getAsDouble(),data.get(data.size()-1).getTimestamp(),metricType);
     }
 
-    private Reading getLatestPowerMetric(Power metricType) throws OperationNotSupportedException
+    private MetricReading getLatestPowerMetric(Power metricType) throws OperationNotSupportedException
     {
         switch (metricType)
         {
             case WATTS:
                 return powerMonitor.getLatestMetric();
             case KILOWATT:
-                Reading watts = getLatestMetric(Power.WATTS);
-                return new Reading(watts.getValue()/1000d,watts.getTimestamp(),metricType);
+                MetricReading watts = getLatestMetric(Power.WATTS);
+                return new MetricReading(watts.getValue()/1000d,watts.getTimestamp(),metricType);
             case VA:
-                Reading voltage = getLatestMetric(Voltage.VOLTS);
-                Reading current = getLatestMetric(Current.AMPS);
-                return new Reading(voltage.getValue()*current.getValue(),voltage.getTimestamp(), metricType);
+                MetricReading voltage = getLatestMetric(Voltage.VOLTS);
+                MetricReading current = getLatestMetric(Current.AMPS);
+                return new MetricReading(voltage.getValue()*current.getValue(),voltage.getTimestamp(), metricType);
             case VAR:
-                Reading apparent = getLatestMetric(Power.VA);
-                Reading real = getLatestMetric(Power.WATTS);
-                return new Reading(Math.sqrt((apparent.getValue()*apparent.getValue())-(real.getValue()*real.getValue())),apparent.getTimestamp(), metricType);
+                MetricReading apparent = getLatestMetric(Power.VA);
+                MetricReading real = getLatestMetric(Power.WATTS);
+                return new MetricReading(Math.sqrt((apparent.getValue()*apparent.getValue())-(real.getValue()*real.getValue())),apparent.getTimestamp(), metricType);
             default:
                 throw new OperationNotSupportedException();
         }
     }
 
-    private List<Reading> getPowerMetricsBetween(Power metricType, Instant startTime, Instant endTime) throws OperationNotSupportedException
+    private List<MetricReading> getPowerMetricsBetween(Power metricType, Instant startTime, Instant endTime) throws OperationNotSupportedException
     {
-        List<Reading> output = new ArrayList<>();
+        List<MetricReading> output = new ArrayList<>();
         switch (metricType)
         {
             case WATTS:
                 return powerMonitor.getMetricsBetween(startTime,endTime);
             case KILOWATT:
-                List<Reading> watts = getMetricsBetween(Power.WATTS, startTime,endTime);
-                for(Reading m:watts)
-                    output.add(new Reading(m.getValue()/1000d,m.getTimestamp(),metricType));
+                List<MetricReading> watts = getMetricsBetween(Power.WATTS, startTime,endTime);
+                for(MetricReading m:watts)
+                    output.add(new MetricReading(m.getValue()/1000d,m.getTimestamp(),metricType));
                 return output;
             case VA:
-                List<Reading> voltage = getMetricsBetween(Voltage.VOLTS,startTime,endTime);
-                List<Reading> current = getMetricsBetween(Current.AMPS,startTime,endTime);
+                List<MetricReading> voltage = getMetricsBetween(Voltage.VOLTS,startTime,endTime);
+                List<MetricReading> current = getMetricsBetween(Current.AMPS,startTime,endTime);
                 for (int i = 0; i < Math.min(voltage.size(), current.size()); i++)
-                    output.add(new Reading(voltage.get(i).getValue()*current.get(i).getValue(),voltage.get(i).getTimestamp(), metricType));
+                    output.add(new MetricReading(voltage.get(i).getValue()*current.get(i).getValue(),voltage.get(i).getTimestamp(), metricType));
                 return output;
             case VAR:
-                List<Reading> apparent = getMetricsBetween(Power.VA,startTime,endTime);
-                List<Reading> real = getMetricsBetween(Power.WATTS,startTime,endTime);
+                List<MetricReading> apparent = getMetricsBetween(Power.VA,startTime,endTime);
+                List<MetricReading> real = getMetricsBetween(Power.WATTS,startTime,endTime);
                 for (int i = 0; i < Math.min(apparent.size(), real.size()); i++)
-                    output.add(new Reading(Math.sqrt((apparent.get(i).getValue()*apparent.get(i).getValue())
+                    output.add(new MetricReading(Math.sqrt((apparent.get(i).getValue()*apparent.get(i).getValue())
                             - (real.get(i).getValue()*real.get(i).getValue())),apparent.get(i).getTimestamp(), metricType));
                 return output;
             default:
@@ -117,63 +117,63 @@ public class PowerMetricCalculator
         }
     }
 
-    private Reading getLatestVoltageMetric(Voltage metricType) throws OperationNotSupportedException
+    private MetricReading getLatestVoltageMetric(Voltage metricType) throws OperationNotSupportedException
     {
         switch (metricType)
         {
             case VOLTS:
                 return voltageMonitor.getLatestMetric();
             case MILLI_VOLTS:
-                Reading voltage = getLatestMetric(Voltage.VOLTS);
-                return new Reading(voltage.getValue()*1000d,voltage.getTimestamp(),metricType);
+                MetricReading voltage = getLatestMetric(Voltage.VOLTS);
+                return new MetricReading(voltage.getValue()*1000d,voltage.getTimestamp(),metricType);
             default:
                 throw new OperationNotSupportedException();
         }
     }
 
-    private List<Reading> getVoltageMetricsBetween(Voltage metricType, Instant startTime, Instant endTime) throws OperationNotSupportedException
+    private List<MetricReading> getVoltageMetricsBetween(Voltage metricType, Instant startTime, Instant endTime) throws OperationNotSupportedException
     {
-        List<Reading> output = new ArrayList<>();
+        List<MetricReading> output = new ArrayList<>();
         switch (metricType)
         {
             case VOLTS:
                 return voltageMonitor.getMetricsBetween(startTime, endTime);
             case MILLI_VOLTS:
-                List<Reading> volts = getMetricsBetween(Voltage.VOLTS, startTime,endTime);
-                for(Reading m:volts)
-                    output.add(new Reading(m.getValue()*1000d,m.getTimestamp(),metricType));
+                List<MetricReading> volts = getMetricsBetween(Voltage.VOLTS, startTime,endTime);
+                for(MetricReading m:volts)
+                    output.add(new MetricReading(m.getValue()*1000d,m.getTimestamp(),metricType));
                 return output;
             default:
                 throw new OperationNotSupportedException();
         }
     }
 
-    private Reading getLatestCurrentMetric(Current metricType) throws OperationNotSupportedException
+    private MetricReading getLatestCurrentMetric(Current metricType) throws OperationNotSupportedException
     {
         switch (metricType)
         {
             case AMPS:
                 return currentMonitor.getLatestMetric();
             case MILLI_AMPS:
-                Reading current = getLatestMetric(Current.AMPS);
-                return new Reading(current.getValue()*1000d,current.getTimestamp(),metricType);
+                MetricReading current = getLatestMetric(Current.AMPS);
+                return new MetricReading(current.getValue()*1000d,current.getTimestamp(),metricType);
 
             default:
                 throw new OperationNotSupportedException();
         }
     }
 
-    private List<Reading> getCurrentMetricsBetween(Current metricType, Instant startTime, Instant endTime) throws OperationNotSupportedException
+    private List<MetricReading> getCurrentMetricsBetween(Current metricType, Instant startTime, Instant endTime) throws OperationNotSupportedException
     {
-        List<Reading> output = new ArrayList<>();
+        List<MetricReading> output = new ArrayList<>();
         switch (metricType)
         {
             case AMPS:
                 return currentMonitor.getMetricsBetween(startTime, endTime);
             case MILLI_AMPS:
-                List<Reading> amps = getMetricsBetween(Current.AMPS, startTime,endTime);
-                for(Reading m:amps)
-                    output.add(new Reading(m.getValue()*1000d,m.getTimestamp(),metricType));
+                List<MetricReading> amps = getMetricsBetween(Current.AMPS, startTime,endTime);
+                for(MetricReading m:amps)
+                    output.add(new MetricReading(m.getValue()*1000d,m.getTimestamp(),metricType));
                 return output;
             default:
                 throw new OperationNotSupportedException();
