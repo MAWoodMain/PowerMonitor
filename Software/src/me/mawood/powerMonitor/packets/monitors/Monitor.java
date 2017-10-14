@@ -19,7 +19,12 @@ public abstract class Monitor<E extends MetricReading> implements PacketEventLis
     @Override
     public void handleNewPackets(Collection<Packet> newPackets)
     {
-        for(Packet packet:newPackets) ringBuffer.insert(processPacket(packet));
+        E value;
+        for(Packet packet:newPackets)
+        {
+            value = processPacket(packet);
+            if(value != null) ringBuffer.insert(value);
+        }
     }
 
     public E getLatestMetric()

@@ -128,7 +128,7 @@ public class Packet
                         .withZone( ZoneId.systemDefault() );
         return "Packet{" +
                 "timestamp=" + formatter.format(timestamp) +
-                "vRms=" + vRms +
+                " vRms=" + vRms +
                 ", channels=" + channels +
                 '}';
     }
