@@ -18,7 +18,7 @@ public class Main
     public static void main(String[] args) throws IOException, InterruptedException
     {
         STM8PacketCollector packetCollector = new STM8PacketCollector(1000);
-        packetCollector.addPacketEventListener(System.out::println);
+        //packetCollector.addPacketEventListener(System.out::println);
         VoltageMonitor vm = new VoltageMonitor(1000, VoltageSenseConfig.UK9V, packetCollector);
 
         HashMap<Circuit, PowerMetricCalculator> circuitMap = new HashMap<>();
