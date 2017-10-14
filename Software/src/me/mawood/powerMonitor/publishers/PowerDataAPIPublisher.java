@@ -58,7 +58,7 @@ public class PowerDataAPIPublisher extends Thread
         DataTypeAccessor dataTypeAccessor = new DataTypeAccessor(API_URL);
         readingAccessor = new ReadingAccessor(API_URL);
         Collection<DataType> dataTypes = dataTypeAccessor.getDataTypes();
-
+        //TODO wait for data service to be available
         if(dataTypes.isEmpty())
         {
             DataType dt = new DataType();
