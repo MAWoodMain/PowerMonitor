@@ -1,6 +1,0 @@
-Manifest-Version: 1.0
-Class-Path: pi4j-core-1.1-javadoc.jar pi4j-core-1.1-sources.jar pi4j-c
- ore-1.1.jar org.eclipse.paho.client.mqttv3-1.1.1-sources.jar org.ecli
- pse.paho.client.mqttv3-1.1.1.jar
-Main-Class: me.mawood.powerMonitor.Main
-
