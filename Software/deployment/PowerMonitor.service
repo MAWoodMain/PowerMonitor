@@ -1,5 +1,5 @@
 [Unit]
-Description=Power Monitor - pull power monitoring data from RPi daughter board, process and publish via Mqtt
+Description=Power Monitor - pull power monitoring data from RPi daughter board, process and publish via REST
 After=network.target
 
 [Service]
