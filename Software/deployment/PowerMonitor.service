@@ -1,0 +1,13 @@
+[Unit]
+Description=Power Monitor - pull power monitoring data from RPi daughter board, process and publish via Mqtt
+After=network.target
+
+[Service]
+WorkingDirectory=/var/opt/PowerMonitor
+SyslogIdentifier=PowerMonitor
+ExecStart=/bin/sh -c "exec sudo java -cp classes:/opt/PowerMonitor/Software/lib/* -jar /opt/PowerMonitor/Software/deployment/PowerMonitor.jar"
+User=root
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
