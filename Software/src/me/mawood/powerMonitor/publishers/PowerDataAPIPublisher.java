@@ -35,7 +35,7 @@ public class PowerDataAPIPublisher extends Thread
             this.name = name;
         }
     }
-    private static final String API_URL = "http://192.168.1.127/api/";
+    private static final String API_URL = "http://192.168.1.164/api/";
     private static final String VOLTAGE_DATA_TYPE = "Voltage";
     private static final String REAL_POWER_DATA_TYPE = "RealPower";
     private static final String APPARENT_POWER_DATA_TYPE = "ApparentPower";
