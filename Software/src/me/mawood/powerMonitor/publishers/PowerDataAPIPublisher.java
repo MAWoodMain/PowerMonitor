@@ -57,7 +57,26 @@ public class PowerDataAPIPublisher extends Thread
         DeviceAccessor deviceAccessor = new DeviceAccessor(API_URL);
         DataTypeAccessor dataTypeAccessor = new DataTypeAccessor(API_URL);
         readingAccessor = new ReadingAccessor(API_URL);
-        Collection<DataType> dataTypes = dataTypeAccessor.getDataTypes();
+        boolean apiReady = false;
+        Collection<DataType> dataTypes = new ArrayList<>();
+        while (!apiReady)
+        {
+            try
+            {
+                dataTypes = dataTypeAccessor.getDataTypes();
+                apiReady = true;
+            } catch (Exception ignored)
+            {
+                System.err.println("DataAPI not ready yet... sleep");
+
+                try {
+                    Thread.sleep(30000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
         //TODO wait for data service to be available
         if(dataTypes.isEmpty())
         {
