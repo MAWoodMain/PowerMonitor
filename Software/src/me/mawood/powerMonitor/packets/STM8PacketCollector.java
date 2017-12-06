@@ -69,6 +69,7 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
             {
                 synchronized (incomingBytes)
                 {
+                    System.err.println(incomingBytes.toString()); //debug for log
                     bytes.addAll(incomingBytes);
                     incomingBytes.clear();
                 }
