@@ -44,7 +44,7 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
         this.serial = SerialFactory.createInstance();
 
         SerialConfig config = new SerialConfig();
-        config.device(SerialPort.getDefaultPort())
+        config.device("/dev/ttyS0") //config.device(SerialPort.getDefaultPort())
                 .baud(Baud._230400)
                 .dataBits(DataBits._8)
                 .stopBits(StopBits._1)
@@ -69,7 +69,7 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
             {
                 synchronized (incomingBytes)
                 {
-                    System.err.println(incomingBytes.toString()); //debug for log
+                    //System.err.println(incomingBytes.toString()); //debug for log
                     bytes.addAll(incomingBytes);
                     incomingBytes.clear();
                 }
