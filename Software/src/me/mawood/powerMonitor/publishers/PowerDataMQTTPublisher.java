@@ -33,7 +33,7 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
 
     private static final String CLIENT_ID = "PMon10";
     private static final String TOPIC = "emon/" + CLIENT_ID;
-    private static final String BROKER = "tcp://localhost:1883";
+    private static final String BROKER = "tcp://10.0.128.2:1883";
     private static final String USERNAME = "emonpi";
     private static final String PASSWORD = "emonpimqtt2016";
 
