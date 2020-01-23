@@ -44,7 +44,7 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
         this.serial = SerialFactory.createInstance();
 
         SerialConfig config = new SerialConfig();
-        config.device("/dev/ttyAMA0") //config.device(SerialPort.getDefaultPort()) was "/dev/ttyS0"
+        config.device("/dev/ttyS0") //config.device(SerialPort.getDefaultPort()) was "/dev/ttyS0" ttyAMA0
                 .baud(Baud._230400)
                 .dataBits(DataBits._8)
                 .stopBits(StopBits._1)
