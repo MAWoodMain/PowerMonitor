@@ -46,7 +46,7 @@ public class Main
     {
         Arrays.fill(enableCircuits, Boolean.FALSE);
         enableCircuits[8]=true; // switch connection for whole house on
-
+        enableCircuits[6]=true; // 20 amp coil
         STM8PacketCollector packetCollector = new STM8PacketCollector(1000);
         //packetCollector.addPacketEventListener(System.out::println);
         VoltageMonitor vm = new VoltageMonitor(1000, VoltageSenseConfig.UK9V, packetCollector);
