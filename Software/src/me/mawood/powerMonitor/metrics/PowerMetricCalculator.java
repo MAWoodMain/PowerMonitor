@@ -70,7 +70,8 @@ public class PowerMetricCalculator
         switch (metricType)
         {
             case WATTS:
-                return powerMonitor.getLatestMetric();
+                //return powerMonitor.getLatestMetric(); //looks wrong GJW
+                return getLatestMetric(Power.WATTS);
             case KILOWATT:
                 MetricReading watts = getLatestMetric(Power.WATTS);
                 return new MetricReading(watts.getValue()/1000d,watts.getTimestamp(),metricType);
