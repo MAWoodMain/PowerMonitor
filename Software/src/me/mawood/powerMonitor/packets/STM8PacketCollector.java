@@ -30,12 +30,12 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
     }
 
 
-    public STM8PacketCollector() throws IOException, InterruptedException
+    public STM8PacketCollector() throws IOException
     {
         this(1000);
     }
 
-    public STM8PacketCollector(long extractionPeriod) throws IOException, InterruptedException
+    public STM8PacketCollector(long extractionPeriod) throws IOException
     {
         this.extractionPeriod = extractionPeriod;
         this.bytes = new ArrayList<>();
@@ -44,7 +44,7 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
         this.serial = SerialFactory.createInstance();
 
         SerialConfig config = new SerialConfig();
-        config.device("/dev/ttyS0") //config.device(SerialPort.getDefaultPort()) was "/dev/ttyS0" ttyAMA0
+        config.device("/dev/ttyS0") //config.device(SerialPort.getDefaultPort()) /dev/ttyAMA0 didn't work
                 .baud(Baud._230400)
                 .dataBits(DataBits._8)
                 .stopBits(StopBits._1)
@@ -75,8 +75,7 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
                 }
                 newPackets = new ArrayList<>();
                 Instant sampleStart = Instant.now().minusMillis(extractionPeriod);
-                int i = 0;
-                Collection<byte[]> rawPackets = extractPackets(bytes);
+                                Collection<byte[]> rawPackets = extractPackets(bytes);
                 for(byte[] packet:rawPackets)
                 {
                     sampleStart = sampleStart.plusMillis(extractionPeriod/rawPackets.size());
@@ -84,8 +83,7 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
                     {
                         newPackets.add(new Packet(packet, sampleStart)); // full serial packet without start sequence
                     } catch (IllegalArgumentException ignored) {}
-                    i++;
-                }
+                                    }
                 alertPacketListeners(newPackets);
 
             }
