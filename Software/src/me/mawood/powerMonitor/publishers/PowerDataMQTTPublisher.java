@@ -206,11 +206,11 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
         String jsonReadings =
                 "{\"Time\":"+readingTime.toString()+","+
                 "\"Readings\":{"+
-                "\"Power\":"+ real.toString()+","+
+                "\"Real\":"+ real.toString()+","+
                 "\"Apparent\":"+ apparent.toString()+","+
                 "\"Reactive\":"+ reactive.toString()+","+
-                "\"Reactive\":"+ current.toString()+","+
-                "\"Reactive\":"+ powerFactor.toString();
+                "\"Current\":"+ current.toString()+","+
+                "\"PowerFactor\":"+ powerFactor.toString();
         if (subTopic.contains("Whole_House"))
         {
             MetricReading voltage = circuitMap.get(circuit).getAverageBetween(Voltage.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
