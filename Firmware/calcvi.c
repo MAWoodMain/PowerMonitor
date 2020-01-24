@@ -36,6 +36,9 @@ void calcVI(const unsigned int crossings)
 	while(crossCount < crossings)
 	{
         numberOfSamples++;
+        //-----------------------------------------------------------------------------
+        // A) Read in raw voltage and current samples
+        //-----------------------------------------------------------------------------
 
         // read voltage ADC
         sampleV = readChannel(VOLTAGE_CHANNEL);
@@ -43,32 +46,68 @@ void calcVI(const unsigned int crossings)
 		for(i = 0; i < HARDWARE_CHANNEL_NUM; i++)
 			sampleI[i] = readChannel(CHANNELS[i]);
 
-        lastOffsetV = offsetV;
-        // low pass filter to move sample voltage to +/- 1.65v scale rather than 0-3.3v scale
-        vOffset = vOffset + ((sampleV-vOffset)/1024);
-        offsetV = sampleV - vOffset;
+        lastOffsetV = offsetV; //is this initialised? should be lastFilteredV
+
+        //-----------------------------------------------------------------------------
+        // B) Apply digital low pass filters to extract the 2.5 V or 1.65 V dc offset,
+        //     then subtract this - signal is now centred on 0 counts.
+        //-----------------------------------------------------------------------------
+
+        // Voltage part
+        vOffset = vOffset + ((sampleV-vOffset)/1024);  //GJW variable names are different here
+        offsetV = sampleV - vOffset; // answer should be called filteredV
+
+
+        //-----------------------------------------------------------------------------
+        // C) Root-mean-square method voltage
+        //-----------------------------------------------------------------------------
 
         sumVSquared += offsetV * offsetV;
 
-        phaseShiftedV = lastOffsetV + PHASECAL * (offsetV - lastOffsetV); //??????
+        //-----------------------------------------------------------------------------
+        // E) Phase calibration
+        //-----------------------------------------------------------------------------
+        phaseShiftedV = lastOffsetV + PHASECAL * (offsetV - lastOffsetV); //lastoffsetV should be lastFilteredV
 		
 		for(i = 0; i < HARDWARE_CHANNEL_NUM; i++)
 		{
-            // low pass filter to move sample voltage to +/- 1.65v scale rather than 0-3.3v scale
+            //-----------------------------------------------------------------------------
+            // B) Apply digital low pass filters to extract the 2.5 V or 1.65 V dc offset,
+            //     then subtract this - signal is now centred on 0 counts.
+            //-----------------------------------------------------------------------------
+
+            // Current part
 			iOffset = iOffset + ((sampleI[i]-iOffset)/1024);
-			offsetI = sampleI[i] - iOffset;
+			offsetI = sampleI[i] - iOffset; // answer should be called filteredI
+
+			//-----------------------------------------------------------------------------
+            // D) Root-mean-square method current
+            //-----------------------------------------------------------------------------
 			sumISquared[i] += offsetI * offsetI;
-			
-			instP = phaseShiftedV * offsetI; //??????
+
+            //-----------------------------------------------------------------------------
+            // F) Instantaneous power calc
+            //-----------------------------------------------------------------------------
+			instP = phaseShiftedV * offsetI; //offsetI should be called filteredI
 			sumP[i] +=instP;
 		}
-		// check for a voltage zero crossing i.e completion of a half wave and increment cross count if so
+        //-----------------------------------------------------------------------------
+        // G) Find the number of times the voltage has crossed the initial voltage
+        //    - every 2 crosses we will have sampled 1 wavelength
+        //    - so this method allows us to sample an integer number of half wavelengths which increases accuracy
+        //-----------------------------------------------------------------------------
         lastVCross = checkVCross;
 		checkVCross = sampleV > startV;
         if (numberOfSamples==1) lastVCross = checkVCross;
         if (lastVCross != checkVCross) crossCount++;
     }
-    // post loop calculations
+    //-------------------------------------------------------------------------------------------------------------------------
+    // 3) Post loop calculations
+    //-------------------------------------------------------------------------------------------------------------------------
+    //Calculation of the root of the mean of the voltage and current squared (rms)
+    //Calibration coefficients applied.
+
+    //GJW stuff missing here
 	VoltsPerCount = VCC / ADC_COUNTS; //constant 3.3/4096
     Vrms = VoltsPerCount * sqrt(sumVSquared / numberOfSamples);
 
@@ -78,6 +117,13 @@ void calcVI(const unsigned int crossings)
 		// VoltsPerCount applies to current and voltage in power as P=VI
 		realPower[i] = VoltsPerCount * VoltsPerCount * sumP[i] / numberOfSamples;
 	}
+
+	//Resets missing here
+	  //Reset accumulators
+      //sumV = 0;
+      //sumI = 0;
+      //sumP = 0;
+
 }
 
 float getRealPower(unsigned int channelNo)
