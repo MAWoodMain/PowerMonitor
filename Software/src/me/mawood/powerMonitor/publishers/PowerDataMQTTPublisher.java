@@ -4,6 +4,7 @@ import me.mawood.powerMonitor.circuits.Circuit;
 import me.mawood.powerMonitor.metrics.InvalidDataException;
 import me.mawood.powerMonitor.metrics.MetricReading;
 import me.mawood.powerMonitor.metrics.PowerMetricCalculator;
+import me.mawood.powerMonitor.metrics.units.Current;
 import me.mawood.powerMonitor.metrics.units.Power;
 import me.mawood.powerMonitor.metrics.units.Voltage;
 import org.eclipse.paho.client.mqttv3.*;
@@ -194,17 +195,37 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
 
     private void publishCircuitToBroker(Circuit circuit) throws InvalidDataException, OperationNotSupportedException
     {
-        String subTopic;
-        subTopic = TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
-        MetricReading apparent = circuitMap.get(circuit).getAverageBetween(Power.VA, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
+        String subTopic= TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
+        Instant readingTime =  Instant.now().minusSeconds(1);
+        MetricReading apparent = circuitMap.get(circuit).getAverageBetween(Power.VA, Instant.now().minusSeconds(2), readingTime);
+        MetricReading real = circuitMap.get(circuit).getAverageBetween(Power.WATTS, Instant.now().minusSeconds(2), readingTime);
+        MetricReading reactive = circuitMap.get(circuit).getAverageBetween(Power.VAR, Instant.now().minusSeconds(2), readingTime);
+
+        MetricReading current = circuitMap.get(circuit).getAverageBetween(Current.AMPS, Instant.now().minusSeconds(2), readingTime);
+        Double powerFactor = Math.cos(Math.atan(reactive.getValue()/real.getValue()));
+        String jsonReadings =
+                "{\"Time\":"+readingTime.toString()+","+
+                "\"Readings\":{"+
+                "\"Power\":"+ real.toString()+","+
+                "\"Apparent\":"+ apparent.toString()+","+
+                "\"Reactive\":"+ reactive.toString()+","+
+                "\"Reactive\":"+ current.toString()+","+
+                "\"Reactive\":"+ powerFactor.toString();
+        if (subTopic.contains("Whole_House"))
+        {
+            MetricReading voltage = circuitMap.get(circuit).getAverageBetween(Voltage.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
+            jsonReadings = jsonReadings+",\"Voltage\":"+ voltage.toString();
+        }
+        jsonReadings = jsonReadings+"}}";
+        publishToBroker(subTopic,jsonReadings);
+        /*
         publishMetricToBroker(subTopic + "/ApparentPower", apparent);
-        MetricReading real = circuitMap.get(circuit).getAverageBetween(Power.WATTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
         publishMetricToBroker(subTopic + "/RealPower", real);
         if (subTopic.contains("Whole_House"))
         {
             MetricReading voltage = circuitMap.get(circuit).getAverageBetween(Voltage.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
             publishMetricToBroker(subTopic + "/Voltage", voltage);
-        }
+        }*/
     }
 
     //
@@ -217,7 +238,6 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
     @Override
     public void run()
     {
-        String subTopic;
         long startTime;
         try
         {
@@ -233,7 +253,6 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
 
             for (Circuit circuit : circuitMap.keySet())
             {
-
                 try
                 {
                     publishCircuitToBroker(circuit);

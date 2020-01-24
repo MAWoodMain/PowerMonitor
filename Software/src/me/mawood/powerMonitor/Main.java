@@ -13,12 +13,14 @@ import me.mawood.powerMonitor.publishers.PowerDataMQTTPublisher;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class Main
 {
     static boolean enable_MQTT = true;
     static boolean enable_API = false;
+    static boolean[] enableCircuits = new boolean[9];
 
     public static boolean isEnable_MQTT()
     {
@@ -42,6 +44,8 @@ public class Main
 
     public static void main(String[] args) throws IOException
     {
+        Arrays.fill(enableCircuits, Boolean.FALSE);
+        enableCircuits[8]=true; // switch connection for whole house on
 
         STM8PacketCollector packetCollector = new STM8PacketCollector(1000);
         //packetCollector.addPacketEventListener(System.out::println);
@@ -51,9 +55,11 @@ public class Main
 
         for(Circuit circuit: HomeCircuits.values())
         {
-            circuitMap.put(circuit, new PowerMetricCalculator(vm,
-                    new CurrentMonitor(1000, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector),
-                    new RealPowerMonitor(1000, VoltageSenseConfig.UK9V, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector)));
+            if (enableCircuits[circuit.getChannelNumber()-1]) { //only monitor enabled circuits
+                circuitMap.put(circuit, new PowerMetricCalculator(vm,
+                        new CurrentMonitor(1000, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector),
+                        new RealPowerMonitor(1000, VoltageSenseConfig.UK9V, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector)));
+            }
         }
         if (enable_API) {
             PowerDataAPIPublisher powerDataDataBaseUpdater = new PowerDataAPIPublisher(circuitMap);
