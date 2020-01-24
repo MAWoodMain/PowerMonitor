@@ -204,12 +204,12 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
         MetricReading current = circuitMap.get(circuit).getAverageBetween(Current.AMPS, Instant.now().minusSeconds(2), readingTime);
         Double powerFactor = Math.cos(Math.atan(reactive.getValue()/real.getValue()));
         String jsonReadings =
-                "{\"Time\":"+readingTime.toString()+","+
+                "{\"Time\":\""+readingTime.toString()+"\","+
                 "\"Readings\":{"+
-                "\"Real\":"+ real.toString()+","+
-                "\"Apparent\":"+ apparent.toString()+","+
-                "\"Reactive\":"+ reactive.toString()+","+
-                "\"Current\":"+ current.toString()+","+
+                "\"Real\":"+ real.getValue().toString()+","+
+                "\"Apparent\":"+ apparent.getValue().toString()+","+
+                "\"Reactive\":"+ reactive.getValue().toString()+","+
+                "\"Current\":"+ current.getValue().toString()+","+
                 "\"PowerFactor\":"+ powerFactor.toString();
         if (subTopic.contains("Whole_House"))
         {

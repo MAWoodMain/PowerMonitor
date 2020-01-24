@@ -22,7 +22,7 @@ public class MetricReading implements Comparable<MetricReading>
         this.timestamp = timestamp;
         this.unit = unit;
     }
-    public double getValue()
+    public Double getValue()
     {
         return value;
     }
