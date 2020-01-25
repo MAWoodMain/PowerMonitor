@@ -1,6 +1,7 @@
 package me.mawood.powerMonitor.publishers;
 
 import me.mawood.powerMonitor.circuits.Circuit;
+import me.mawood.powerMonitor.circuits.HomeCircuits;
 import me.mawood.powerMonitor.metrics.InvalidDataException;
 import me.mawood.powerMonitor.metrics.MetricReading;
 import me.mawood.powerMonitor.metrics.PowerMetricCalculator;
@@ -197,26 +198,22 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
     {
         String subTopic= TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
         Instant readingTime =  Instant.now().minusSeconds(1);
+        MetricReading voltage = circuitMap.get(HomeCircuits.WHOLE_HOUSE).getAverageBetween(Voltage.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
         MetricReading apparent = circuitMap.get(circuit).getAverageBetween(Power.VA, Instant.now().minusSeconds(2), readingTime);
         MetricReading real = circuitMap.get(circuit).getAverageBetween(Power.WATTS, Instant.now().minusSeconds(2), readingTime);
         MetricReading reactive = circuitMap.get(circuit).getAverageBetween(Power.VAR, Instant.now().minusSeconds(2), readingTime);
-
         MetricReading current = circuitMap.get(circuit).getAverageBetween(Current.AMPS, Instant.now().minusSeconds(2), readingTime);
         Double powerFactor = Math.cos(Math.atan(reactive.getValue()/real.getValue()));
         String jsonReadings =
                 "{\"Time\":\""+readingTime.toString()+"\","+
                 "\"Readings\":{"+
+                "\"Voltage\":"+ voltage.getValue().toString()+
                 "\"Real\":"+ real.getValue().toString()+","+
                 "\"Apparent\":"+ apparent.getValue().toString()+","+
                 "\"Reactive\":"+ reactive.getValue().toString()+","+
                 "\"Current\":"+ current.getValue().toString()+","+
-                "\"PowerFactor\":"+ powerFactor.toString();
-        if (subTopic.contains("Whole_House"))
-        {
-            MetricReading voltage = circuitMap.get(circuit).getAverageBetween(Voltage.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
-            jsonReadings = jsonReadings+",\"Voltage\":"+ voltage.getValue().toString();
-        }
-        jsonReadings = jsonReadings+"}}";
+                "\"PowerFactor\":"+ powerFactor.toString()+
+                "}}";
         publishToBroker(subTopic,jsonReadings);
         /*
         publishMetricToBroker(subTopic + "/ApparentPower", apparent);
