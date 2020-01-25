@@ -2,7 +2,7 @@
 
 int startV, sampleV, sampleI[HARDWARE_CHANNEL_NUM];
 
-float Vrms,realPower[HARDWARE_CHANNEL_NUM],Irms[HARDWARE_CHANNEL_NUM],lastOffsetV,filteredV,filteredI,offsetV,offsetI,phaseShiftedV;
+float Vrms,realPower[HARDWARE_CHANNEL_NUM],Irms[HARDWARE_CHANNEL_NUM],lastFilteredV,filteredV,filteredI,offsetV,offsetI,phaseShiftedV;
 
 double sumVSquared, instP, sumISquared[HARDWARE_CHANNEL_NUM], sumP[HARDWARE_CHANNEL_NUM];
 
@@ -54,7 +54,7 @@ void calcVI(const unsigned int crossings)
 		for(i = 0; i < HARDWARE_CHANNEL_NUM; i++)
 			sampleI[i] = readChannel(CHANNELS[i]);
 
-        lastOffsetV = filteredV;
+        lastFilteredV = filteredV;
 
         //-----------------------------------------------------------------------------
         // B) Apply digital low pass filters to extract the 2.5 V or 1.65 V dc offset,
@@ -75,7 +75,7 @@ void calcVI(const unsigned int crossings)
         //-----------------------------------------------------------------------------
         // E) Phase calibration
         //-----------------------------------------------------------------------------
-        phaseShiftedV = lastOffsetV + PHASECAL * (filteredV - lastOffsetV);
+        phaseShiftedV = lastFilteredV + PHASECAL * (filteredV - lastFilteredV);
 		
 		for(i = 0; i < HARDWARE_CHANNEL_NUM; i++)
 		{
