@@ -55,7 +55,8 @@ public class Main
 
         for(Circuit circuit: HomeCircuits.values())
         {
-            if (enableCircuits[circuit.getChannelNumber()-1]) { //only monitor enabled circuits
+            if (true) { //only monitor enabled circuits
+                //if (enableCircuits[circuit.getChannelNumber()-1]) { //only monitor enabled circuits
                 circuitMap.put(circuit, new PowerMetricCalculator(vm,
                         new CurrentMonitor(1000, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector),
                         new RealPowerMonitor(1000, VoltageSenseConfig.UK9V, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector)));
