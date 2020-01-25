@@ -207,7 +207,7 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
         String jsonReadings =
                 "{\"Time\":\""+readingTime.toString()+"\","+
                 "\"Readings\":{"+
-                "\"Voltage\":"+ voltage.getValue().toString()+
+                "\"Voltage\":"+ voltage.getValue().toString()+","+
                 "\"Real\":"+ real.getValue().toString()+","+
                 "\"Apparent\":"+ apparent.getValue().toString()+","+
                 "\"Reactive\":"+ reactive.getValue().toString()+","+
