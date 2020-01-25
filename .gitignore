@@ -1,0 +1,7 @@
+/Firmware/Debug/*.ls
+/Firmware/Debug/*.o
+/Firmware/Debug/*.lkf
+/Firmware/Debug/*.map
+/Firmware/Debug/*.sm8
+/Firmware/Release/*.lkf
+/Firmware/Debug/*.elf
