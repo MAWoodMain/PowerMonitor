@@ -1,54 +1,54 @@
    1                     ; C Compiler for STM8 (COSMIC Software)
-   2                     ; Parser V4.10.2 - 02 Nov 2011
-   3                     ; Generator (Limited) V4.3.7 - 29 Nov 2011
-3346                     ; 11 main()
-3346                     ; 12 {
-3348                     	switch	.text
-3349  0000               _main:
-3353                     ; 13 	setup();
-3355  0000 ad04          	call	_setup
-3357  0002               L1032:
-3358                     ; 15 		loop();
-3360  0002 ad2e          	call	_loop
-3363  0004 20fc          	jra	L1032
-3394                     ; 20 void setup()
-3394                     ; 21 {	
-3395                     	switch	.text
-3396  0006               _setup:
-3400                     ; 22 	CLK_CKDIVR = 0x00;
-3402  0006 725f50c0      	clr	_CLK_CKDIVR
-3403                     ; 24 	UART_INIT();
-3405  000a cd0000        	call	_UART_INIT
-3407                     ; 25 	sendString("UART Initialised");
-3409  000d ae0029        	ldw	x,#L5132
-3410  0010 cd0000        	call	_sendString
-3412                     ; 26 	RTC_INIT();
-3414  0013 cd0000        	call	_RTC_INIT
-3416                     ; 27 	sendString("RTC Initialised");
-3418  0016 ae0019        	ldw	x,#L7132
-3419  0019 cd0000        	call	_sendString
-3421                     ; 28 	ADC_INIT();
-3423  001c cd0000        	call	_ADC_INIT
-3425                     ; 29 	sendString("ADC Initialised");
-3427  001f ae0009        	ldw	x,#L1232
-3428  0022 cd0000        	call	_sendString
-3430                     ; 32 	PC_DDR |= 1 << 6;
-3432  0025 721c500c      	bset	_PC_DDR,#6
-3433                     ; 33 	PC_CR1 |= 1 << 6;
-3435  0029 721c500d      	bset	_PC_CR1,#6
-3436                     ; 35 	PC_ODR &= ~(1 << 6);
-3438  002d 721d500a      	bres	_PC_ODR,#6
-3439                     ; 36 }
-3442  0031 81            	ret
-3484                     ; 38 void loop()
-3484                     ; 39 {
-3485                     	switch	.text
-3486  0032               _loop:
-3488  0032 89            	pushw	x
-3489       00000002      OFST:	set	2
-3492                     ; 42 	int i = 0;
-3494  0033 5f            	clrw	x
-3495  0034 1f01          	ldw	(OFST-1,sp),x
+   2                     ; Parser V4.11.14 - 18 Nov 2019
+   3                     ; Generator (Limited) V4.4.11 - 19 Nov 2019
+3345                     ; 11 main()
+3345                     ; 12 {
+3347                     	switch	.text
+3348  0000               _main:
+3352                     ; 13 	setup();
+3354  0000 ad04          	call	_setup
+3356  0002               L1032:
+3357                     ; 15 		loop();
+3359  0002 ad2e          	call	_loop
+3362  0004 20fc          	jra	L1032
+3393                     ; 20 void setup()
+3393                     ; 21 {	
+3394                     	switch	.text
+3395  0006               _setup:
+3399                     ; 22 	CLK_CKDIVR = 0x00;
+3401  0006 725f50c0      	clr	_CLK_CKDIVR
+3402                     ; 24 	UART_INIT();
+3404  000a cd0000        	call	_UART_INIT
+3406                     ; 25 	sendString("UART Initialised");
+3408  000d ae0029        	ldw	x,#L5132
+3409  0010 cd0000        	call	_sendString
+3411                     ; 26 	RTC_INIT();
+3413  0013 cd0000        	call	_RTC_INIT
+3415                     ; 27 	sendString("RTC Initialised");
+3417  0016 ae0019        	ldw	x,#L7132
+3418  0019 cd0000        	call	_sendString
+3420                     ; 28 	ADC_INIT();
+3422  001c cd0000        	call	_ADC_INIT
+3424                     ; 29 	sendString("ADC Initialised");
+3426  001f ae0009        	ldw	x,#L1232
+3427  0022 cd0000        	call	_sendString
+3429                     ; 32 	PC_DDR |= 1 << 6;
+3431  0025 721c500c      	bset	_PC_DDR,#6
+3432                     ; 33 	PC_CR1 |= 1 << 6;
+3434  0029 721c500d      	bset	_PC_CR1,#6
+3435                     ; 35 	PC_ODR &= ~(1 << 6);
+3437  002d 721d500a      	bres	_PC_ODR,#6
+3438                     ; 36 }
+3441  0031 81            	ret
+3483                     ; 38 void loop()
+3483                     ; 39 {
+3484                     	switch	.text
+3485  0032               _loop:
+3487  0032 89            	pushw	x
+3488       00000002      OFST:	set	2
+3491                     ; 42 	int i = 0;
+3493  0033 5f            	clrw	x
+3494  0034 1f01          	ldw	(OFST-1,sp),x
 3496                     ; 43 	PC_ODR |= 1 << 6;
 3498  0036 721c500a      	bset	_PC_ODR,#6
 3499                     ; 44 	calcVI(8);
@@ -95,37 +95,37 @@
 3558  0080 1e01          	ldw	x,(OFST-1,sp)
 3559  0082 1c0001        	addw	x,#1
 3560  0085 1f01          	ldw	(OFST-1,sp),x
-3561  0087               L5432:
-3562                     ; 49 	while(i<HARDWARE_CHANNEL_NUM)
-3564  0087 9c            	rvf
-3565  0088 1e01          	ldw	x,(OFST-1,sp)
-3566  008a a30009        	cpw	x,#9
-3567  008d 2fcb          	jrslt	L3432
-3568                     ; 56 	i = 0;
-3570                     ; 57 }
-3573  008f 85            	popw	x
-3574  0090 81            	ret
-3587                     	xdef	_main
-3588                     	xdef	_loop
-3589                     	xdef	_setup
-3590                     	xref	_getRealPower
-3591                     	xref	_getIrms
-3592                     	xref	_getVrms
-3593                     	xref	_calcVI
-3594                     	xref	_ADC_INIT
-3595                     	xref	_RTC_INIT
-3596                     	xref	_sendFloatAsString
-3597                     	xref	_sendString
-3598                     	xref	_sendChar
-3599                     	xref	_UART_INIT
-3600                     .const:	section	.text
-3601  0000               L1432:
-3602  0000 504d5f535441  	dc.b	"PM_START",0
-3603  0009               L1232:
-3604  0009 41444320496e  	dc.b	"ADC Initialised",0
-3605  0019               L7132:
-3606  0019 52544320496e  	dc.b	"RTC Initialised",0
-3607  0029               L5132:
-3608  0029 554152542049  	dc.b	"UART Initialised",0
-3609                     	xref.b	c_lreg
-3629                     	end
+3562  0087               L5432:
+3563                     ; 49 	while(i<HARDWARE_CHANNEL_NUM)
+3565  0087 9c            	rvf
+3566  0088 1e01          	ldw	x,(OFST-1,sp)
+3567  008a a30009        	cpw	x,#9
+3568  008d 2fcb          	jrslt	L3432
+3569                     ; 56 	i = 0;
+3571                     ; 57 }
+3574  008f 85            	popw	x
+3575  0090 81            	ret
+3588                     	xdef	_main
+3589                     	xdef	_loop
+3590                     	xdef	_setup
+3591                     	xref	_getRealPower
+3592                     	xref	_getIrms
+3593                     	xref	_getVrms
+3594                     	xref	_calcVI
+3595                     	xref	_ADC_INIT
+3596                     	xref	_RTC_INIT
+3597                     	xref	_sendFloatAsString
+3598                     	xref	_sendString
+3599                     	xref	_sendChar
+3600                     	xref	_UART_INIT
+3601                     .const:	section	.text
+3602  0000               L1432:
+3603  0000 504d5f535441  	dc.b	"PM_START",0
+3604  0009               L1232:
+3605  0009 41444320496e  	dc.b	"ADC Initialised",0
+3606  0019               L7132:
+3607  0019 52544320496e  	dc.b	"RTC Initialised",0
+3608  0029               L5132:
+3609  0029 554152542049  	dc.b	"UART Initialised",0
+3610                     	xref.b	c_lreg
+3630                     	end

@@ -2,13 +2,16 @@
 
 int startV, sampleV, sampleI[HARDWARE_CHANNEL_NUM];
 
-float Vrms,realPower[HARDWARE_CHANNEL_NUM],Irms[HARDWARE_CHANNEL_NUM],lastFilteredV,filteredV,filteredI,offsetV,offsetI,phaseShiftedV;
+float Vrms,realPower[HARDWARE_CHANNEL_NUM],Irms[HARDWARE_CHANNEL_NUM],lastFilteredV,filteredV,filteredI,phaseShiftedV;
+
+float offsetV = ADC_COUNTS>>1;
+float offsetI = ADC_COUNTS>>1;
 
 double sumVSquared, instP, sumISquared[HARDWARE_CHANNEL_NUM], sumP[HARDWARE_CHANNEL_NUM];
 
 bool lastVCross,checkVCross;
-offsetV = ADC_COUNTS>>1;
-offsetI = ADC_COUNTS>>1;
+
+
 
 // Modified version of a method from https://github.com/openenergymonitor/EmonLib/blob/master/EmonLib.cpp
 // Calculator credits to the openenergymonitor project (https://github.com/openenergymonitor)
