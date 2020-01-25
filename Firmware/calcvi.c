@@ -2,7 +2,7 @@
 
 int startV, sampleV, sampleI[HARDWARE_CHANNEL_NUM];
 
-float Vrms,realPower[HARDWARE_CHANNEL_NUM],Irms[HARDWARE_CHANNEL_NUM],lastOffsetV,offsetV,offsetI,vOffset,iOffset,phaseShiftedV;
+float Vrms,realPower[HARDWARE_CHANNEL_NUM],Irms[HARDWARE_CHANNEL_NUM],lastOffsetV,filteredV,filteredI,offsetV,offsetI,phaseShiftedV;
 
 double sumVSquared, instP, sumISquared[HARDWARE_CHANNEL_NUM], sumP[HARDWARE_CHANNEL_NUM];
 
@@ -54,7 +54,7 @@ void calcVI(const unsigned int crossings)
 		for(i = 0; i < HARDWARE_CHANNEL_NUM; i++)
 			sampleI[i] = readChannel(CHANNELS[i]);
 
-        lastOffsetV = offsetV; //is this initialised? should be lastFilteredV
+        lastOffsetV = filteredV;
 
         //-----------------------------------------------------------------------------
         // B) Apply digital low pass filters to extract the 2.5 V or 1.65 V dc offset,
@@ -62,20 +62,20 @@ void calcVI(const unsigned int crossings)
         //-----------------------------------------------------------------------------
 
         // Voltage part
-        vOffset = vOffset + ((sampleV-vOffset)/1024);  //GJW variable names are different here
-        offsetV = sampleV - vOffset; // answer should be called filteredV
+        offsetV = offsetV + ((sampleV-offsetV)/1024);
+        filteredV = sampleV - offsetV;
 
 
         //-----------------------------------------------------------------------------
         // C) Root-mean-square method voltage
         //-----------------------------------------------------------------------------
 
-        sumVSquared += offsetV * offsetV;
+        sumVSquared += filteredV * filteredV;
 
         //-----------------------------------------------------------------------------
         // E) Phase calibration
         //-----------------------------------------------------------------------------
-        phaseShiftedV = lastOffsetV + PHASECAL * (offsetV - lastOffsetV); //lastoffsetV should be lastFilteredV
+        phaseShiftedV = lastOffsetV + PHASECAL * (filteredV - lastOffsetV);
 		
 		for(i = 0; i < HARDWARE_CHANNEL_NUM; i++)
 		{
@@ -85,18 +85,18 @@ void calcVI(const unsigned int crossings)
             //-----------------------------------------------------------------------------
 
             // Current part
-			iOffset = iOffset + ((sampleI[i]-iOffset)/1024);
-			offsetI = sampleI[i] - iOffset; // answer should be called filteredI
+			offsetI = offsetI + ((sampleI[i]-offsetI)/1024);
+			filteredI = sampleI[i] - offsetI;
 
 			//-----------------------------------------------------------------------------
             // D) Root-mean-square method current
             //-----------------------------------------------------------------------------
-			sumISquared[i] += offsetI * offsetI;
+			sumISquared[i] += filteredI * filteredI;
 
             //-----------------------------------------------------------------------------
             // F) Instantaneous power calc
             //-----------------------------------------------------------------------------
-			instP = phaseShiftedV * offsetI; //offsetI should be called filteredI
+			instP = phaseShiftedV * filteredI;
 			sumP[i] +=instP;
 		}
         //-----------------------------------------------------------------------------
