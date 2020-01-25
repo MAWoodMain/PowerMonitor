@@ -7,6 +7,8 @@ float Vrms,realPower[HARDWARE_CHANNEL_NUM],Irms[HARDWARE_CHANNEL_NUM],lastOffset
 double sumVSquared, instP, sumISquared[HARDWARE_CHANNEL_NUM], sumP[HARDWARE_CHANNEL_NUM];
 
 bool lastVCross,checkVCross;
+offsetV = ADC_COUNTS>>1;
+offsetI = ADC_COUNTS>>1;
 
 // Modified version of a method from https://github.com/openenergymonitor/EmonLib/blob/master/EmonLib.cpp
 // Calculator credits to the openenergymonitor project (https://github.com/openenergymonitor)
@@ -26,13 +28,19 @@ void calcVI(const unsigned int crossings)
 		sumISquared[i] = 0;
 		sumP[i] = 0;
 	}
-	
+  //-------------------------------------------------------------------------------------------------------------------------
+  // 1) Waits for the waveform to be close to 'zero' (mid-scale adc) part in sin curve.
+  //-------------------------------------------------------------------------------------------------------------------------
+
 	do
 	{
 		startV = readChannel(VOLTAGE_CHANNEL);
 		// keep trying until voltage is within 5% of a crossing point (offset zero)
 	} while (!((startV<(ADC_COUNTS*0.55))&&(startV>(ADC_COUNTS*0.45)))); 
-	
+  //-------------------------------------------------------------------------------------------------------------------------
+  // 2) Main measurement loop
+  //-------------------------------------------------------------------------------------------------------------------------
+
 	while(crossCount < crossings)
 	{
         numberOfSamples++;
@@ -117,12 +125,6 @@ void calcVI(const unsigned int crossings)
 		// VoltsPerCount applies to current and voltage in power as P=VI
 		realPower[i] = VoltsPerCount * VoltsPerCount * sumP[i] / numberOfSamples;
 	}
-
-	//Resets missing here
-	  //Reset accumulators
-      //sumV = 0;
-      //sumI = 0;
-      //sumP = 0;
 
 }
 
