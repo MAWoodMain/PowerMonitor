@@ -182,9 +182,9 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
     public void sendLogMessage(String msg)
     {
         String json;
-        json =  "{\"Time\":+" +
-                "\""+ Instant.now().toString()+ "\"" +
-                "\"LogMsg\":+" +
+        json =  "{\"Time\":" +
+                "\""+ Instant.now().toString()+ "\"," +
+                "\"LogMsg\":" +
                 "\""+ msg+ "\"}";
         publishToBroker(LOG_TOPIC,json);
     }

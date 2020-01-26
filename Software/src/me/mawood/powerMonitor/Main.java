@@ -67,12 +67,6 @@ public class Main
         //packetCollector.addPacketEventListener(System.out::println);
         vm = new VoltageMonitor(1000, VoltageSenseConfig.UK9V, packetCollector);
 
-        if (enable_API) {
-            powerDataDataBaseUpdater = new PowerDataAPIPublisher(circuitMap);
-            powerDataDataBaseUpdater.start();
-            getPowerDataMQTTPublisher().sendLogMessage("Enabled API");
-
-        }
         if (enable_MQTT) {
             try {
                 powerDataMQTTPublisher = new PowerDataMQTTPublisher(circuitMap);
@@ -82,6 +76,12 @@ public class Main
                 PowerDataMQTTPublisher.handleMQTTException(e);
                 System.exit(9);
             }
+        }
+        if (enable_API) {
+            powerDataDataBaseUpdater = new PowerDataAPIPublisher(circuitMap);
+            powerDataDataBaseUpdater.start();
+            getPowerDataMQTTPublisher().sendLogMessage("Enabled API");
+
         }
         for(Circuit circuit: HomeCircuits.values())
         {
