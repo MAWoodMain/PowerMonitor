@@ -2,6 +2,7 @@ package me.mawood.powerMonitor;
 
 import me.mawood.powerMonitor.circuits.Circuit;
 import me.mawood.powerMonitor.circuits.HomeCircuits;
+import me.mawood.powerMonitor.control.CommandProcessor;
 import me.mawood.powerMonitor.metrics.PowerMetricCalculator;
 import me.mawood.powerMonitor.packets.STM8PacketCollector;
 import me.mawood.powerMonitor.packets.monitors.CurrentMonitor;
@@ -24,6 +25,7 @@ public class Main
     private static STM8PacketCollector packetCollector;
     private static PowerDataMQTTPublisher powerDataMQTTPublisher;
     private static PowerDataAPIPublisher powerDataDataBaseUpdater;
+    private static CommandProcessor commandProcessor;
 
     // Getters and Setters
     public static boolean isEnable_MQTT()
@@ -45,6 +47,7 @@ public class Main
     public static HashMap<Circuit, PowerMetricCalculator> getCircuitMap() {return circuitMap;}
     public static PowerDataMQTTPublisher getPowerDataMQTTPublisher() {return powerDataMQTTPublisher;}
     public static PowerDataAPIPublisher getPowerDataDataBaseUpdater() {return powerDataDataBaseUpdater;}
+    public static CommandProcessor getCommandProcessor() {return commandProcessor;}
 
     public static void enableCollection(Circuit circuit)
     {
@@ -83,6 +86,7 @@ public class Main
             getPowerDataMQTTPublisher().sendLogMessage("Enabled API");
 
         }
+        commandProcessor = new CommandProcessor();
         for(Circuit circuit: HomeCircuits.values())
         {
             enableCollection(circuit);

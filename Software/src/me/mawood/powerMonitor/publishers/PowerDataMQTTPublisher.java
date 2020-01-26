@@ -1,5 +1,6 @@
 package me.mawood.powerMonitor.publishers;
 
+import me.mawood.powerMonitor.Main;
 import me.mawood.powerMonitor.circuits.Circuit;
 import me.mawood.powerMonitor.circuits.HomeCircuits;
 import me.mawood.powerMonitor.metrics.InvalidDataException;
@@ -111,6 +112,11 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
         System.out.println("| Topic:" + topic);
         System.out.println("| Message: " + new String(mqttMessage.getPayload()));
         System.out.println("-------------------------------------------------");
+        String[] subtopics = topic.split("/");
+        if (subtopics[2].equalsIgnoreCase("cmnd"))
+        {
+            Main.getCommandProcessor().processMQTTCommand(mqttMessage.getPayload().toString());
+        }
     }
 
     /**
