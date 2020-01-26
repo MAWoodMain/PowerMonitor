@@ -39,6 +39,7 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
     private static final String USERNAME = "emonpi";
     private static final String PASSWORD = "emonpimqtt2016";
     private static final String CMND_TOPIC = TOPIC+"/cmnd/#";
+    private static final String LOG_TOPIC = TOPIC+"/log";
 
     private final MqttClient mqttClient;
     private final MqttConnectOptions connOpts;
@@ -67,6 +68,7 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
         // make connection to MQTT broker
         mqttClient.connect(connOpts);
         System.out.println("PowerDataMQTTPublisher Connected");
+        sendLogMessage("PowerDataMQTTPublisher Connected");
         mqttClient.subscribe(CMND_TOPIC);
     }
 
@@ -177,6 +179,15 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
         }
     }
 
+    public void sendLogMessage(String msg)
+    {
+        String json;
+        json =  "{\"Time\":+" +
+                "\""+ Instant.now().toString()+ "\"" +
+                "\"LogMsg\":+" +
+                "\""+ msg+ "\"}";
+        publishToBroker(LOG_TOPIC,json);
+    }
 
     private void publishMetricToBroker(String subTopic, MetricReading metricReading)
     {
@@ -274,6 +285,7 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
         }
         shutdownDataProcessing();
         System.out.println("Data Processing Interrupted, exiting");
+        sendLogMessage("Data Processing Interrupted, exiting");
         System.exit(0);
     }
 }

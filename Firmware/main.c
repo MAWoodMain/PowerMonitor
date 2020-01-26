@@ -41,7 +41,7 @@ void loop()
 	unsigned long appL,realL;
 	int i = 0;
 	PC_ODR |= 1 << 6;
-	calcVI(8);
+	calcVI(8); //number of waveform crossings to make a measurement
 	PC_ODR &= ~(1 << 6);
 	sendString("PM_START");
 	sendFloatAsString(getVrms());

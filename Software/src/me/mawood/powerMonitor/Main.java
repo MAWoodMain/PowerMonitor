@@ -22,7 +22,10 @@ public class Main
     private static HashMap<Circuit, PowerMetricCalculator> circuitMap = new HashMap<>();
     private static VoltageMonitor vm;
     private static STM8PacketCollector packetCollector;
+    private static PowerDataMQTTPublisher powerDataMQTTPublisher;
+    private static PowerDataAPIPublisher powerDataDataBaseUpdater;
 
+    // Getters and Setters
     public static boolean isEnable_MQTT()
     {
         return enable_MQTT;
@@ -31,14 +34,17 @@ public class Main
     {
         return enable_API;
     }
-    public void setEnable_MQQT(boolean mqtt)
+    public static void setEnable_MQQT(boolean mqtt)
     {
         enable_MQTT = mqtt;
     }
-    public void setEnable_API(boolean api)
+    public static void setEnable_API(boolean api)
     {
         enable_API = api;
     }
+    public static HashMap<Circuit, PowerMetricCalculator> getCircuitMap() {return circuitMap;}
+    public static PowerDataMQTTPublisher getPowerDataMQTTPublisher() {return powerDataMQTTPublisher;}
+    public static PowerDataAPIPublisher getPowerDataDataBaseUpdater() {return powerDataDataBaseUpdater;}
 
     public static void enableCollection(Circuit circuit)
     {
@@ -64,11 +70,10 @@ public class Main
             enableCollection(circuit);
         }
         if (enable_API) {
-            PowerDataAPIPublisher powerDataDataBaseUpdater = new PowerDataAPIPublisher(circuitMap);
+            powerDataDataBaseUpdater = new PowerDataAPIPublisher(circuitMap);
             powerDataDataBaseUpdater.start();
         }
         if (enable_MQTT) {
-            PowerDataMQTTPublisher powerDataMQTTPublisher;
             try {
                 powerDataMQTTPublisher = new PowerDataMQTTPublisher(circuitMap);
                 powerDataMQTTPublisher.start(); // run in separate thread
