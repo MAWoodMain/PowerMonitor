@@ -53,10 +53,12 @@ public class Main
                 new PowerMetricCalculator(vm,
                 new CurrentMonitor(1000, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector),
                 new RealPowerMonitor(1000, VoltageSenseConfig.UK9V, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector)));
+        getPowerDataMQTTPublisher().sendLogMessage("Monitoring circuit "+circuit.getDisplayName());
     }
     public static void disableCollection(Circuit circuit)
     {
         circuitMap.remove(circuit);
+        getPowerDataMQTTPublisher().sendLogMessage("Not monitoring circuit "+circuit.getDisplayName());
     }
 
     public static void main(String[] args) throws IOException
@@ -72,11 +74,14 @@ public class Main
         if (enable_API) {
             powerDataDataBaseUpdater = new PowerDataAPIPublisher(circuitMap);
             powerDataDataBaseUpdater.start();
+            getPowerDataMQTTPublisher().sendLogMessage("Enabled API");
+
         }
         if (enable_MQTT) {
             try {
                 powerDataMQTTPublisher = new PowerDataMQTTPublisher(circuitMap);
                 powerDataMQTTPublisher.start(); // run in separate thread
+                getPowerDataMQTTPublisher().sendLogMessage("Enabled MQTT");
             } catch (MqttException e) {
                 PowerDataMQTTPublisher.handleMQTTException(e);
                 System.exit(9);
