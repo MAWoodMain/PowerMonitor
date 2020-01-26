@@ -38,6 +38,7 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
     private static final String BROKER = "tcp://10.0.128.2:1883";
     private static final String USERNAME = "emonpi";
     private static final String PASSWORD = "emonpimqtt2016";
+    private static final String CMND_TOPIC = TOPIC+"/cmnd/#";
 
     private final MqttClient mqttClient;
     private final MqttConnectOptions connOpts;
@@ -66,6 +67,7 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
         // make connection to MQTT broker
         mqttClient.connect(connOpts);
         System.out.println("PowerDataMQTTPublisher Connected");
+        mqttClient.subscribe(CMND_TOPIC);
     }
 
     //
@@ -93,22 +95,20 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
     }
 
     /**
-     * messageArrived       An MQTT message has been received (not expected to happen
-     * as this class doesn't subscribe
+     * messageArrived       An MQTT message has been received
+     *                      this class is subscribed cmnd subtopic
      *
-     * @param s           Topic
+     * @param topic           Topic
      * @param mqttMessage Message
      * @throws Exception if we can't handle it
      */
     @Override
-    public void messageArrived(String s, MqttMessage mqttMessage) throws Exception
+    public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception
     {
-        /*
         System.out.println("-------------------------------------------------");
-        System.out.println("| Topic:" + s);
+        System.out.println("| Topic:" + topic);
         System.out.println("| Message: " + new String(mqttMessage.getPayload()));
         System.out.println("-------------------------------------------------");
-        */
     }
 
     /**
