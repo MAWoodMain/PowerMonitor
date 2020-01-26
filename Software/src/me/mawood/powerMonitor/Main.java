@@ -67,10 +67,6 @@ public class Main
         //packetCollector.addPacketEventListener(System.out::println);
         vm = new VoltageMonitor(1000, VoltageSenseConfig.UK9V, packetCollector);
 
-        for(Circuit circuit: HomeCircuits.values())
-        {
-            enableCollection(circuit);
-        }
         if (enable_API) {
             powerDataDataBaseUpdater = new PowerDataAPIPublisher(circuitMap);
             powerDataDataBaseUpdater.start();
@@ -86,6 +82,10 @@ public class Main
                 PowerDataMQTTPublisher.handleMQTTException(e);
                 System.exit(9);
             }
+        }
+        for(Circuit circuit: HomeCircuits.values())
+        {
+            enableCollection(circuit);
         }
     }
 }
