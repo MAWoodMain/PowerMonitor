@@ -13,54 +13,55 @@ import me.mawood.powerMonitor.publishers.PowerDataMQTTPublisher;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 
 public class Main
 {
-    static boolean enable_MQTT = true;
-    static boolean enable_API = false;
-    static boolean[] enableCircuits = new boolean[9];
+    private static boolean enable_MQTT = true;
+    private static boolean enable_API = false;
+    private static HashMap<Circuit, PowerMetricCalculator> circuitMap = new HashMap<>();
+    private static VoltageMonitor vm;
+    private static STM8PacketCollector packetCollector;
 
     public static boolean isEnable_MQTT()
     {
         return enable_MQTT;
     }
-
     public static boolean isEnable_API()
     {
         return enable_API;
     }
-
     public void setEnable_MQQT(boolean mqtt)
     {
         enable_MQTT = mqtt;
     }
-
     public void setEnable_API(boolean api)
     {
         enable_API = api;
     }
 
+    public static void enableCollection(Circuit circuit)
+    {
+        circuitMap.put(
+                circuit,
+                new PowerMetricCalculator(vm,
+                new CurrentMonitor(1000, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector),
+                new RealPowerMonitor(1000, VoltageSenseConfig.UK9V, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector)));
+    }
+    public static void disableCollection(Circuit circuit)
+    {
+        circuitMap.remove(circuit);
+    }
+
     public static void main(String[] args) throws IOException
     {
-        Arrays.fill(enableCircuits, Boolean.FALSE);
-        enableCircuits[8]=true; // switch connection for whole house on
-        enableCircuits[6]=true; // 20 amp coil
-        STM8PacketCollector packetCollector = new STM8PacketCollector(1000);
+        packetCollector = new STM8PacketCollector(1000);
         //packetCollector.addPacketEventListener(System.out::println);
-        VoltageMonitor vm = new VoltageMonitor(1000, VoltageSenseConfig.UK9V, packetCollector);
-
-        HashMap<Circuit, PowerMetricCalculator> circuitMap = new HashMap<>();
+        vm = new VoltageMonitor(1000, VoltageSenseConfig.UK9V, packetCollector);
 
         for(Circuit circuit: HomeCircuits.values())
         {
-            if (true) { //only monitor enabled circuits
-                //if (enableCircuits[circuit.getChannelNumber()-1]) { //only monitor enabled circuits
-                circuitMap.put(circuit, new PowerMetricCalculator(vm,
-                        new CurrentMonitor(1000, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector),
-                        new RealPowerMonitor(1000, VoltageSenseConfig.UK9V, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector)));
-            }
+            enableCollection(circuit);
         }
         if (enable_API) {
             PowerDataAPIPublisher powerDataDataBaseUpdater = new PowerDataAPIPublisher(circuitMap);
