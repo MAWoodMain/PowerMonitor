@@ -3,19 +3,20 @@ package me.mawood.powerMonitor.publishers;
 import me.mawood.powerMonitor.Main;
 
 import java.time.Instant;
-import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import static me.mawood.powerMonitor.Main.getPowerDataMQTTPublisher;
 
 public class Logger extends Thread
 {
     String msg;
-    Queue<String> loggingQ ;
+    LinkedBlockingQueue<String> loggingQ;
 
     public Logger()
     {
-        this.loggingQ =  Main.getLoggingQ();
+        this.loggingQ = Main.getLoggingQ();
     }
+
     //
     // Runnable implementation
     //
@@ -25,14 +26,21 @@ public class Logger extends Thread
         PowerDataMQTTPublisher publisher = getPowerDataMQTTPublisher();
         String json;
         boolean exit = false;
-        while (!(interrupted() || exit)) {
-            msg = loggingQ.poll();
-            if (msg.equalsIgnoreCase("exit")){exit=true;} //poison pill
-            json =  "{\"Time\":" +
-                    "\""+ Instant.now().toString()+ "\"," +
-                    "\"LogMsg\":" +
-                    "\""+ msg+ "\"}";
-            publisher.logToBroker(json);
+        try {
+            while (!(interrupted() || exit)) {
+                msg = loggingQ.take();
+                if (msg.equalsIgnoreCase("exit")) {
+                    exit = true;
+                } //poison pill
+                json = "{\"Time\":" +
+                        "\"" + Instant.now().toString() + "\"," +
+                        "\"LogMsg\":" +
+                        "\"" + msg + "\"}";
+                publisher.logToBroker(json);
+                Thread.sleep(10);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }

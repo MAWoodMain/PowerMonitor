@@ -15,7 +15,8 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import javax.naming.OperationNotSupportedException;
 import java.time.Instant;
 import java.util.Map;
-import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
+
 
 public class PowerDataMQTTPublisher extends Thread implements MqttCallback
 {
@@ -51,7 +52,7 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
     // run control variables
     private volatile boolean msgArrived;
     private final Map<Circuit, PowerMetricCalculator> circuitMap;
-    Queue<String> loggingQ;
+    LinkedBlockingQueue<String> loggingQ;
     /**
      * PowerDataMQTTPublisher   Constructor
      */
@@ -252,9 +253,7 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
         {
             // wait for first readings to be ready
             Thread.sleep(2010);
-        } catch (InterruptedException ignored)
-        {
-        }
+        } catch (InterruptedException ignored){}
         while (!Thread.interrupted())
         {
             startTime = System.currentTimeMillis();
@@ -279,9 +278,7 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
                 try
                 {
                     Thread.sleep(Math.max(0, ((startTime + 1000) - System.currentTimeMillis()) / 2));
-                } catch (InterruptedException ignore)
-                {
-                }
+                } catch (InterruptedException ignore){}
             }
         }
         shutdownDataProcessing();

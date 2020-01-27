@@ -16,8 +16,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Main
 {
@@ -29,8 +28,8 @@ public class Main
     private static PowerDataMQTTPublisher powerDataMQTTPublisher;
     private static PowerDataAPIPublisher powerDataDataBaseUpdater;
     private static CommandProcessor commandProcessor;
-    private static Queue<String> commandQ;
-    private static Queue<String> loggingQ;
+    private static LinkedBlockingQueue<String> commandQ;
+    private static LinkedBlockingQueue<String> loggingQ;
     private static Logger logger;
     // Getters and Setters
     public static boolean isEnabled_MQTT()
@@ -62,8 +61,8 @@ public class Main
     public static HashMap<Circuit, PowerMetricCalculator> getCircuitMap() {return circuitMap;}
     public static PowerDataMQTTPublisher getPowerDataMQTTPublisher() {return powerDataMQTTPublisher;}
     public static PowerDataAPIPublisher getPowerDataDataBaseUpdater() {return powerDataDataBaseUpdater;}
-    public static Queue<String>  getCommandQ() {return commandQ;}
-    public static Queue<String>  getLoggingQ() {return loggingQ;}
+    public static LinkedBlockingQueue<String>  getCommandQ() {return commandQ;}
+    public static LinkedBlockingQueue<String>  getLoggingQ() {return loggingQ;}
 
     public static void enableCollection(Circuit circuit)
     {
@@ -82,8 +81,8 @@ public class Main
 
     public static void main(String[] args) throws IOException
     {
-        commandQ = new ConcurrentLinkedQueue<>();
-        loggingQ = new ConcurrentLinkedQueue<>();
+        commandQ = new LinkedBlockingQueue<>();
+        loggingQ = new LinkedBlockingQueue<>();
         logger = new Logger();
 
         packetCollector = new STM8PacketCollector(1000);
