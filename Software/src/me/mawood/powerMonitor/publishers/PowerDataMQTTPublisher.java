@@ -15,6 +15,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import javax.naming.OperationNotSupportedException;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Queue;
 
 public class PowerDataMQTTPublisher extends Thread implements MqttCallback
 {
@@ -50,13 +51,15 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
     // run control variables
     private volatile boolean msgArrived;
     private final Map<Circuit, PowerMetricCalculator> circuitMap;
-
+    Queue<String> loggingQ;
     /**
      * PowerDataMQTTPublisher   Constructor
      */
     public PowerDataMQTTPublisher(Map<Circuit, PowerMetricCalculator> circuitMap) throws MqttException
     {
         this.circuitMap = circuitMap;
+
+        loggingQ = Main.getLoggingQ();
         noMessagesSentOK = 0;
 
         mqttClient = new MqttClient(BROKER, CLIENT_ID, new MemoryPersistence());
@@ -69,7 +72,7 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
         // make connection to MQTT broker
         mqttClient.connect(connOpts);
         System.out.println("PowerDataMQTTPublisher Connected");
-        sendLogMessage("PowerDataMQTTPublisher Connected");
+        loggingQ.add("PowerDataMQTTPublisher Connected");
         mqttClient.subscribe(CMND_TOPIC);
     }
 
@@ -108,14 +111,11 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
     @Override
     public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception
     {
-        System.out.println("-------------------------------------------------");
-        System.out.println("| Topic:" + topic);
-        System.out.println("| Message: " + new String(mqttMessage.getPayload()));
-        System.out.println("-------------------------------------------------");
+        System.out.println("MQTT msg received Topic: " + topic + " Message: " + new String(mqttMessage.getPayload()));
         String[] subtopics = topic.split("/");
         if (subtopics[2].equalsIgnoreCase("cmnd"))
         {
-            Main.getCommandProcessor().processMQTTCommand(mqttMessage.getPayload().toString());
+            Main.getCommandQ().add(mqttMessage.getPayload().toString());
         }
     }
 
@@ -168,7 +168,7 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
      * @param subTopic - fully qualified TOPIC identifier
      * @param content  - message content "key data"
      */
-    private void publishToBroker(String subTopic, String content)
+    public void publishToBroker(String subTopic, String content)
     {
         //System.out.println("'"+subTopic+"'"+"'"+content+"'");
         final int qos = 2; //The message is always delivered exactly once
@@ -185,14 +185,9 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
         }
     }
 
-    public void sendLogMessage(String msg)
+    public void logToBroker(String msg)
     {
-        String json;
-        json =  "{\"Time\":" +
-                "\""+ Instant.now().toString()+ "\"," +
-                "\"LogMsg\":" +
-                "\""+ msg+ "\"}";
-        publishToBroker(LOG_TOPIC,json);
+        publishToBroker(LOG_TOPIC,msg);
     }
 
     private void publishMetricToBroker(String subTopic, MetricReading metricReading)
@@ -291,7 +286,7 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
         }
         shutdownDataProcessing();
         System.out.println("Data Processing Interrupted, exiting");
-        sendLogMessage("Data Processing Interrupted, exiting");
+        loggingQ.add("Data Processing Interrupted, exiting");
         System.exit(0);
     }
 }
