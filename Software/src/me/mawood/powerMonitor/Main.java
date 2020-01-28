@@ -113,6 +113,7 @@ public class Main
 
         loggingQ.add("Enabling CircuitCollector");
         circuitCollector = new CircuitCollector(circuitMap,loggingQ, powerDataMQTTPublisher);
+        circuitCollector.start();
 
         // Start packet collection
         loggingQ.add("Enabling PacketCollector");
