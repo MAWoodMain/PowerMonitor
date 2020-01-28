@@ -1,6 +1,7 @@
 package me.mawood.powerMonitor;
 
 import me.mawood.powerMonitor.circuits.Circuit;
+import me.mawood.powerMonitor.circuits.CircuitCollector;
 import me.mawood.powerMonitor.circuits.HomeCircuits;
 import me.mawood.powerMonitor.control.CommandProcessor;
 import me.mawood.powerMonitor.metrics.PowerMetricCalculator;
@@ -31,6 +32,7 @@ public class Main
     private static LinkedBlockingQueue<String> commandQ;
     private static LinkedBlockingQueue<String> loggingQ;
     private static PMLogger logger;
+    private static CircuitCollector circuitCollector;
     // Getters and Setters
     public static boolean isEnabled_MQTT()
     {
@@ -108,6 +110,9 @@ public class Main
         loggingQ.add("Enabling CommandProcessor");
         commandProcessor = new CommandProcessor(commandQ,loggingQ);
         commandProcessor.start();
+
+        loggingQ.add("Enabling CircuitCollector");
+        circuitCollector = new CircuitCollector(circuitMap,loggingQ, powerDataMQTTPublisher);
 
         // Start packet collection
         loggingQ.add("Enabling PacketCollector");
