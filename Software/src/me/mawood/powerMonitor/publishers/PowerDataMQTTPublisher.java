@@ -76,7 +76,9 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
         mqttClient.connect(connOpts);
         System.out.println("PowerDataMQTTPublisher Connected");
         loggingQ.add("PowerDataMQTTPublisher Connected");
+        mqttClient.setCallback(this);
         mqttClient.subscribe(CMND_TOPIC);
+        loggingQ.add("PowerDataMQTTPublisher: Subscribed to <"+ CMND_TOPIC+">");
     }
 
     //
@@ -272,7 +274,6 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
                     //System.out.println("no data for circuit: " + circuit.getDisplayName());
                 }
             }
-
 
             //Frequency
             while (startTime + 1000 > System.currentTimeMillis())
