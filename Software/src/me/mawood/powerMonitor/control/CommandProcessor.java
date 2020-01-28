@@ -1,7 +1,5 @@
 package me.mawood.powerMonitor.control;
 
-import me.mawood.powerMonitor.Main;
-
 import java.util.Arrays;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -11,10 +9,10 @@ public class CommandProcessor extends Thread
     LinkedBlockingQueue<String> commandQ;
     LinkedBlockingQueue<String> loggingQ;
 
-    public CommandProcessor()
+    public CommandProcessor(LinkedBlockingQueue<String> comdQ, LinkedBlockingQueue<String> logQ)
     {
-        this.commandQ = Main.getCommandQ();
-        this.loggingQ = Main.getLoggingQ();
+        this.commandQ = comdQ;
+        this.loggingQ = logQ;
     }
 
     /**

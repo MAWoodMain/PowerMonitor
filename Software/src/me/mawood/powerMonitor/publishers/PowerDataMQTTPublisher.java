@@ -1,6 +1,5 @@
 package me.mawood.powerMonitor.publishers;
 
-import me.mawood.powerMonitor.Main;
 import me.mawood.powerMonitor.circuits.Circuit;
 import me.mawood.powerMonitor.circuits.HomeCircuits;
 import me.mawood.powerMonitor.metrics.InvalidDataException;
@@ -53,14 +52,17 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
     private volatile boolean msgArrived;
     private final Map<Circuit, PowerMetricCalculator> circuitMap;
     LinkedBlockingQueue<String> loggingQ;
+    LinkedBlockingQueue<String> commandQ;
     /**
      * PowerDataMQTTPublisher   Constructor
      */
-    public PowerDataMQTTPublisher(Map<Circuit, PowerMetricCalculator> circuitMap) throws MqttException
+    public PowerDataMQTTPublisher(Map<Circuit, PowerMetricCalculator> circuitMap,
+                                  LinkedBlockingQueue<String> loggingQ,
+                                  LinkedBlockingQueue<String> commandQ) throws MqttException
     {
         this.circuitMap = circuitMap;
-
-        loggingQ = Main.getLoggingQ();
+        this.loggingQ = loggingQ;
+        this.commandQ = commandQ;
         noMessagesSentOK = 0;
 
         mqttClient = new MqttClient(BROKER, CLIENT_ID, new MemoryPersistence());
@@ -116,7 +118,7 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
         String[] subtopics = topic.split("/");
         if (subtopics[2].equalsIgnoreCase("cmnd"))
         {
-            Main.getCommandQ().add(mqttMessage.getPayload().toString());
+            commandQ.add(mqttMessage.getPayload().toString());
         }
     }
 

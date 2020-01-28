@@ -1,20 +1,18 @@
 package me.mawood.powerMonitor.publishers;
 
-import me.mawood.powerMonitor.Main;
-
 import java.time.Instant;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import static me.mawood.powerMonitor.Main.getPowerDataMQTTPublisher;
 
-public class Logger extends Thread
+public class PMLogger extends Thread
 {
     String msg;
     LinkedBlockingQueue<String> loggingQ;
 
-    public Logger()
+    public PMLogger(LinkedBlockingQueue<String> logQ)
     {
-        this.loggingQ = Main.getLoggingQ();
+        this.loggingQ = logQ;
     }
 
     //

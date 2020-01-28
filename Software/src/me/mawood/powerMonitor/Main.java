@@ -9,7 +9,7 @@ import me.mawood.powerMonitor.packets.monitors.CurrentMonitor;
 import me.mawood.powerMonitor.packets.monitors.RealPowerMonitor;
 import me.mawood.powerMonitor.packets.monitors.VoltageMonitor;
 import me.mawood.powerMonitor.packets.monitors.configs.VoltageSenseConfig;
-import me.mawood.powerMonitor.publishers.Logger;
+import me.mawood.powerMonitor.publishers.PMLogger;
 import me.mawood.powerMonitor.publishers.PowerDataAPIPublisher;
 import me.mawood.powerMonitor.publishers.PowerDataMQTTPublisher;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -30,7 +30,7 @@ public class Main
     private static CommandProcessor commandProcessor;
     private static LinkedBlockingQueue<String> commandQ;
     private static LinkedBlockingQueue<String> loggingQ;
-    private static Logger logger;
+    private static PMLogger logger;
     // Getters and Setters
     public static boolean isEnabled_MQTT()
     {
@@ -81,17 +81,20 @@ public class Main
 
     public static void main(String[] args) throws IOException
     {
+        // set up & start support processes
         commandQ = new LinkedBlockingQueue<>();
         loggingQ = new LinkedBlockingQueue<>();
-        logger = new Logger();
+        logger = new PMLogger(loggingQ);
+        logger.start();
+        loggingQ.add("Enabled Logger");
+        commandProcessor = new CommandProcessor(commandQ,loggingQ);
+        commandProcessor.start();
+        loggingQ.add("Enabled CommandProcessor");
 
-        packetCollector = new STM8PacketCollector(1000);
-        //packetCollector.addPacketEventListener(System.out::println);
-        vm = new VoltageMonitor(1000, VoltageSenseConfig.UK9V, packetCollector);
-
+        //if required enable publishing processes
         if (enable_MQTT) {
             try {
-                powerDataMQTTPublisher = new PowerDataMQTTPublisher(circuitMap);
+                powerDataMQTTPublisher = new PowerDataMQTTPublisher(circuitMap,loggingQ, commandQ);
                 powerDataMQTTPublisher.start(); // run in separate thread
                 loggingQ.add("Enabled MQTT");
             } catch (MqttException e) {
@@ -103,12 +106,19 @@ public class Main
             powerDataDataBaseUpdater = new PowerDataAPIPublisher(circuitMap);
             powerDataDataBaseUpdater.start();
             loggingQ.add("Enabled API");
-
         }
-        commandProcessor = new CommandProcessor();
+
+        // Start packet collection
+        packetCollector = new STM8PacketCollector(1000);
+        //packetCollector.addPacketEventListener(System.out::println);
+        vm = new VoltageMonitor(1000, VoltageSenseConfig.UK9V, packetCollector);
+        loggingQ.add("Enabled PacketCollector and VoltageMonitor ");
+        // Enable interpretation for required circuits
+        boolean[] circuitRequired = {false, false, false, false, false, false, false, false, false, true}; // 0-9 0 not used, 9 is Whole_House
         for(Circuit circuit: HomeCircuits.values())
         {
-            enableCollection(circuit);
+            if (circuitRequired[circuit.getChannelNumber()]) enableCollection(circuit);
+            loggingQ.add("Circuit "+circuit.getDisplayName()+ " collection enabled");
         }
     }
 }
