@@ -3,7 +3,7 @@ package me.mawood.powerMonitor.publishers;
 import java.time.Instant;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import static me.mawood.powerMonitor.Main.getMqttPublisher;
+import static me.mawood.powerMonitor.Main.getMqttHandler;
 
 public class PMLogger extends Thread
 {
@@ -26,7 +26,7 @@ public class PMLogger extends Thread
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        MQTTPublisher publisher = getMqttPublisher();
+        MQTTHandler publisher = getMqttHandler();
         String json;
         boolean exit = false;
         try {

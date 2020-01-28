@@ -1,6 +1,5 @@
 package me.mawood.powerMonitor.publishers;
 
-import me.mawood.powerMonitor.metrics.MetricReading;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
@@ -8,7 +7,7 @@ import java.util.Arrays;
 import java.util.concurrent.LinkedBlockingQueue;
 
 
-public class MQTTPublisher extends Thread implements MqttCallback
+public class MQTTHandler implements MqttCallback
 {
 
     private static final String CLIENT_ID = "PMon10";
@@ -28,10 +27,10 @@ public class MQTTPublisher extends Thread implements MqttCallback
     LinkedBlockingQueue<String> loggingQ;
     LinkedBlockingQueue<String> commandQ;
     /**
-     * MQTTPublisher   Constructor
+     * MQTTHandler   Constructor
      */
-    public MQTTPublisher(LinkedBlockingQueue<String> loggingQ,
-                         LinkedBlockingQueue<String> commandQ) throws MqttException
+    public MQTTHandler(LinkedBlockingQueue<String> loggingQ,
+                       LinkedBlockingQueue<String> commandQ) throws MqttException
     {
         this.loggingQ = loggingQ;
         this.commandQ = commandQ;
@@ -43,14 +42,14 @@ public class MQTTPublisher extends Thread implements MqttCallback
         connOpts.setCleanSession(true);
         connOpts.setUserName(USERNAME);
         connOpts.setPassword(PASSWORD.toCharArray());
-        System.out.println("Connecting MQTTPublisher to broker: " + BROKER);
+        System.out.println("Connecting MQTTHandler to broker: " + BROKER);
         // make connection to MQTT broker
         mqttClient.connect(connOpts);
-        System.out.println("MQTTPublisher Connected");
-        loggingQ.add("MQTTPublisher Connected");
+        System.out.println("MQTTHandler Connected");
+        loggingQ.add("MQTTHandler Connected");
         mqttClient.setCallback(this);
         mqttClient.subscribe(CMND_TOPIC);
-        loggingQ.add("MQTTPublisher: Subscribed to <"+ CMND_TOPIC+">");
+        loggingQ.add("MQTTHandler: Subscribed to <"+ CMND_TOPIC+">");
     }
 
     //
@@ -136,7 +135,7 @@ public class MQTTPublisher extends Thread implements MqttCallback
         {
             handleMQTTException(me);
         }
-        System.out.println("MQTTPublisher disconnected from MQTT Broker");
+        System.out.println("MQTTHandler disconnected from MQTT Broker");
         System.out.println(noMessagesSentOK + " messages sent successfully");
     }
 
@@ -168,51 +167,4 @@ public class MQTTPublisher extends Thread implements MqttCallback
         publishToBroker(LOG_TOPIC,msg);
     }
 
-    private void publishMetricToBroker(String subTopic, MetricReading metricReading)
-    {
-        final int qos = 2; //The message is always delivered exactly once
-
-        metricReading.suppressNoise();
-        try
-        {
-            MqttMessage message = new MqttMessage(metricReading.toString().getBytes());
-            message.setQos(qos);
-            mqttClient.publish(subTopic, message);
-        } catch (MqttException me)
-        {
-            handleMQTTException(me);
-        }
-    }
-
-
-    //
-    // Runnable implementation
-    //
-
-    /**
-     * run  The main publishers loop
-     */
-    @Override
-    public void run()
-    {
-        try
-        {
-            // wait for first readings to be ready
-            Thread.sleep(2010);
-        } catch (InterruptedException ignored){}
-        while (!Thread.interrupted())
-        {
-           //rawMetricsBuffer.printMetricsBuffer();
-            try
-            {
-                // wait for first readings to be ready
-                Thread.sleep(100);
-            } catch (InterruptedException ignored){}
-
-        }
-        shutdownDataProcessing();
-        System.out.println("MQTT Processing Interrupted, exiting");
-        loggingQ.add("MQTT Processing Interrupted, exiting");
-        System.exit(0);
-    }
 }

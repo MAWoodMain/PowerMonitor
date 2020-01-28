@@ -6,7 +6,7 @@ import me.mawood.powerMonitor.metrics.PowerMetricCalculator;
 import me.mawood.powerMonitor.metrics.units.Current;
 import me.mawood.powerMonitor.metrics.units.Power;
 import me.mawood.powerMonitor.metrics.units.Voltage;
-import me.mawood.powerMonitor.publishers.MQTTPublisher;
+import me.mawood.powerMonitor.publishers.MQTTHandler;
 
 import javax.naming.OperationNotSupportedException;
 import java.time.Instant;
@@ -16,29 +16,28 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class CircuitCollector extends Thread
 {
-    MQTTPublisher mqttPublisher;
+    MQTTHandler mqttHandler;
 
      // run control variables
     private final Map<Circuit, PowerMetricCalculator> circuitMap;
     LinkedBlockingQueue<String> loggingQ;
 
     /**
-     * MQTTPublisher   Constructor
+     * MQTTHandler   Constructor
      */
     public CircuitCollector(Map<Circuit, PowerMetricCalculator> circuitMap,
                             LinkedBlockingQueue<String> loggingQ,
-                            MQTTPublisher publisher
+                            MQTTHandler publisher
                             )
     {
         this.circuitMap = circuitMap;
         this.loggingQ = loggingQ;
-        this.mqttPublisher = publisher;
-
+        this.mqttHandler = publisher;
     }
 
     private void publishCircuitToBroker(Circuit circuit) throws InvalidDataException, OperationNotSupportedException
     {
-        String subTopic= MQTTPublisher.TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
+        String subTopic= MQTTHandler.TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
         Instant readingTime =  Instant.now().minusSeconds(1);
         MetricReading voltage = circuitMap.get(HomeCircuits.WHOLE_HOUSE).getAverageBetween(Voltage.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
         MetricReading apparent = circuitMap.get(circuit).getAverageBetween(Power.VA, Instant.now().minusSeconds(2), readingTime);
@@ -56,8 +55,15 @@ public class CircuitCollector extends Thread
                 "\"Current\":"+ current.getValue().toString()+","+
                 "\"PowerFactor\":"+ powerFactor.toString()+
                 "}}";
-        mqttPublisher.publishToBroker(subTopic,jsonReadings);
+        mqttHandler.publishToBroker(subTopic,jsonReadings);
 
+    }
+    private void publishMetric(String subTopic, MetricReading metricReading)
+    {
+        final int qos = 2; //The message is always delivered exactly once
+
+        metricReading.suppressNoise();
+        mqttHandler.publishToBroker(subTopic,metricReading.toString());
     }
 
     //

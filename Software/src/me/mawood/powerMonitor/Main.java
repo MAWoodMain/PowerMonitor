@@ -10,7 +10,7 @@ import me.mawood.powerMonitor.packets.monitors.CurrentMonitor;
 import me.mawood.powerMonitor.packets.monitors.RealPowerMonitor;
 import me.mawood.powerMonitor.packets.monitors.VoltageMonitor;
 import me.mawood.powerMonitor.packets.monitors.configs.VoltageSenseConfig;
-import me.mawood.powerMonitor.publishers.MQTTPublisher;
+import me.mawood.powerMonitor.publishers.MQTTHandler;
 import me.mawood.powerMonitor.publishers.PMLogger;
 import me.mawood.powerMonitor.publishers.PowerDataAPIPublisher;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -26,7 +26,7 @@ public class Main
     private static HashMap<Circuit, PowerMetricCalculator> circuitMap = new HashMap<>();
     private static VoltageMonitor vm;
     private static STM8PacketCollector packetCollector;
-    private static MQTTPublisher mqttPublisher;
+    private static MQTTHandler mqttHandler;
     private static PowerDataAPIPublisher powerDataDataBaseUpdater;
     private static CommandProcessor commandProcessor;
     private static LinkedBlockingQueue<String> commandQ;
@@ -61,7 +61,7 @@ public class Main
     }
 
     public static HashMap<Circuit, PowerMetricCalculator> getCircuitMap() {return circuitMap;}
-    public static MQTTPublisher getMqttPublisher() {return mqttPublisher;}
+    public static MQTTHandler getMqttHandler() {return mqttHandler;}
     public static PowerDataAPIPublisher getPowerDataDataBaseUpdater() {return powerDataDataBaseUpdater;}
     public static LinkedBlockingQueue<String>  getCommandQ() {return commandQ;}
     public static LinkedBlockingQueue<String>  getLoggingQ() {return loggingQ;}
@@ -87,19 +87,18 @@ public class Main
         loggingQ = new LinkedBlockingQueue<>();
 
         //if required enable publishing processes
-        if (enable_MQTT) {
+        if (isEnabled_MQTT()) {
             try {
                 loggingQ.add("Enabling MQTT");
-                mqttPublisher = new MQTTPublisher(loggingQ, commandQ);
-                mqttPublisher.start(); // run in separate thread
+                mqttHandler = new MQTTHandler(getLoggingQ(), getCommandQ());
             } catch (MqttException e) {
-                MQTTPublisher.handleMQTTException(e);
+                MQTTHandler.handleMQTTException(e);
                 System.exit(9);
             }
         }
-        if (enable_API) {
+        if (isEnabled_API()) {
             loggingQ.add("Enabling API");
-            powerDataDataBaseUpdater = new PowerDataAPIPublisher(circuitMap);
+            powerDataDataBaseUpdater = new PowerDataAPIPublisher(getCircuitMap());
             powerDataDataBaseUpdater.start();
         }
 
@@ -108,11 +107,12 @@ public class Main
         logger.start();
         loggingQ.add("Enabled Logger");
         loggingQ.add("Enabling CommandProcessor");
-        commandProcessor = new CommandProcessor(commandQ,loggingQ);
+        commandProcessor = new CommandProcessor(getCommandQ(),getLoggingQ());
         commandProcessor.start();
 
         loggingQ.add("Enabling CircuitCollector");
-        circuitCollector = new CircuitCollector(circuitMap,loggingQ, mqttPublisher);
+        boolean[] circuitRequired = {false, false, false, false, false, false, false, false, false, true}; // 0-9 0 not used, 9 is Whole_House
+        circuitCollector = new CircuitCollector(getCircuitMap(),getLoggingQ(), mqttHandler);
         circuitCollector.start();
 
         // Start packet collection
@@ -122,7 +122,6 @@ public class Main
         loggingQ.add("Enabling VoltageMonitor ");
         vm = new VoltageMonitor(1000, VoltageSenseConfig.UK9V, packetCollector);
         // Enable interpretation for required circuits
-        boolean[] circuitRequired = {false, false, false, false, false, false, false, false, false, true}; // 0-9 0 not used, 9 is Whole_House
         for(Circuit circuit: HomeCircuits.values())
         {
             if (circuitRequired[circuit.getChannelNumber()])

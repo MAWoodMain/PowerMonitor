@@ -50,7 +50,7 @@ public class PowerDataAPIPublisher extends Thread
     private Map<Circuit, Device> deviceMap = new HashMap<>();
 
     /**
-     * MQTTPublisher   Constructor
+     * MQTTHandler   Constructor
      */
     public PowerDataAPIPublisher(Map<Circuit, PowerMetricCalculator> circuitMap)
     {
