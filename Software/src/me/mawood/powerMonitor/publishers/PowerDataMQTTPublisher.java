@@ -114,6 +114,7 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
     @Override
     public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception
     {
+        loggingQ.add("MQTT msg received Topic: " + topic + " Message: " + new String(mqttMessage.getPayload()));
         System.out.println("MQTT msg received Topic: " + topic + " Message: " + new String(mqttMessage.getPayload()));
         String[] subtopics = topic.split("/");
         if (subtopics[2].equalsIgnoreCase("cmnd"))

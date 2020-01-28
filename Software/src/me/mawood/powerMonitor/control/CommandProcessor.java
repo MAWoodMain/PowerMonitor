@@ -40,6 +40,7 @@ public class CommandProcessor extends Thread
         try {
             while (!(interrupted() || exit)) {
                 command = commandQ.take().toLowerCase();
+                loggingQ.add("CommandProcessor: <"+command+"> arrived");
                 commandElements = command.split(" ");
                 switch (commandElements[0]) {
                     case "set": {
@@ -65,6 +66,7 @@ public class CommandProcessor extends Thread
                 }
                 Thread.sleep(10);
             }
+            loggingQ.add("CommandProcessor: Exiting");
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
