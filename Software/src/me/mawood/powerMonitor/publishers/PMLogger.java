@@ -21,6 +21,11 @@ public class PMLogger extends Thread
     @Override
     public void run()
     {
+        try {
+            Thread.sleep(1000); // wait for publisher to be set up
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         PowerDataMQTTPublisher publisher = getPowerDataMQTTPublisher();
         String json;
         boolean exit = false;
