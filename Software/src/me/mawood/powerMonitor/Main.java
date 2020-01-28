@@ -87,33 +87,34 @@ public class Main
         //if required enable publishing processes
         if (enable_MQTT) {
             try {
+                loggingQ.add("Enabling MQTT");
                 powerDataMQTTPublisher = new PowerDataMQTTPublisher(circuitMap,loggingQ, commandQ);
                 powerDataMQTTPublisher.start(); // run in separate thread
-                loggingQ.add("Enabled MQTT");
             } catch (MqttException e) {
                 PowerDataMQTTPublisher.handleMQTTException(e);
                 System.exit(9);
             }
         }
         if (enable_API) {
+            loggingQ.add("Enabling API");
             powerDataDataBaseUpdater = new PowerDataAPIPublisher(circuitMap);
             powerDataDataBaseUpdater.start();
-            loggingQ.add("Enabled API");
         }
 
         // set up & start support processes
         logger = new PMLogger(loggingQ);
         logger.start();
         loggingQ.add("Enabled Logger");
+        loggingQ.add("Enabling CommandProcessor");
         commandProcessor = new CommandProcessor(commandQ,loggingQ);
         commandProcessor.start();
-        loggingQ.add("Enabled CommandProcessor");
 
         // Start packet collection
+        loggingQ.add("Enabling PacketCollector");
         packetCollector = new STM8PacketCollector(1000);
         //packetCollector.addPacketEventListener(System.out::println);
+        loggingQ.add("Enabling VoltageMonitor ");
         vm = new VoltageMonitor(1000, VoltageSenseConfig.UK9V, packetCollector);
-        loggingQ.add("Enabled PacketCollector and VoltageMonitor ");
         // Enable interpretation for required circuits
         boolean[] circuitRequired = {false, false, false, false, false, false, false, false, false, true}; // 0-9 0 not used, 9 is Whole_House
         for(Circuit circuit: HomeCircuits.values())
