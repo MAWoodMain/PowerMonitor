@@ -1,39 +1,15 @@
 package me.mawood.powerMonitor.publishers;
 
-import me.mawood.powerMonitor.circuits.Circuit;
-import me.mawood.powerMonitor.circuits.HomeCircuits;
-import me.mawood.powerMonitor.metrics.InvalidDataException;
 import me.mawood.powerMonitor.metrics.MetricReading;
-import me.mawood.powerMonitor.metrics.PowerMetricCalculator;
-import me.mawood.powerMonitor.metrics.units.Current;
-import me.mawood.powerMonitor.metrics.units.Power;
-import me.mawood.powerMonitor.metrics.units.Voltage;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
-import javax.naming.OperationNotSupportedException;
-import java.time.Instant;
-import java.util.Map;
+import java.util.Arrays;
 import java.util.concurrent.LinkedBlockingQueue;
 
 
-public class PowerDataMQTTPublisher extends Thread implements MqttCallback
+public class MQTTPublisher extends Thread implements MqttCallback
 {
-    private class ChannelMap
-    {
-        final int channelNumber;
-        final double scaleFactor;
-        final String units;
-        final String name;
-
-        private ChannelMap(int channelNumber, double scaleFactor, String units, String name)
-        {
-            this.channelNumber = channelNumber;
-            this.scaleFactor = scaleFactor;
-            this.units = units;
-            this.name = name;
-        }
-    }
 
     private static final String CLIENT_ID = "PMon10";
     public static final String TOPIC = "emon/" + CLIENT_ID;
@@ -49,18 +25,14 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
     private long noMessagesSentOK;
 
     // run control variables
-    private volatile boolean msgArrived;
-    private final Map<Circuit, PowerMetricCalculator> circuitMap;
     LinkedBlockingQueue<String> loggingQ;
     LinkedBlockingQueue<String> commandQ;
     /**
-     * PowerDataMQTTPublisher   Constructor
+     * MQTTPublisher   Constructor
      */
-    public PowerDataMQTTPublisher(Map<Circuit, PowerMetricCalculator> circuitMap,
-                                  LinkedBlockingQueue<String> loggingQ,
-                                  LinkedBlockingQueue<String> commandQ) throws MqttException
+    public MQTTPublisher(LinkedBlockingQueue<String> loggingQ,
+                         LinkedBlockingQueue<String> commandQ) throws MqttException
     {
-        this.circuitMap = circuitMap;
         this.loggingQ = loggingQ;
         this.commandQ = commandQ;
         noMessagesSentOK = 0;
@@ -71,14 +43,14 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
         connOpts.setCleanSession(true);
         connOpts.setUserName(USERNAME);
         connOpts.setPassword(PASSWORD.toCharArray());
-        System.out.println("Connecting PowerDataMQTTPublisher to broker: " + BROKER);
+        System.out.println("Connecting MQTTPublisher to broker: " + BROKER);
         // make connection to MQTT broker
         mqttClient.connect(connOpts);
-        System.out.println("PowerDataMQTTPublisher Connected");
-        loggingQ.add("PowerDataMQTTPublisher Connected");
+        System.out.println("MQTTPublisher Connected");
+        loggingQ.add("MQTTPublisher Connected");
         mqttClient.setCallback(this);
         mqttClient.subscribe(CMND_TOPIC);
-        loggingQ.add("PowerDataMQTTPublisher: Subscribed to <"+ CMND_TOPIC+">");
+        loggingQ.add("MQTTPublisher: Subscribed to <"+ CMND_TOPIC+">");
     }
 
     //
@@ -121,7 +93,7 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
         String[] subtopics = topic.split("/");
         if (subtopics[2].equalsIgnoreCase("cmnd"))
         {
-            commandQ.add(mqttMessage.getPayload().toString());
+            commandQ.add(Arrays.toString(mqttMessage.getPayload()));
         }
     }
 
@@ -164,7 +136,7 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
         {
             handleMQTTException(me);
         }
-        System.out.println("PowerDataMQTTPublisher disconnected from MQTT Broker");
+        System.out.println("MQTTPublisher disconnected from MQTT Broker");
         System.out.println(noMessagesSentOK + " messages sent successfully");
     }
 
@@ -212,36 +184,6 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
         }
     }
 
-    private void publishCircuitToBroker(Circuit circuit) throws InvalidDataException, OperationNotSupportedException
-    {
-        String subTopic= TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
-        Instant readingTime =  Instant.now().minusSeconds(1);
-        MetricReading voltage = circuitMap.get(HomeCircuits.WHOLE_HOUSE).getAverageBetween(Voltage.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
-        MetricReading apparent = circuitMap.get(circuit).getAverageBetween(Power.VA, Instant.now().minusSeconds(2), readingTime);
-        MetricReading real = circuitMap.get(circuit).getAverageBetween(Power.WATTS, Instant.now().minusSeconds(2), readingTime);
-        MetricReading reactive = circuitMap.get(circuit).getAverageBetween(Power.VAR, Instant.now().minusSeconds(2), readingTime);
-        MetricReading current = circuitMap.get(circuit).getAverageBetween(Current.AMPS, Instant.now().minusSeconds(2), readingTime);
-        Double powerFactor = Math.round(Math.cos(Math.atan(reactive.getValue()/real.getValue()))*1000000.0)/1000000.0;
-        String jsonReadings =
-                "{\"Time\":\""+readingTime.toString()+"\","+
-                "\"Readings\":{"+
-                "\"Voltage\":"+ voltage.getValue().toString()+","+
-                "\"Real\":"+ real.getValue().toString()+","+
-                "\"Apparent\":"+ apparent.getValue().toString()+","+
-                "\"Reactive\":"+ reactive.getValue().toString()+","+
-                "\"Current\":"+ current.getValue().toString()+","+
-                "\"PowerFactor\":"+ powerFactor.toString()+
-                "}}";
-        publishToBroker(subTopic,jsonReadings);
-        /*
-        publishMetricToBroker(subTopic + "/ApparentPower", apparent);
-        publishMetricToBroker(subTopic + "/RealPower", real);
-        if (subTopic.contains("Whole_House"))
-        {
-            MetricReading voltage = circuitMap.get(circuit).getAverageBetween(Voltage.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
-            publishMetricToBroker(subTopic + "/Voltage", voltage);
-        }*/
-    }
 
     //
     // Runnable implementation
@@ -253,7 +195,6 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
     @Override
     public void run()
     {
-        long startTime;
         try
         {
             // wait for first readings to be ready
@@ -261,33 +202,17 @@ public class PowerDataMQTTPublisher extends Thread implements MqttCallback
         } catch (InterruptedException ignored){}
         while (!Thread.interrupted())
         {
-            startTime = System.currentTimeMillis();
-            //rawMetricsBuffer.printMetricsBuffer();
-
-            for (Circuit circuit : circuitMap.keySet())
+           //rawMetricsBuffer.printMetricsBuffer();
+            try
             {
-                try
-                {
-                    publishCircuitToBroker(circuit);
-                } catch (InvalidDataException | OperationNotSupportedException e)
-                {
-                    //System.out.println("no data for circuit: " + circuit.getDisplayName());
-                }
-            }
+                // wait for first readings to be ready
+                Thread.sleep(100);
+            } catch (InterruptedException ignored){}
 
-            //Frequency
-            while (startTime + 1000 > System.currentTimeMillis())
-            {
-                // wait half the remaining time
-                try
-                {
-                    Thread.sleep(Math.max(0, ((startTime + 1000) - System.currentTimeMillis()) / 2));
-                } catch (InterruptedException ignore){}
-            }
         }
         shutdownDataProcessing();
-        System.out.println("Data Processing Interrupted, exiting");
-        loggingQ.add("Data Processing Interrupted, exiting");
+        System.out.println("MQTT Processing Interrupted, exiting");
+        loggingQ.add("MQTT Processing Interrupted, exiting");
         System.exit(0);
     }
 }

@@ -10,9 +10,9 @@ import me.mawood.powerMonitor.packets.monitors.CurrentMonitor;
 import me.mawood.powerMonitor.packets.monitors.RealPowerMonitor;
 import me.mawood.powerMonitor.packets.monitors.VoltageMonitor;
 import me.mawood.powerMonitor.packets.monitors.configs.VoltageSenseConfig;
+import me.mawood.powerMonitor.publishers.MQTTPublisher;
 import me.mawood.powerMonitor.publishers.PMLogger;
 import me.mawood.powerMonitor.publishers.PowerDataAPIPublisher;
-import me.mawood.powerMonitor.publishers.PowerDataMQTTPublisher;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
 import java.io.IOException;
@@ -26,7 +26,7 @@ public class Main
     private static HashMap<Circuit, PowerMetricCalculator> circuitMap = new HashMap<>();
     private static VoltageMonitor vm;
     private static STM8PacketCollector packetCollector;
-    private static PowerDataMQTTPublisher powerDataMQTTPublisher;
+    private static MQTTPublisher mqttPublisher;
     private static PowerDataAPIPublisher powerDataDataBaseUpdater;
     private static CommandProcessor commandProcessor;
     private static LinkedBlockingQueue<String> commandQ;
@@ -61,7 +61,7 @@ public class Main
     }
 
     public static HashMap<Circuit, PowerMetricCalculator> getCircuitMap() {return circuitMap;}
-    public static PowerDataMQTTPublisher getPowerDataMQTTPublisher() {return powerDataMQTTPublisher;}
+    public static MQTTPublisher getMqttPublisher() {return mqttPublisher;}
     public static PowerDataAPIPublisher getPowerDataDataBaseUpdater() {return powerDataDataBaseUpdater;}
     public static LinkedBlockingQueue<String>  getCommandQ() {return commandQ;}
     public static LinkedBlockingQueue<String>  getLoggingQ() {return loggingQ;}
@@ -90,10 +90,10 @@ public class Main
         if (enable_MQTT) {
             try {
                 loggingQ.add("Enabling MQTT");
-                powerDataMQTTPublisher = new PowerDataMQTTPublisher(circuitMap,loggingQ, commandQ);
-                powerDataMQTTPublisher.start(); // run in separate thread
+                mqttPublisher = new MQTTPublisher(loggingQ, commandQ);
+                mqttPublisher.start(); // run in separate thread
             } catch (MqttException e) {
-                PowerDataMQTTPublisher.handleMQTTException(e);
+                MQTTPublisher.handleMQTTException(e);
                 System.exit(9);
             }
         }
@@ -112,7 +112,7 @@ public class Main
         commandProcessor.start();
 
         loggingQ.add("Enabling CircuitCollector");
-        circuitCollector = new CircuitCollector(circuitMap,loggingQ, powerDataMQTTPublisher);
+        circuitCollector = new CircuitCollector(circuitMap,loggingQ, mqttPublisher);
         circuitCollector.start();
 
         // Start packet collection

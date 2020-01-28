@@ -6,7 +6,7 @@ import me.mawood.powerMonitor.metrics.PowerMetricCalculator;
 import me.mawood.powerMonitor.metrics.units.Current;
 import me.mawood.powerMonitor.metrics.units.Power;
 import me.mawood.powerMonitor.metrics.units.Voltage;
-import me.mawood.powerMonitor.publishers.PowerDataMQTTPublisher;
+import me.mawood.powerMonitor.publishers.MQTTPublisher;
 
 import javax.naming.OperationNotSupportedException;
 import java.time.Instant;
@@ -16,18 +16,18 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class CircuitCollector extends Thread
 {
-    PowerDataMQTTPublisher mqttPublisher;
+    MQTTPublisher mqttPublisher;
 
      // run control variables
     private final Map<Circuit, PowerMetricCalculator> circuitMap;
     LinkedBlockingQueue<String> loggingQ;
 
     /**
-     * PowerDataMQTTPublisher   Constructor
+     * MQTTPublisher   Constructor
      */
     public CircuitCollector(Map<Circuit, PowerMetricCalculator> circuitMap,
                             LinkedBlockingQueue<String> loggingQ,
-                            PowerDataMQTTPublisher publisher
+                            MQTTPublisher publisher
                             )
     {
         this.circuitMap = circuitMap;
@@ -38,7 +38,7 @@ public class CircuitCollector extends Thread
 
     private void publishCircuitToBroker(Circuit circuit) throws InvalidDataException, OperationNotSupportedException
     {
-        String subTopic= PowerDataMQTTPublisher.TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
+        String subTopic= MQTTPublisher.TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
         Instant readingTime =  Instant.now().minusSeconds(1);
         MetricReading voltage = circuitMap.get(HomeCircuits.WHOLE_HOUSE).getAverageBetween(Voltage.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
         MetricReading apparent = circuitMap.get(circuit).getAverageBetween(Power.VA, Instant.now().minusSeconds(2), readingTime);
