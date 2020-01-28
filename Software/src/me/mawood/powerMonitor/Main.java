@@ -118,8 +118,8 @@ public class Main
         boolean[] circuitRequired = {false, false, false, false, false, false, false, false, false, true}; // 0-9 0 not used, 9 is Whole_House
         for(Circuit circuit: HomeCircuits.values())
         {
-            if (circuitRequired[circuit.getChannelNumber()]) enableCollection(circuit);
-            loggingQ.add("Circuit "+circuit.getDisplayName()+ " collection enabled");
+            if (circuitRequired[circuit.getChannelNumber()])
+                enableCollection(circuit);
         }
     }
 }
