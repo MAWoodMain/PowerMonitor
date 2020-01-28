@@ -42,8 +42,9 @@ public class PMLogger extends Thread
                 publisher.logToBroker(json);
                 Thread.sleep(10);
             }
-        } catch (InterruptedException e) {
+        } catch (InterruptedException | NullPointerException e) {
             e.printStackTrace();
+            exit = true;
         }
     }
 }

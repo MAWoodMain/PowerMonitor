@@ -81,15 +81,8 @@ public class Main
 
     public static void main(String[] args) throws IOException
     {
-        // set up & start support processes
         commandQ = new LinkedBlockingQueue<>();
         loggingQ = new LinkedBlockingQueue<>();
-        logger = new PMLogger(loggingQ);
-        logger.start();
-        loggingQ.add("Enabled Logger");
-        commandProcessor = new CommandProcessor(commandQ,loggingQ);
-        commandProcessor.start();
-        loggingQ.add("Enabled CommandProcessor");
 
         //if required enable publishing processes
         if (enable_MQTT) {
@@ -107,6 +100,14 @@ public class Main
             powerDataDataBaseUpdater.start();
             loggingQ.add("Enabled API");
         }
+
+        // set up & start support processes
+        logger = new PMLogger(loggingQ);
+        logger.start();
+        loggingQ.add("Enabled Logger");
+        commandProcessor = new CommandProcessor(commandQ,loggingQ);
+        commandProcessor.start();
+        loggingQ.add("Enabled CommandProcessor");
 
         // Start packet collection
         packetCollector = new STM8PacketCollector(1000);
