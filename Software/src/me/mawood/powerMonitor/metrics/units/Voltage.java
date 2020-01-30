@@ -20,7 +20,7 @@ public enum Voltage implements Unit
         return UnitType.VOLTAGE;
     }
     @Override
-    public String getName()
+    public String getUnitName()
     {
         return name;
     }

@@ -20,7 +20,7 @@ public enum Current implements Unit
         return UnitType.CURRENT;
     }
     @Override
-    public String getName()
+    public String getUnitName()
     {
         return name;
     }

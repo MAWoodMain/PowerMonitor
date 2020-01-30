@@ -10,7 +10,7 @@ public enum PowerFactor implements Unit
         return UnitType.POWER_FACTOR;
     }
     @Override
-    public String getName()
+    public String getUnitName()
     {
         return "Power Factor";
     }

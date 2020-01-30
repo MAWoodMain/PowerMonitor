@@ -22,7 +22,7 @@ public enum Power implements Unit
         return UnitType.POWER;
     }
     @Override
-    public String getName()
+    public String getUnitName()
     {
         return name;
     }

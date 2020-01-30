@@ -60,8 +60,6 @@ public class CircuitCollector extends Thread
     }
     private void publishMetric(String subTopic, MetricReading metricReading)
     {
-        final int qos = 2; //The message is always delivered exactly once
-
         metricReading.suppressNoise();
         mqttHandler.publishToBroker(subTopic,metricReading.toString());
     }

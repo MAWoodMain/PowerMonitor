@@ -20,7 +20,7 @@ public enum Energy implements Unit
         return UnitType.ENERGY;
     }
     @Override
-    public String getName()
+    public String getUnitName()
     {
         return name;
     }

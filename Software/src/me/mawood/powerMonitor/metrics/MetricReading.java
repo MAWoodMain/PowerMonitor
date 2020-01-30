@@ -24,7 +24,7 @@ public class MetricReading implements Comparable<MetricReading>
     }
     public Double getValue()
     {
-        return Double.valueOf(Math.round(value*1000000.0)/1000000.0); // round to 6 decimals
+        return Math.round(value * 1000000.0) / 1000000.0; // round to 6 decimals
     }
 
     public Instant getTimestamp()
