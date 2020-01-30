@@ -20,12 +20,12 @@ public class CommandProcessor extends Thread
      */
     public void processSetCommand(String[] params)
     {
-        loggingQ.add("Set Command Received: " + params);
+        loggingQ.add("Set Command Received: " + Arrays.toString(params));
     }
 
     public void processGetCommand(String[] params)
     {
-        loggingQ.add("Get Command Received: " + params);
+        loggingQ.add("Get Command Received: " + Arrays.toString(params));
     }
     //
     // Runnable implementation
@@ -42,26 +42,27 @@ public class CommandProcessor extends Thread
                 command = commandQ.take().toLowerCase();
                 loggingQ.add("CommandProcessor: <"+command+"> arrived");
                 commandElements = command.split(" ");
-                switch (commandElements[0]) {
-                    case "set": {
-                        if (commandElements.length > 1) {
-                            processSetCommand(Arrays.copyOfRange(commandElements, 1, commandElements.length));
-                        } else { // not enough arguments}
+                if (commandElements.length >=1) { //ignore if no elements
+                    switch (commandElements[0]) {
+                        case "set": {
+                            if (commandElements.length > 1) {
+                                processSetCommand(Arrays.copyOfRange(commandElements, 1, commandElements.length));
+                            } //else not enough arguments
+                            break;
                         }
-                        break;
-                    }
-                    case "get": {
-                        if (commandElements.length > 1) {
-                            processGetCommand(Arrays.copyOfRange(commandElements, 1, commandElements.length));
-                        } else { // not enough arguments}
+                        case "get": {
+                            if (commandElements.length > 1) {
+                                processGetCommand(Arrays.copyOfRange(commandElements, 1, commandElements.length));
+                            } //elsenot enough arguments
+                            break;
                         }
-                        break;
-                    }
-                    case "exit": {
-                        exit = true;
-                        break;
-                    }
-                    default: {//ignore for now
+                        case "exit": {
+                            exit = true;
+                            break;
+                        }
+                        default: {
+                            loggingQ.add("CommandProcessor: unknown command <"+command+">");
+                        }
                     }
                 }
                 Thread.sleep(10);
