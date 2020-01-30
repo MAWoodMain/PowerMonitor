@@ -3,7 +3,6 @@ package me.mawood.powerMonitor.publishers;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
-import java.util.Arrays;
 import java.util.concurrent.LinkedBlockingQueue;
 
 
@@ -15,7 +14,7 @@ public class MQTTHandler implements MqttCallback
     private static final String BROKER = "tcp://10.0.128.2:1883";
     private static final String USERNAME = "emonpi";
     private static final String PASSWORD = "emonpimqtt2016";
-    private static final String CMND_TOPIC = TOPIC+"/cmnd/#";
+    private static final String CMND_TOPIC = TOPIC+"/cmnd";
     private static final String LOG_TOPIC = TOPIC+"/log";
 
     private final MqttClient mqttClient;
@@ -48,7 +47,7 @@ public class MQTTHandler implements MqttCallback
         System.out.println("MQTTHandler Connected");
         loggingQ.add("MQTTHandler Connected");
         mqttClient.setCallback(this);
-        mqttClient.subscribe(CMND_TOPIC);
+        mqttClient.subscribe(CMND_TOPIC+"/#");
         loggingQ.add("MQTTHandler: Subscribed to <"+ CMND_TOPIC+">");
     }
 
@@ -87,12 +86,13 @@ public class MQTTHandler implements MqttCallback
     @Override
     public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception
     {
-        loggingQ.add("MQTT msg received Topic: " + topic + " Message: " + new String(mqttMessage.getPayload()));
-        System.out.println("MQTT msg received Topic: " + topic + " Message: " + new String(mqttMessage.getPayload()));
+        String payload = new String(mqttMessage.getPayload());
+        loggingQ.add("MQTT msg received Topic: " + topic + " Message: " + payload);
+        System.out.println("MQTT msg received Topic: " + topic + " Message: " +payload);
         String[] subtopics = topic.split("/");
         if (subtopics[2].equalsIgnoreCase("cmnd"))
         {
-            commandQ.add(Arrays.toString(mqttMessage.getPayload()));
+            commandQ.add(payload);
         }
     }
 
@@ -106,7 +106,6 @@ public class MQTTHandler implements MqttCallback
     {
         noMessagesSentOK++;
     }
-
 
     /**
      * handleMQTTException  Handler for MQTT exceptions
