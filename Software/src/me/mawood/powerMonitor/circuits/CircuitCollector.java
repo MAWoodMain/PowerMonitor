@@ -44,7 +44,7 @@ public class CircuitCollector extends Thread
         MetricReading real = circuitMap.get(circuit).getAverageBetween(Power.WATTS, Instant.now().minusSeconds(2), readingTime);
         MetricReading reactive = circuitMap.get(circuit).getAverageBetween(Power.VAR, Instant.now().minusSeconds(2), readingTime);
         MetricReading current = circuitMap.get(circuit).getAverageBetween(Current.AMPS, Instant.now().minusSeconds(2), readingTime);
-        Double powerFactor = Math.round(Math.cos(Math.atan(reactive.getValue()/real.getValue()))*1000000.0)/1000000.0;
+        Double powerFactor = Math.round(real.getValue()/apparent.getValue()*1000000.0)/1000000.0;
         String jsonReadings =
                 "{\"Time\":\""+readingTime.toString()+"\","+
                 "\"Readings\":{"+

@@ -41,38 +41,49 @@ public class PowerMetricCalculator
         }
 
     }
-
-    private MetricReading getLatestMetricByDefn(MetricDefinition metricdefinition)
+/*
+    private MetricReading getLatestMetricByDefn(MetricDefinition metricDefinition) throws OperationNotSupportedException
     {
-        switch (metricdefinition)
-        {
+        MetricReading voltage = voltageMonitor.getLatestMetric();
+        MetricReading current  = currentMonitor.getLatestMetric();
+        MetricReading real;
+        MetricReading apparent;
 
+        switch (metricDefinition)
+        {
+            case WATTS:
+                return powerMonitor.getLatestMetric();
+            case KILOWATT:
+                MetricReading watts = getLatestMetric(Power.WATTS);
+                return new MetricReading(watts.getValue()/metricDefinition.getFactor(),watts.getTimestamp(),metricDefinition.getMetricType());
+            case VA:
+                return new MetricReading(voltage.getValue()*current.getValue(),voltage.getTimestamp(),metricDefinition.getMetricType());
+            case VAR:
+                apparent = getLatestMetric(Power.VA);
+                real = getLatestMetric(Power.WATTS);
+                return new MetricReading(Math.sqrt((apparent.getValue()*apparent.getValue())-(real.getValue()*real.getValue())),apparent.getTimestamp(), metricDefinition.getMetricType());
             case VOLTS:
-                break;
+                return voltage;
             case MILLI_VOLTS:
-                break;
+                voltage = getLatestMetric(Voltage.VOLTS);
+                return new MetricReading(voltage.getValue()/metricDefinition.getFactor(),voltage.getTimestamp(),metricDefinition.getMetricType());
             case AMPS:
-                break;
+                return current;
             case MILLI_AMPS:
-                break;
+                return new MetricReading(current.getValue()/metricDefinition.getFactor(),current.getTimestamp(),metricDefinition.getMetricType());
             case WATT_HOURS:
                 break;
             case KILOWATT_HOURS:
                 break;
-            case WATTS:
-                break;
-            case VA:
-                break;
-            case VAR:
-                break;
-            case KILOWATT:
-                break;
-            case POWERFACTOR:
+           case POWERFACTOR:
+               apparent = getLatestMetric(Power.VA);
+               real = powerMonitor.getLatestMetric();
+               return new MetricReading(real.getValue()/apparent.getValue(),current.getTimestamp(),metricDefinition.getMetricType());
                 break;
         }
         return null;
     }
-
+*/
 
     private List<MetricReading> getMetricsBetween(Unit metricDefinition, Instant startTime, Instant endTime) throws OperationNotSupportedException
     {
