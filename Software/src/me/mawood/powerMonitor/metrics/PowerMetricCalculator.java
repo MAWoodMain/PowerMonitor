@@ -42,16 +42,48 @@ public class PowerMetricCalculator
 
     }
 
-    private List<MetricReading> getMetricsBetween(Unit metricType, Instant startTime, Instant endTime) throws OperationNotSupportedException
+    private MetricReading getLatestMetricByDefn(MetricDefinition metricdefinition)
     {
-        switch (metricType.getType())
+        switch (metricdefinition)
+        {
+
+            case VOLTS:
+                break;
+            case MILLI_VOLTS:
+                break;
+            case AMPS:
+                break;
+            case MILLI_AMPS:
+                break;
+            case WATT_HOURS:
+                break;
+            case KILOWATT_HOURS:
+                break;
+            case WATTS:
+                break;
+            case VA:
+                break;
+            case VAR:
+                break;
+            case KILOWATT:
+                break;
+            case POWERFACTOR:
+                break;
+        }
+        return null;
+    }
+
+
+    private List<MetricReading> getMetricsBetween(Unit metricDefinition, Instant startTime, Instant endTime) throws OperationNotSupportedException
+    {
+        switch (metricDefinition.getType())
         {
             case POWER:
-                return getPowerMetricsBetween((Power) metricType, startTime, endTime);
+                return getPowerMetricsBetween((Power) metricDefinition, startTime, endTime);
             case CURRENT:
-                return getCurrentMetricsBetween((Current) metricType, startTime, endTime);
+                return getCurrentMetricsBetween((Current) metricDefinition, startTime, endTime);
             case VOLTAGE:
-                return getVoltageMetricsBetween((Voltage) metricType, startTime, endTime);
+                return getVoltageMetricsBetween((Voltage) metricDefinition, startTime, endTime);
             default:
                 throw new OperationNotSupportedException();
         }

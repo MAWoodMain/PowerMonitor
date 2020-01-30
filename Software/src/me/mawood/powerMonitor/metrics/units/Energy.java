@@ -1,5 +1,7 @@
 package me.mawood.powerMonitor.metrics.units;
 
+import me.mawood.powerMonitor.metrics.MetricType;
+
 public enum Energy implements Unit
 {
     WATT_HOURS("WH", "Watt Hours"),
@@ -15,9 +17,9 @@ public enum Energy implements Unit
     }
 
     @Override
-    public UnitType getType()
+    public MetricType getType()
     {
-        return UnitType.ENERGY;
+        return MetricType.ENERGY;
     }
     @Override
     public String getUnitName()

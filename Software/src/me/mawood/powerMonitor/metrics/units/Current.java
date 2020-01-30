@@ -1,5 +1,7 @@
 package me.mawood.powerMonitor.metrics.units;
 
+import me.mawood.powerMonitor.metrics.MetricType;
+
 public enum Current implements Unit
 {
     AMPS("A", "Amps"),
@@ -15,9 +17,9 @@ public enum Current implements Unit
     }
 
     @Override
-    public UnitType getType()
+    public MetricType getType()
     {
-        return UnitType.CURRENT;
+        return MetricType.CURRENT;
     }
     @Override
     public String getUnitName()

@@ -1,5 +1,7 @@
 package me.mawood.powerMonitor.metrics.units;
 
+import me.mawood.powerMonitor.metrics.MetricType;
+
 public enum Power implements Unit
 {
     WATTS("W","Watts"), //real power
@@ -17,9 +19,9 @@ public enum Power implements Unit
     }
 
     @Override
-    public UnitType getType()
+    public MetricType getType()
     {
-        return UnitType.POWER;
+        return MetricType.POWER;
     }
     @Override
     public String getUnitName()

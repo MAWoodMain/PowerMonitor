@@ -1,44 +1,44 @@
 package me.mawood.powerMonitor.metrics;
 
-import me.mawood.powerMonitor.metrics.units.Unit;
-import me.mawood.powerMonitor.metrics.units.UnitType;
-
-public enum MetricDefinition implements Unit
+public enum MetricDefinition
 {
-    VOLTS("Voltage","V", "Volts"),
-    MILLI_VOLTS("Voltage","mV", "milli-volts"),
-    AMPS("Current","A", "Amps"),
-    MILLI_AMPS("Current","mA", "milli-amps"),
-    WATT_HOURS("Energy","WH", "Watt Hours"),
-    KILOWATT_HOURS("Energy","kWH", "KiloWatt Hours"),
-    WATTS("Real Power","W","Watts"), //real power
-    VA("Apparent Power","VA", "Volt Amperes"), //Apparent power
-    VAR("Reactive Power","VAR", "Volt Amperes Reactive"), //Reactive Power
-    KILOWATT("Real Power","KW", "Kilowatt"),
-    POWERFACTOR("Power Factor","PF","Power Factor");
+    VOLTS(MetricType.VOLTAGE,"Voltage",1.0,"V", "Volts"),
+    MILLI_VOLTS(MetricType.VOLTAGE,"Voltage",0.001,"mV", "milli-volts"),
+    AMPS(MetricType.CURRENT,"Current",1.0,"A", "Amps"),
+    MILLI_AMPS(MetricType.CURRENT,"Current",0.001,"mA", "milli-amps"),
+    WATT_HOURS(MetricType.ENERGY,"Energy",1.0,"WH", "Watt Hours"),
+    KILOWATT_HOURS(MetricType.ENERGY,"Energy",1000.0,"kWH", "KiloWatt Hours"),
+    WATTS(MetricType.POWER,"Real Power",1.0,"W","Watts"),
+    VA(MetricType.POWER,"Apparent Power", 1.0,"VA", "Volt Amperes"),
+    VAR(MetricType.POWER,"Reactive Power", 1.0,"VAR", "Volt Amperes Reactive"),
+    KILOWATT(MetricType.POWER,"Real Power",1000.0,"KW", "Kilowatt"),
+    POWERFACTOR(MetricType.POWER_FACTOR,"Power Factor", 1.0,"PF","Power Factor");
 
+    final MetricType metricType;
     final String metricName;
+    final double factor;
     final String symbol;
     final String unitName;
 
-    MetricDefinition(String metricName, String symbol, String unitName)
+    MetricDefinition(MetricType metricType, String metricName, double factor,String symbol, String unitName)
     {
+        this.metricType = metricType;
         this.metricName = metricName;
+        this.factor = factor;
         this.symbol = symbol;
         this.unitName = unitName;
     }
 
-    @Override
-    public UnitType getType()
+    public MetricType getType()
     {
-        return UnitType.CURRENT;
+        return MetricType.CURRENT;
     }
-    @Override
+
     public String getUnitName()
     {
         return unitName;
     }
-    @Override
+
     public String getSymbol()
     {
         return symbol;
@@ -49,4 +49,13 @@ public enum MetricDefinition implements Unit
         return metricName;
     }
 
+    public double getFactor()
+    {
+        return factor;
+    }
+
+    public MetricType getMetricType()
+    {
+        return metricType;
+    }
 }

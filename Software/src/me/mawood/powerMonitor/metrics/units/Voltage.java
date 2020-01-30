@@ -1,5 +1,7 @@
 package me.mawood.powerMonitor.metrics.units;
 
+import me.mawood.powerMonitor.metrics.MetricType;
+
 public enum Voltage implements Unit
 {
     VOLTS("V", "Volts"),
@@ -15,9 +17,9 @@ public enum Voltage implements Unit
     }
 
     @Override
-    public UnitType getType()
+    public MetricType getType()
     {
-        return UnitType.VOLTAGE;
+        return MetricType.VOLTAGE;
     }
     @Override
     public String getUnitName()

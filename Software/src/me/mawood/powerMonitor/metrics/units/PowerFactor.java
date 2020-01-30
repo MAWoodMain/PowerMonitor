@@ -1,13 +1,15 @@
 package me.mawood.powerMonitor.metrics.units;
 
+import me.mawood.powerMonitor.metrics.MetricType;
+
 public enum PowerFactor implements Unit
 {
     POWER_FACTOR;
 
     @Override
-    public UnitType getType()
+    public MetricType getType()
     {
-        return UnitType.POWER_FACTOR;
+        return MetricType.POWER_FACTOR;
     }
     @Override
     public String getUnitName()

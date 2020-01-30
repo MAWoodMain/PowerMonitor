@@ -1,6 +1,6 @@
-package me.mawood.powerMonitor.metrics.units;
+package me.mawood.powerMonitor.metrics;
 
-public enum UnitType
+public enum MetricType
 {
     CURRENT,
     VOLTAGE,
