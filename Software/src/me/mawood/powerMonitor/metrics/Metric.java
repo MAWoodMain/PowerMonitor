@@ -12,7 +12,7 @@ public enum Metric
     KILOWATT("Real",1000.0,"KW", "Kilowatt"),
     VA("Apparent", 1.0,"VA", "Volt Amperes"),
     VAR("Reactive", 1.0,"VAR", "Volt Amperes Reactive"),
-    POWERFACTOR("Power Factor", 1.0,"PF","Power Factor");
+    POWERFACTOR("PowerFactor", 1.0,"PF","Power Factor");
 
     final String metricName;
     final double factor;
