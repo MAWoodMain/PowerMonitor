@@ -12,13 +12,13 @@ public class MetricReading implements Comparable<MetricReading>
     private double value;
     private final Instant timestamp;
     // Using generics to facilitate unit conversion later.
-    private final Metric metric;
+    private final MetricDefinition unit;
 
-    public MetricReading(double value, Instant timestamp, Metric metric)
+    public MetricReading(double value, Instant timestamp, MetricDefinition unit)
     {
         this.value = value;
         this.timestamp = timestamp;
-        this.metric = metric;
+        this.unit = unit;
     }
     public Double getValue()
     {
@@ -30,9 +30,9 @@ public class MetricReading implements Comparable<MetricReading>
         return timestamp;
     }
 
-    public Metric getMetric()
+    public MetricDefinition getUnit()
     {
-        return metric;
+        return unit;
     }
 
     @Override
@@ -43,7 +43,7 @@ public class MetricReading implements Comparable<MetricReading>
                         .withLocale( Locale.UK )
                         .withZone( ZoneId.systemDefault() );
         //System.out.println(String.format("MetricReading: {%.03f %s at %s}", value,unit.getSymbol(), formatter.format(timestamp)));
-        return String.format("%.03f %s at %s", value, metric.getSymbol(), formatter.format(timestamp));
+        return String.format("%.03f %s at %s", value,unit.getSymbol(), formatter.format(timestamp));
     }
     @Override
     public int compareTo(MetricReading o)
