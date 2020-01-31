@@ -49,15 +49,12 @@ public class PowerMetricCalculator
                 return current;
             case MILLI_AMPS:
                 return new MetricReading(current.getValue()/metricDefinition.getFactor(),current.getTimestamp(),metricDefinition);
-            case WATT_HOURS:
-                throw new OperationNotSupportedException() ;
-            case KILOWATT_HOURS:
-                throw new OperationNotSupportedException() ;
-           case POWERFACTOR:
+            case POWERFACTOR:
                apparent = getLatestMetric(MetricDefinition.VA);
                return new MetricReading(real.getValue()/apparent.getValue(),current.getTimestamp(),metricDefinition);
+            default:
+                throw new OperationNotSupportedException();
         }
-        return null;
     }
 
 
@@ -100,10 +97,6 @@ public class PowerMetricCalculator
                 for(MetricReading m:volts)
                     output.add(new MetricReading(m.getValue()/metricDefinition.getFactor(),m.getTimestamp(),metricDefinition));
                 return output;
-            case WATT_HOURS:
-                throw new OperationNotSupportedException() ;
-            case KILOWATT_HOURS:
-                throw new OperationNotSupportedException() ;
             case POWERFACTOR:
                 List<MetricReading> a = getMetricsBetween(MetricDefinition.VA,startTime,endTime);
                 List<MetricReading> r = getMetricsBetween(MetricDefinition.WATTS,startTime,endTime);
@@ -111,7 +104,6 @@ public class PowerMetricCalculator
                 {
                     output.add(new MetricReading(r.get(i).getValue()/a.get(i).getValue(),r.get(i).getTimestamp(),metricDefinition));
                 }
-
             default:
                 throw new OperationNotSupportedException();
         }
