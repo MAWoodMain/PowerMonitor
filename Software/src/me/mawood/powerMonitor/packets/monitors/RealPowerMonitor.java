@@ -1,6 +1,6 @@
 package me.mawood.powerMonitor.packets.monitors;
 
-import me.mawood.powerMonitor.metrics.MetricDefinition;
+import me.mawood.powerMonitor.metrics.Metric;
 import me.mawood.powerMonitor.metrics.MetricReading;
 import me.mawood.powerMonitor.packets.Packet;
 import me.mawood.powerMonitor.packets.PacketCollector;
@@ -34,7 +34,7 @@ public class RealPowerMonitor extends Monitor<MetricReading>
         value = currentConfig.offsetValue(value);
         value = voltageConfig.offsetValue(value);
 
-        return new MetricReading(value,packet.getTimestamp(), MetricDefinition.WATTS);
+        return new MetricReading(value,packet.getTimestamp(), Metric.WATTS);
     }
 
     @Override

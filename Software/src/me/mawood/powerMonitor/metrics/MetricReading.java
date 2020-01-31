@@ -12,9 +12,9 @@ public class MetricReading implements Comparable<MetricReading>
     private double value;
     private final Instant timestamp;
     // Using generics to facilitate unit conversion later.
-    private final MetricDefinition unit;
+    private final Metric unit;
 
-    public MetricReading(double value, Instant timestamp, MetricDefinition unit)
+    public MetricReading(double value, Instant timestamp, Metric unit)
     {
         this.value = value;
         this.timestamp = timestamp;
@@ -30,7 +30,7 @@ public class MetricReading implements Comparable<MetricReading>
         return timestamp;
     }
 
-    public MetricDefinition getUnit()
+    public Metric getUnit()
     {
         return unit;
     }
