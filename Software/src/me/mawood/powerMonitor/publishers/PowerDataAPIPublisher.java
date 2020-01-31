@@ -8,15 +8,17 @@ import me.mawood.data_api_client.objects.Device;
 import me.mawood.data_api_client.objects.Reading;
 import me.mawood.powerMonitor.circuits.Circuit;
 import me.mawood.powerMonitor.metrics.InvalidDataException;
+import me.mawood.powerMonitor.metrics.MetricDefinition;
 import me.mawood.powerMonitor.metrics.MetricReading;
 import me.mawood.powerMonitor.metrics.PowerMetricCalculator;
-import me.mawood.powerMonitor.metrics.units.Power;
-import me.mawood.powerMonitor.metrics.units.Voltage;
 
 import javax.naming.OperationNotSupportedException;
 import javax.ws.rs.BadRequestException;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PowerDataAPIPublisher extends Thread
 {
@@ -130,13 +132,13 @@ public class PowerDataAPIPublisher extends Thread
 
     private void updateCircuitInDatabase(Circuit circuit) throws InvalidDataException, OperationNotSupportedException
     {
-        MetricReading apparent = circuitMap.get(circuit).getAverageBetween(Power.VA, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
+        MetricReading apparent = circuitMap.get(circuit).getAverageBetween(MetricDefinition.VA, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
         AddReadingToDatabase(deviceMap.get(circuit).getTag(),APPARENT_POWER_DATA_TYPE, apparent);
-        MetricReading real = circuitMap.get(circuit).getAverageBetween(Power.WATTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
+        MetricReading real = circuitMap.get(circuit).getAverageBetween(MetricDefinition.WATTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
         AddReadingToDatabase(deviceMap.get(circuit).getTag(),REAL_POWER_DATA_TYPE, real);
         if (circuit.getTag().equalsIgnoreCase("Whole_House"))
         {
-            MetricReading voltage = circuitMap.get(circuit).getAverageBetween(Voltage.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
+            MetricReading voltage = circuitMap.get(circuit).getAverageBetween(MetricDefinition.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
             AddReadingToDatabase(deviceMap.get(circuit).getTag(),VOLTAGE_DATA_TYPE, voltage);
         }
     }

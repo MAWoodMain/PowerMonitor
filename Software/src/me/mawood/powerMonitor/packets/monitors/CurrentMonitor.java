@@ -1,10 +1,10 @@
 package me.mawood.powerMonitor.packets.monitors;
 
+import me.mawood.powerMonitor.metrics.MetricDefinition;
 import me.mawood.powerMonitor.metrics.MetricReading;
-import me.mawood.powerMonitor.packets.monitors.configs.CurrentClampConfig;
-import me.mawood.powerMonitor.metrics.units.Current;
 import me.mawood.powerMonitor.packets.Packet;
 import me.mawood.powerMonitor.packets.PacketCollector;
+import me.mawood.powerMonitor.packets.monitors.configs.CurrentClampConfig;
 
 public class CurrentMonitor extends Monitor<MetricReading>
 {
@@ -23,7 +23,7 @@ public class CurrentMonitor extends Monitor<MetricReading>
     protected MetricReading processPacket(Packet packet)
     {
         return new MetricReading(
-                config.offsetValue(config.scaleValue(packet.getIRms(channelNumber))), packet.getTimestamp(), Current.AMPS);
+                config.offsetValue(config.scaleValue(packet.getIRms(channelNumber))), packet.getTimestamp(), MetricDefinition.AMPS);
     }
 
     public CurrentClampConfig getConfig()

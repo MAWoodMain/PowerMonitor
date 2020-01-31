@@ -1,11 +1,9 @@
 package me.mawood.powerMonitor.circuits;
 
 import me.mawood.powerMonitor.metrics.InvalidDataException;
+import me.mawood.powerMonitor.metrics.MetricDefinition;
 import me.mawood.powerMonitor.metrics.MetricReading;
 import me.mawood.powerMonitor.metrics.PowerMetricCalculator;
-import me.mawood.powerMonitor.metrics.units.Current;
-import me.mawood.powerMonitor.metrics.units.Power;
-import me.mawood.powerMonitor.metrics.units.Voltage;
 import me.mawood.powerMonitor.publishers.MQTTHandler;
 
 import javax.naming.OperationNotSupportedException;
@@ -39,11 +37,11 @@ public class CircuitCollector extends Thread
     {
         String subTopic= MQTTHandler.TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
         Instant readingTime =  Instant.now().minusSeconds(1);
-        MetricReading voltage = circuitMap.get(HomeCircuits.WHOLE_HOUSE).getAverageBetween(Voltage.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
-        MetricReading apparent = circuitMap.get(circuit).getAverageBetween(Power.VA, Instant.now().minusSeconds(2), readingTime);
-        MetricReading real = circuitMap.get(circuit).getAverageBetween(Power.WATTS, Instant.now().minusSeconds(2), readingTime);
-        MetricReading reactive = circuitMap.get(circuit).getAverageBetween(Power.VAR, Instant.now().minusSeconds(2), readingTime);
-        MetricReading current = circuitMap.get(circuit).getAverageBetween(Current.AMPS, Instant.now().minusSeconds(2), readingTime);
+        MetricReading voltage = circuitMap.get(HomeCircuits.WHOLE_HOUSE).getAverageBetween(MetricDefinition.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
+        MetricReading apparent = circuitMap.get(circuit).getAverageBetween(MetricDefinition.VA, Instant.now().minusSeconds(2), readingTime);
+        MetricReading real = circuitMap.get(circuit).getAverageBetween(MetricDefinition.WATTS, Instant.now().minusSeconds(2), readingTime);
+        MetricReading reactive = circuitMap.get(circuit).getAverageBetween(MetricDefinition.VAR, Instant.now().minusSeconds(2), readingTime);
+        MetricReading current = circuitMap.get(circuit).getAverageBetween(MetricDefinition.AMPS, Instant.now().minusSeconds(2), readingTime);
         Double powerFactor = Math.round(real.getValue()/apparent.getValue()*1000000.0)/1000000.0;
         String jsonReadings =
                 "{\"Time\":\""+readingTime.toString()+"\","+

@@ -1,11 +1,11 @@
 package me.mawood.powerMonitor.packets.monitors;
 
+import me.mawood.powerMonitor.metrics.MetricDefinition;
 import me.mawood.powerMonitor.metrics.MetricReading;
-import me.mawood.powerMonitor.packets.monitors.configs.CurrentClampConfig;
-import me.mawood.powerMonitor.packets.monitors.configs.VoltageSenseConfig;
-import me.mawood.powerMonitor.metrics.units.Power;
 import me.mawood.powerMonitor.packets.Packet;
 import me.mawood.powerMonitor.packets.PacketCollector;
+import me.mawood.powerMonitor.packets.monitors.configs.CurrentClampConfig;
+import me.mawood.powerMonitor.packets.monitors.configs.VoltageSenseConfig;
 
 public class RealPowerMonitor extends Monitor<MetricReading>
 {
@@ -34,7 +34,7 @@ public class RealPowerMonitor extends Monitor<MetricReading>
         value = currentConfig.offsetValue(value);
         value = voltageConfig.offsetValue(value);
 
-        return new MetricReading(value,packet.getTimestamp(), Power.WATTS);
+        return new MetricReading(value,packet.getTimestamp(), MetricDefinition.WATTS);
     }
 
     @Override

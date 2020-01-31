@@ -1,7 +1,5 @@
 package me.mawood.powerMonitor.metrics;
 
-import me.mawood.powerMonitor.metrics.units.Unit;
-
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -14,9 +12,9 @@ public class MetricReading implements Comparable<MetricReading>
     private double value;
     private final Instant timestamp;
     // Using generics to facilitate unit conversion later.
-    private final Unit unit;
+    private final MetricDefinition unit;
 
-    public MetricReading(double value, Instant timestamp, Unit unit)
+    public MetricReading(double value, Instant timestamp, MetricDefinition unit)
     {
         this.value = value;
         this.timestamp = timestamp;
@@ -32,7 +30,7 @@ public class MetricReading implements Comparable<MetricReading>
         return timestamp;
     }
 
-    public Unit getUnit()
+    public MetricDefinition getUnit()
     {
         return unit;
     }
