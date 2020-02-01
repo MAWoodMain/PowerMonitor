@@ -1,46 +1,78 @@
 package me.mawood.powerMonitor.circuits;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
-import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.time.LocalDateTime.now;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class EnergyBucketFiller
 {
-    int intervalInMins;
+    long intervalInMins;
+    int currentBucket;
+    EnergyStore energyStore;
 
-    EnergyBucketFiller(EnergyStore energyStore, Instant startTime, Instant resetTime, int intervalInMins)
+    public EnergyBucketFiller(EnergyStore energyStore, long intervalInMins)
     {
         this.intervalInMins = intervalInMins;
+        this.energyStore = energyStore;
         energyStore.resetAllEnergyAccumulation();
+        this.currentBucket = 0;
     }
 
     private final ScheduledExecutorService scheduler =
             Executors.newScheduledThreadPool(1);
 
-    public void FillBucketAtInterval()
+    private final ScheduledExecutorService dailyReset =
+            Executors.newScheduledThreadPool(1);
+
+    public void start()
     {
         final Runnable filler = new Runnable()
         {
             public void run()
             {
                 //fill buckets now
+                energyStore.fillAllEnergyBuckets(currentBucket);
+                currentBucket +=1;
             }
         };
 
-        final ScheduledFuture<?> fillerHandle =
-                scheduler.scheduleAtFixedRate(filler, 10, intervalInMins, MINUTES);
+        //work out when to start
+        LocalDateTime lastMidnight = now().truncatedTo(ChronoUnit.DAYS);
+        LocalDateTime nextCall = lastMidnight;
+        while( nextCall.isBefore(now()))
+        {
+            nextCall.plusMinutes(intervalInMins);
+            currentBucket +=1;
+        }
+        Duration duration = Duration.between(nextCall, Instant.now());
 
-        /*
-        scheduler.schedule(new Runnable()
+        //schedule the bucket filler
+        final ScheduledFuture<?> fillerHandle =
+                scheduler.scheduleAtFixedRate(filler, duration.getSeconds(), intervalInMins*60, SECONDS);
+
+        final Runnable resetter = new Runnable()
         {
             public void run()
             {
-                fillerHandle.cancel(true);
+                //fill buckets now
+                energyStore.resetAllEnergyAccumulation();
+                currentBucket = 0;
             }
-        }, 60 * 60, SECONDS);
-        */
+        };
+
+        //reset at midnight
+        //not dealt with time changes
+        Long timeToMidnight = LocalDateTime.now().until(LocalDate.now().plusDays(1).atStartOfDay(), ChronoUnit.SECONDS);
+
+        dailyReset.scheduleAtFixedRate(resetter, timeToMidnight, TimeUnit.DAYS.toSeconds(1), SECONDS);
     }
 }

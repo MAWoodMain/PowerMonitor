@@ -31,6 +31,13 @@ public class EnergyStore
             }
         }
     }
+    public void fillAllEnergyBuckets(int bucketNumber)
+    {
+        for(Circuit circuit: HomeCircuits.values())
+        {
+            updateEnergyBucket(circuit, bucketNumber,energyAccumulator[circuit.getChannelNumber()]);
+        }
+    }
 
     public synchronized void resetEnergyAccumulation(Circuit circuit)
     {

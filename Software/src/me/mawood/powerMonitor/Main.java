@@ -1,9 +1,6 @@
 package me.mawood.powerMonitor;
 
-import me.mawood.powerMonitor.circuits.Circuit;
-import me.mawood.powerMonitor.circuits.CircuitCollector;
-import me.mawood.powerMonitor.circuits.EnergyStore;
-import me.mawood.powerMonitor.circuits.HomeCircuits;
+import me.mawood.powerMonitor.circuits.*;
 import me.mawood.powerMonitor.control.CommandProcessor;
 import me.mawood.powerMonitor.metrics.PowerMetricCalculator;
 import me.mawood.powerMonitor.packets.STM8PacketCollector;
@@ -35,6 +32,7 @@ public class Main
     private static PMLogger logger;
     private static CircuitCollector circuitCollector;
     private static EnergyStore energyStore;
+    private static EnergyBucketFiller bucketfiller;
     // Getters and Setters
     public static boolean isEnabled_MQTT()
     {
@@ -67,6 +65,7 @@ public class Main
     public static PowerDataAPIPublisher getPowerDataDataBaseUpdater() {return powerDataDataBaseUpdater;}
     public static LinkedBlockingQueue<String>  getCommandQ() {return commandQ;}
     public static LinkedBlockingQueue<String>  getLoggingQ() {return loggingQ;}
+
 
     public static void enableCollection(Circuit circuit)
     {
@@ -117,6 +116,10 @@ public class Main
         energyStore = new EnergyStore(HomeCircuits.values().length+1,5 );
         circuitCollector = new CircuitCollector(getCircuitMap(),getLoggingQ(), mqttHandler,energyStore);
         circuitCollector.start();
+
+        loggingQ.add("Enabling EnergyBucketFiller");
+        bucketfiller = new EnergyBucketFiller(energyStore,5);
+        bucketfiller.start();
 
         // Start packet collection
         loggingQ.add("Enabling PacketCollector");
