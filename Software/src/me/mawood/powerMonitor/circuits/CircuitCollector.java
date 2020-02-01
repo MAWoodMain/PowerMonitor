@@ -18,21 +18,23 @@ public class CircuitCollector extends Thread
 
      // run control variables
     private final Map<Circuit, PowerMetricCalculator> circuitMap;
-    LinkedBlockingQueue<String> loggingQ;
+    private final LinkedBlockingQueue<String> loggingQ;
+    private final EnergyStore energyStore;
 
     /**
      * MQTTHandler   Constructor
      */
     public CircuitCollector(Map<Circuit, PowerMetricCalculator> circuitMap,
                             LinkedBlockingQueue<String> loggingQ,
-                            MQTTHandler publisher
+                            MQTTHandler publisher,
+                            EnergyStore energyStore
                             )
     {
         this.circuitMap = circuitMap;
         this.loggingQ = loggingQ;
         this.mqttHandler = publisher;
+        this.energyStore = energyStore;
     }
-
     private void publishCircuitToBroker(Circuit circuit) throws InvalidDataException, OperationNotSupportedException
     {
         String subTopic= MQTTHandler.TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");

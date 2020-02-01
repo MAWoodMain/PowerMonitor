@@ -2,6 +2,7 @@ package me.mawood.powerMonitor;
 
 import me.mawood.powerMonitor.circuits.Circuit;
 import me.mawood.powerMonitor.circuits.CircuitCollector;
+import me.mawood.powerMonitor.circuits.EnergyStore;
 import me.mawood.powerMonitor.circuits.HomeCircuits;
 import me.mawood.powerMonitor.control.CommandProcessor;
 import me.mawood.powerMonitor.metrics.PowerMetricCalculator;
@@ -33,6 +34,7 @@ public class Main
     private static LinkedBlockingQueue<String> loggingQ;
     private static PMLogger logger;
     private static CircuitCollector circuitCollector;
+    private static EnergyStore energyStore;
     // Getters and Setters
     public static boolean isEnabled_MQTT()
     {
@@ -112,7 +114,8 @@ public class Main
 
         loggingQ.add("Enabling CircuitCollector");
         boolean[] circuitRequired = {false, false, false, false, false, false, false, false, false, true}; // 0-9 0 not used, 9 is Whole_House
-        circuitCollector = new CircuitCollector(getCircuitMap(),getLoggingQ(), mqttHandler);
+        energyStore = new EnergyStore();
+        circuitCollector = new CircuitCollector(getCircuitMap(),getLoggingQ(), mqttHandler,energyStore);
         circuitCollector.start();
 
         // Start packet collection
