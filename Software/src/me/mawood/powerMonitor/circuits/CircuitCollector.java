@@ -56,8 +56,8 @@ public class CircuitCollector extends Thread
                 //"\"PowerFactor\":"+ powerFactor.toString()+
                 "}}";
         mqttHandler.publishToBroker(subTopic,jsonReadings);
-
     }
+
     private void publishMetric(String subTopic, MetricReading metricReading)
     {
         metricReading.suppressNoise();
