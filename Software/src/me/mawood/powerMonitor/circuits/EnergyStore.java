@@ -6,22 +6,28 @@ public class EnergyStore
     private final Double[] energyAccumulator;
     private final Double[][] energyBuckets;
     private int bucketIntervalMins;
+    private int bucketsPerDay;
+    private int nbrCircuits;
 
     public EnergyStore(int nbrCircuits, int bucketIntervalMins)
     {
         accumulationCount = new long[nbrCircuits+1];//channel number is > max circuit number
         energyAccumulator = new Double[nbrCircuits+1];
-        int bucketsPerDay;
         bucketsPerDay = 60*24/bucketIntervalMins;
         this.bucketIntervalMins = bucketIntervalMins;
+        this.nbrCircuits = nbrCircuits;
         energyBuckets = new Double[nbrCircuits][bucketsPerDay+1];
-        for (int i=0; i<nbrCircuits; i++)
+        resetAllEnergyAccumulation();
+    }
+
+    public void resetAllEnergyAccumulation()
+    {
+        for(Circuit circuit: HomeCircuits.values())
         {
-            accumulationCount[i] = 0;
-            this.energyAccumulator[i]  = 0.0;
+            resetEnergyAccumulation(circuit);
             for (int j=0; j<bucketsPerDay; j++)
             {
-                energyBuckets[i][j] = 0.0;
+                updateEnergyBucket(circuit,j,0.0);
             }
         }
     }
