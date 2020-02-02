@@ -63,7 +63,7 @@ public class EnergyStore
 
     public synchronized void updateEnergyBucket( Circuit circuit, int bucketIndex, double accumulation)
     {
-        energyBuckets[circuit.getChannelNumber()][bucketIndex]= accumulation;
+        energyBuckets[circuit.getChannelNumber()][bucketIndex]= accumulation/(bucketIntervalMins*60); //average
         Double lastbucketValue =  (bucketIndex >= 1) ? energyBuckets[circuit.getChannelNumber()][bucketIndex-1] : 0.0;
         Double currentbucketValue = energyBuckets[circuit.getChannelNumber()][bucketIndex];
         Double wattHours = ((currentbucketValue-lastbucketValue)*bucketIntervalMins)/60;
