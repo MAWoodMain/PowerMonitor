@@ -64,10 +64,13 @@ public class EnergyStore
     public synchronized void updateEnergyBucket( Circuit circuit, int bucketIndex, double accumulation)
     {
         energyBuckets[circuit.getChannelNumber()][bucketIndex]= accumulation;
-        double lastbucketValue;
-        if (bucketIndex>=1) lastbucketValue =  energyBuckets[circuit.getChannelNumber()][bucketIndex-1];
-        else lastbucketValue = 0.0;
-        double wattHours = ((energyBuckets[circuit.getChannelNumber()][bucketIndex]-lastbucketValue)*bucketIntervalMins)/60;
+        Double lastbucketValue =  (bucketIndex >= 1) ? energyBuckets[circuit.getChannelNumber()][bucketIndex-1] : 0.0;
+        Double currentbucketValue = energyBuckets[circuit.getChannelNumber()][bucketIndex];
+        Double wattHours = ((currentbucketValue-lastbucketValue)*bucketIntervalMins)/60;
+        System.out.println("EnergyStore: Circuit = "+ circuit.getDisplayName()+
+                " Current = " + currentbucketValue.toString() +
+                " Last = " + lastbucketValue.toString() +
+                " Watt Hours = "+ wattHours.toString());
         energyMetrics[circuit.getChannelNumber()][bucketIndex]= new MetricReading(wattHours, now(), Metric.WATT_HOURS);
     }
 
