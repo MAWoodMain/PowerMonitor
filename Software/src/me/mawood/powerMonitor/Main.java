@@ -119,7 +119,7 @@ public class Main
         circuitCollector.start();
 
         loggingQ.add("Enabling EnergyBucketFiller");
-        bucketfiller = new EnergyBucketFiller(energyStore,energyBucketInterval,getLoggingQ());
+        bucketfiller = new EnergyBucketFiller(energyStore,energyBucketInterval,true,circuitCollector,getLoggingQ());
         bucketfiller.start();
 
         // Start packet collection

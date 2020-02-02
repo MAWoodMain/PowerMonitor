@@ -16,7 +16,7 @@ public class CircuitCollector extends Thread
 {
     MQTTHandler mqttHandler;
 
-     // run control variables
+    // run control variables
     private final Map<Circuit, PowerMetricCalculator> circuitMap;
     private final LinkedBlockingQueue<String> loggingQ;
     private final EnergyStore energyStore;
@@ -28,17 +28,18 @@ public class CircuitCollector extends Thread
                             LinkedBlockingQueue<String> loggingQ,
                             MQTTHandler publisher,
                             EnergyStore energyStore
-                            )
+    )
     {
         this.circuitMap = circuitMap;
         this.loggingQ = loggingQ;
         this.mqttHandler = publisher;
         this.energyStore = energyStore;
     }
+
     private void publishCircuitToBroker(Circuit circuit) throws InvalidDataException, OperationNotSupportedException
     {
-        String subTopic= MQTTHandler.TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
-        Instant readingTime =  Instant.now().minusSeconds(1);
+        String subTopic = MQTTHandler.TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
+        Instant readingTime = Instant.now().minusSeconds(1);
         MetricReading voltage = circuitMap.get(HomeCircuits.WHOLE_HOUSE).getAverageBetween(Metric.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
         MetricReading apparent = circuitMap.get(circuit).getAverageBetween(Metric.VA, Instant.now().minusSeconds(2), readingTime);
         MetricReading real = circuitMap.get(circuit).getAverageBetween(Metric.WATTS, Instant.now().minusSeconds(2), readingTime);
@@ -63,9 +64,23 @@ public class CircuitCollector extends Thread
     private void publishMetric(String subTopic, MetricReading metricReading)
     {
         metricReading.suppressNoise();
-        mqttHandler.publishToBroker(subTopic,metricReading.toString());
+        mqttHandler.publishToBroker(subTopic, metricReading.toString());
     }
 
+    public void publishEnergyMetricsForCircuits()
+    {
+        MetricReading energy;
+        for (Circuit circuit : circuitMap.keySet()) {
+            String subTopic = MQTTHandler.TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
+            energy = energyStore.getLatestEnergyMetric(circuit);
+            String jsonReadings =
+                    "{\"Time\":\"" + energy.getTimestamp().toString() + "\"," +
+                            "\"Readings\":{" +
+                            "\"Energy\":" + energy.getValue().toString() + "," +
+                            "}}";
+            mqttHandler.publishToBroker(subTopic, jsonReadings);
+        }
+    }
     //
     // Runnable implementation
     //
@@ -77,35 +92,30 @@ public class CircuitCollector extends Thread
     public void run()
     {
         long startTime;
-        try
-        {
+        try {
             // wait for first readings to be ready
             Thread.sleep(2010);
-        } catch (InterruptedException ignored){}
-        while (!Thread.interrupted())
-        {
+        } catch (InterruptedException ignored) {
+        }
+        while (!Thread.interrupted()) {
             startTime = System.currentTimeMillis();
             //rawMetricsBuffer.printMetricsBuffer();
 
-            for (Circuit circuit : circuitMap.keySet())
-            {
-                try
-                {
+            for (Circuit circuit : circuitMap.keySet()) {
+                try {
                     publishCircuitToBroker(circuit);
-                } catch (InvalidDataException | OperationNotSupportedException e)
-                {
+                } catch (InvalidDataException | OperationNotSupportedException e) {
                     //System.out.println("no data for circuit: " + circuit.getDisplayName());
                 }
             }
 
             //Frequency
-            while (startTime + 1000 > System.currentTimeMillis())
-            {
+            while (startTime + 1000 > System.currentTimeMillis()) {
                 // wait half the remaining time
-                try
-                {
+                try {
                     Thread.sleep(Math.max(0, ((startTime + 1000) - System.currentTimeMillis()) / 2));
-                } catch (InterruptedException ignore){}
+                } catch (InterruptedException ignore) {
+                }
             }
         }
         loggingQ.add("CircuitCollector: Interrupted, exiting");
