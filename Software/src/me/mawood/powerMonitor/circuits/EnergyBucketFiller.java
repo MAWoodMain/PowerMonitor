@@ -7,12 +7,13 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.*;
 import static java.time.LocalDateTime.now;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class EnergyBucketFiller
 {
     private long intervalInMins;
-    private int bucketToFill;
+    private Integer bucketToFill;
     private final EnergyStore energyStore;
     private final LinkedBlockingQueue<String> loggingQ;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -38,41 +39,48 @@ public class EnergyBucketFiller
     public void start()
     {
         loggingQ.add("EnergyBucketFiller: start");
+        try {
+            final Runnable filler = () -> {
+                //fill buckets now
+                energyStore.fillAllEnergyBuckets(bucketToFill);
+                if (publishEnergy) {
+                    circuitCollector.publishEnergyMetricsForCircuits();
+                }
+                loggingQ.add("EnergyBucketFiller: buckets filled " + ((Integer) bucketToFill).toString());
+                bucketToFill += 1;
+            };
 
-        final Runnable filler = () -> {
-            //fill buckets now
-            energyStore.fillAllEnergyBuckets(bucketToFill);
-            if(publishEnergy) {circuitCollector.publishEnergyMetricsForCircuits();}
-            loggingQ.add("EnergyBucketFiller: buckets filled "+ ((Integer)bucketToFill).toString());
-            bucketToFill +=1;
-        };
+            //work out when to start
+            LocalDateTime nextCall = now().truncatedTo(ChronoUnit.DAYS);
+            while (nextCall.isBefore(now())) {
+                nextCall = nextCall.plusMinutes(intervalInMins);
+                bucketToFill += 1;
+            }
+            loggingQ.add("EnergyBucketFiller: bucketToFill = "+bucketToFill.toString() );
+            System.out.println("EnergyBucketFiller: nextCall =  " + nextCall.toString());
+            Duration duration = Duration.between(Instant.now(), nextCall);
 
-        //work out when to start
-        LocalDateTime nextCall = now().truncatedTo(ChronoUnit.DAYS);
-        while( nextCall.isBefore(now()))
-        {
-            nextCall = nextCall.plusMinutes(intervalInMins);
-            bucketToFill +=1;
+            //schedule the bucket filler
+            final ScheduledFuture<?> fillerHandle =
+                    scheduler.scheduleAtFixedRate(filler, duration.getSeconds(), intervalInMins, MINUTES);
+
+            final Runnable resetter = () -> {
+                //fill buckets now
+                energyStore.resetAllEnergyAccumulation();
+                bucketToFill = 0;
+                loggingQ.add("EnergyBucketFiller: buckets reset");
+            };
+
+            //reset at midnight
+            //not dealt with time changes
+            Long timeToMidnight = LocalDateTime.now().until(LocalDate.now().plusDays(1).atStartOfDay(), ChronoUnit.SECONDS);
+
+            dailyReset.scheduleAtFixedRate(resetter, timeToMidnight, TimeUnit.DAYS.toSeconds(1), SECONDS);
+            loggingQ.add("EnergyBucketFiller: tasks scheduled");
+        } catch (Exception e){
+            loggingQ.add("EnergyBucketFiller: Exception - " +  e.getStackTrace().toString());
+            e.printStackTrace();
         }
-        Duration duration = Duration.between( Instant.now(),nextCall);
-
-        //schedule the bucket filler
-        final ScheduledFuture<?> fillerHandle =
-                scheduler.scheduleAtFixedRate(filler, duration.getSeconds(), intervalInMins*60, SECONDS);
-
-        final Runnable resetter = () -> {
-            //fill buckets now
-            energyStore.resetAllEnergyAccumulation();
-            bucketToFill = 0;
-            loggingQ.add("EnergyBucketFiller: buckets reset");
-        };
-
-        //reset at midnight
-        //not dealt with time changes
-        Long timeToMidnight = LocalDateTime.now().until(LocalDate.now().plusDays(1).atStartOfDay(), ChronoUnit.SECONDS);
-
-        dailyReset.scheduleAtFixedRate(resetter, timeToMidnight, TimeUnit.DAYS.toSeconds(1), SECONDS);
-        loggingQ.add("EnergyBucketFiller: tasks scheduled");
     }
     int lastFilledBucket()
     {
