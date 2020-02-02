@@ -13,7 +13,7 @@ public class EnergyStore
     private MetricReading[][] energyMetrics;
     private int bucketIntervalMins;
     private int bucketsPerDay;
-    private int nbrCircuits;
+
     private int latestBucketFilled;
 
     public EnergyStore(int nbrCircuits, int bucketIntervalMins)
@@ -22,7 +22,6 @@ public class EnergyStore
         this.energyAccumulator = new Double[nbrCircuits+1];
         this. bucketsPerDay = 60*24/bucketIntervalMins;
         this.bucketIntervalMins = bucketIntervalMins;
-        this.nbrCircuits = nbrCircuits;
         this.energyBuckets = new Double[nbrCircuits][bucketsPerDay+1];
         this.energyMetrics = new MetricReading[nbrCircuits][bucketsPerDay+1];
         this.latestBucketFilled = -1;
