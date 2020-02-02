@@ -65,10 +65,9 @@ public class EnergyStore
     {
         energyBuckets[circuit.getChannelNumber()][bucketIndex]= accumulation;
         double lastbucketValue;
-        if (bucketIndex>=1)
-            lastbucketValue =  energyBuckets[circuit.getChannelNumber()][bucketIndex-1];
+        if (bucketIndex>=1) lastbucketValue =  energyBuckets[circuit.getChannelNumber()][bucketIndex-1];
         else lastbucketValue = 0.0;
-        double wattHours = (energyBuckets[circuit.getChannelNumber()][bucketIndex]-lastbucketValue)*bucketIntervalMins/60;
+        double wattHours = ((energyBuckets[circuit.getChannelNumber()][bucketIndex]-lastbucketValue)*bucketIntervalMins)/60;
         energyMetrics[circuit.getChannelNumber()][bucketIndex]= new MetricReading(wattHours, now(), Metric.WATT_HOURS);
     }
 
