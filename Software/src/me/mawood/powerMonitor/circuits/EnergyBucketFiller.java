@@ -54,7 +54,7 @@ public class EnergyBucketFiller
             nextCall = nextCall.plusMinutes(intervalInMins);
             bucketToFill +=1;
         }
-        Duration duration = Duration.between(nextCall, Instant.now());
+        Duration duration = Duration.between( Instant.now(),nextCall);
 
         //schedule the bucket filler
         final ScheduledFuture<?> fillerHandle =
