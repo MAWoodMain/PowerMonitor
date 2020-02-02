@@ -5,10 +5,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import static java.time.LocalDateTime.now;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -18,13 +15,17 @@ public class EnergyBucketFiller
     long intervalInMins;
     int currentBucket;
     EnergyStore energyStore;
+    LinkedBlockingQueue<String> loggingQ;
 
-    public EnergyBucketFiller(EnergyStore energyStore, long intervalInMins)
+
+
+    public EnergyBucketFiller(EnergyStore energyStore, long intervalInMins,LinkedBlockingQueue<String> loggingQ)
     {
         this.intervalInMins = intervalInMins;
         this.energyStore = energyStore;
         energyStore.resetAllEnergyAccumulation();
         this.currentBucket = 0;
+        this.loggingQ = loggingQ;
     }
 
     private final ScheduledExecutorService scheduler =
@@ -41,6 +42,7 @@ public class EnergyBucketFiller
             {
                 //fill buckets now
                 energyStore.fillAllEnergyBuckets(currentBucket);
+                loggingQ.add("EnergyBucketFiller: buckets filled "+ currentBucket);
                 currentBucket +=1;
             }
         };
@@ -66,6 +68,7 @@ public class EnergyBucketFiller
                 //fill buckets now
                 energyStore.resetAllEnergyAccumulation();
                 currentBucket = 0;
+                loggingQ.add("EnergyBucketFiller: buckets reset");
             }
         };
 
@@ -74,5 +77,6 @@ public class EnergyBucketFiller
         Long timeToMidnight = LocalDateTime.now().until(LocalDate.now().plusDays(1).atStartOfDay(), ChronoUnit.SECONDS);
 
         dailyReset.scheduleAtFixedRate(resetter, timeToMidnight, TimeUnit.DAYS.toSeconds(1), SECONDS);
+        loggingQ.add("EnergyBucketFiller: tasks scheduled");
     }
 }

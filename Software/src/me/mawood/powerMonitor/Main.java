@@ -86,6 +86,7 @@ public class Main
     {
         commandQ = new LinkedBlockingQueue<>();
         loggingQ = new LinkedBlockingQueue<>();
+        int energyBucketInterval = 5; // Minutes
 
         //if required enable publishing processes
         if (isEnabled_MQTT()) {
@@ -113,12 +114,12 @@ public class Main
 
         loggingQ.add("Enabling CircuitCollector");
         boolean[] circuitRequired = {false, false, false, false, false, false, false, false, false, true}; // 0-9 0 not used, 9 is Whole_House
-        energyStore = new EnergyStore(HomeCircuits.values().length+1,5 );
+        energyStore = new EnergyStore(HomeCircuits.values().length+1,energyBucketInterval );
         circuitCollector = new CircuitCollector(getCircuitMap(),getLoggingQ(), mqttHandler,energyStore);
         circuitCollector.start();
 
         loggingQ.add("Enabling EnergyBucketFiller");
-        bucketfiller = new EnergyBucketFiller(energyStore,5);
+        bucketfiller = new EnergyBucketFiller(energyStore,energyBucketInterval,getLoggingQ());
         bucketfiller.start();
 
         // Start packet collection
