@@ -63,8 +63,12 @@ public class EnergyStore
 
     public synchronized void accumulate(Circuit circuit, double power)
     {
-        accumulationCount[circuit.getChannelNumber()] += 1;
-        energyAccumulator[circuit.getChannelNumber()]  += power;
+        try {
+            accumulationCount[circuit.getChannelNumber()] += 1;
+            energyAccumulator[circuit.getChannelNumber()] += power;
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public synchronized void updateEnergyBucket( Circuit circuit, int bucketIndex, double accumulation)
