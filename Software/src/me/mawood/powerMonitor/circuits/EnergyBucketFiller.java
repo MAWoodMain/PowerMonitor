@@ -56,13 +56,12 @@ public class EnergyBucketFiller
             }
             loggingQ.add("EnergyBucketFiller: bucketToFill = " + bucketToFill.toString());
             System.out.println("EnergyBucketFiller: nextCall =  " + nextCall.toString());
-            Duration duration = Duration.between(Instant.now(), nextCall);
 
             //schedule the bucket filler
             final ScheduledFuture<?> fillerHandle =
                     scheduler.scheduleAtFixedRate(
                             filler,
-                            duration.getSeconds(),
+                            LocalDateTime.now().until(nextCall, ChronoUnit.SECONDS),
                             intervalInMins * 60,
                             SECONDS);
 
