@@ -20,9 +20,10 @@ public class EnergyStore
 
     private int latestBucketFilled;
 
-    public EnergyStore(int nbrCircuits, int bucketIntervalMins, HashMap<Circuit, PowerMetricCalculator> circuitMap)
+    public EnergyStore(int bucketIntervalMins, HashMap<Circuit, PowerMetricCalculator> circuitMap)
     {
         this.circuitMap = circuitMap;
+        int nbrCircuits = HomeCircuits.values().length;
         this.accumulationCount = new long[nbrCircuits+1];//channel number is > max circuit number
         this.energyAccumulator = new Double[nbrCircuits+1];
         this. bucketsPerDay = 60*24/bucketIntervalMins;
@@ -72,10 +73,6 @@ public class EnergyStore
         Double lastbucketValue =  (bucketIndex >= 1) ? energyBuckets[circuit.getChannelNumber()][bucketIndex-1] : 0.0;
         Double currentbucketValue = energyBuckets[circuit.getChannelNumber()][bucketIndex];
         Double wattHours = ((currentbucketValue-lastbucketValue)*bucketIntervalMins)/60;
-        System.out.println("EnergyStore: Circuit = "+ circuit.getDisplayName()+
-                " Current = " + currentbucketValue.toString() +
-                " Last = " + lastbucketValue.toString() +
-                " Watt Hours = "+ wattHours.toString());
         energyMetrics[circuit.getChannelNumber()][bucketIndex]= new MetricReading(wattHours, now(), Metric.WATT_HOURS);
     }
 

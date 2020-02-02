@@ -54,7 +54,7 @@ public class EnergyBucketFiller
                 nextCall = nextCall.plusMinutes(intervalInMins);
                 bucketToFill += 1;
             }
-            loggingQ.add("EnergyBucketFiller: bucketToFill = " + bucketToFill.toString() + "First call "+ nextCall.toString());
+            //loggingQ.add("EnergyBucketFiller: bucketToFill = " + bucketToFill.toString() + "First call "+ nextCall.toString());
 
             //schedule the bucket filler
             final ScheduledFuture<?> fillerHandle =

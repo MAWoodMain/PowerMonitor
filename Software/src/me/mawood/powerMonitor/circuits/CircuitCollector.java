@@ -79,6 +79,7 @@ public class CircuitCollector extends Thread
                             "\"Energy\":" + energy.getValue().toString()  +
                             "}}";
             mqttHandler.publishToBroker(subTopic, jsonReadings);
+            loggingQ.add("CircuitCollector: "+ energy.toString());
         }
     }
     //
