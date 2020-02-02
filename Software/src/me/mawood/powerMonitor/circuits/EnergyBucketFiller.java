@@ -37,11 +37,13 @@ public class EnergyBucketFiller
 
     public void start()
     {
+        loggingQ.add("EnergyBucketFiller: start");
+
         final Runnable filler = () -> {
             //fill buckets now
             energyStore.fillAllEnergyBuckets(bucketToFill);
             if(publishEnergy) {circuitCollector.publishEnergyMetricsForCircuits();}
-            loggingQ.add("EnergyBucketFiller: buckets filled "+ bucketToFill);
+            loggingQ.add("EnergyBucketFiller: buckets filled "+ ((Integer)bucketToFill).toString());
             bucketToFill +=1;
         };
 
@@ -49,7 +51,7 @@ public class EnergyBucketFiller
         LocalDateTime nextCall = now().truncatedTo(ChronoUnit.DAYS);
         while( nextCall.isBefore(now()))
         {
-            nextCall.plusMinutes(intervalInMins);
+            nextCall = nextCall.plusMinutes(intervalInMins);
             bucketToFill +=1;
         }
         Duration duration = Duration.between(nextCall, Instant.now());
