@@ -5,9 +5,10 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.concurrent.*;
+
 import static java.time.LocalDateTime.now;
-import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class EnergyBucketFiller
@@ -62,7 +63,7 @@ public class EnergyBucketFiller
 
             //schedule the bucket filler
             final ScheduledFuture<?> fillerHandle =
-                    scheduler.scheduleAtFixedRate(filler, duration.getSeconds(), intervalInMins, MINUTES);
+                    scheduler.scheduleAtFixedRate(filler, duration.getSeconds(), intervalInMins*60, SECONDS);
 
             final Runnable resetter = () -> {
                 //fill buckets now
@@ -78,7 +79,7 @@ public class EnergyBucketFiller
             dailyReset.scheduleAtFixedRate(resetter, timeToMidnight, TimeUnit.DAYS.toSeconds(1), SECONDS);
             loggingQ.add("EnergyBucketFiller: tasks scheduled");
         } catch (Exception e){
-            loggingQ.add("EnergyBucketFiller: Exception - " +  e.getStackTrace().toString());
+            loggingQ.add("EnergyBucketFiller: Exception - " +  Arrays.toString(e.getStackTrace()));
             e.printStackTrace();
         }
     }
