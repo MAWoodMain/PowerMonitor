@@ -1,9 +1,6 @@
 package me.mawood.powerMonitor.circuits;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.concurrent.*;
@@ -32,7 +29,7 @@ public class EnergyBucketFiller
         this.energyStore = energyStore;
         energyStore.resetAllEnergyAccumulation();
         this.bucketToFill = 0;
-        this.publishEnergy =publishEnergy;
+        this.publishEnergy = publishEnergy;
         this.loggingQ = loggingQ;
         this.circuitCollector = circuitCollector;
     }
@@ -57,13 +54,17 @@ public class EnergyBucketFiller
                 nextCall = nextCall.plusMinutes(intervalInMins);
                 bucketToFill += 1;
             }
-            loggingQ.add("EnergyBucketFiller: bucketToFill = "+bucketToFill.toString() );
+            loggingQ.add("EnergyBucketFiller: bucketToFill = " + bucketToFill.toString());
             System.out.println("EnergyBucketFiller: nextCall =  " + nextCall.toString());
             Duration duration = Duration.between(Instant.now(), nextCall);
 
             //schedule the bucket filler
             final ScheduledFuture<?> fillerHandle =
-                    scheduler.scheduleAtFixedRate(filler, duration.getSeconds(), intervalInMins*60, SECONDS);
+                    scheduler.scheduleAtFixedRate(
+                            filler,
+                            duration.getSeconds(),
+                            intervalInMins * 60,
+                            SECONDS);
 
             final Runnable resetter = () -> {
                 //fill buckets now
@@ -72,19 +73,26 @@ public class EnergyBucketFiller
                 loggingQ.add("EnergyBucketFiller: buckets reset");
             };
 
-            //reset at midnight
-            //not dealt with time changes
-            Long timeToMidnight = LocalDateTime.now().until(LocalDate.now().plusDays(1).atStartOfDay(), ChronoUnit.SECONDS);
+            LocalTime midnight = LocalTime.MIDNIGHT;
+            LocalDate today = LocalDate.now(ZoneId.of("Europe/London"));
+            LocalDateTime todayMidnight = LocalDateTime.of(today, midnight); //start of today
+            LocalDateTime tomorrowMidnight = todayMidnight.plusDays(1); //start of tomorrow
 
-            dailyReset.scheduleAtFixedRate(resetter, timeToMidnight, TimeUnit.DAYS.toSeconds(1), SECONDS);
+            //reset at midnight
+            dailyReset.scheduleAtFixedRate(
+                    resetter,
+                    LocalDateTime.now().until(tomorrowMidnight, ChronoUnit.SECONDS),
+                    TimeUnit.DAYS.toSeconds(1),
+                    SECONDS);
             loggingQ.add("EnergyBucketFiller: tasks scheduled");
-        } catch (Exception e){
-            loggingQ.add("EnergyBucketFiller: Exception - " +  Arrays.toString(e.getStackTrace()));
+        } catch (Exception e) {
+            loggingQ.add("EnergyBucketFiller: Exception - " + Arrays.toString(e.getStackTrace()));
             e.printStackTrace();
         }
     }
+
     int lastFilledBucket()
     {
-        if(bucketToFill>0) return bucketToFill-1; else  return -1;
+        return (bucketToFill>0)? (bucketToFill-1) : -1;
     }
 }
