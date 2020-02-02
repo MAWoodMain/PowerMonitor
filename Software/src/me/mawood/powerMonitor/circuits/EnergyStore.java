@@ -23,7 +23,7 @@ public class EnergyStore
     public EnergyStore(int bucketIntervalMins, HashMap<Circuit, PowerMetricCalculator> circuitMap)
     {
         this.circuitMap = circuitMap;
-        int nbrCircuits = HomeCircuits.values().length;
+        int nbrCircuits = HomeCircuits.values().length+1;
         this.accumulationCount = new long[nbrCircuits+1];//channel number is > max circuit number
         this.energyAccumulator = new Double[nbrCircuits+1];
         this. bucketsPerDay = 60*24/bucketIntervalMins;
