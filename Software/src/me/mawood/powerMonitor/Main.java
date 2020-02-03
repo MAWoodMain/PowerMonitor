@@ -114,7 +114,7 @@ public class Main
 
         loggingQ.add("Enabling CircuitCollector");
         boolean[] circuitRequired = {false, false, false, false, false, false, false, false, false, true}; // 0-9 0 not used, 9 is Whole_House
-        energyStore = new EnergyStore(HomeCircuits.values().length+1,energyBucketInterval );
+        energyStore = new EnergyStore(HomeCircuits.values().length+1,energyBucketInterval,circuitMap );
         circuitCollector = new CircuitCollector(getCircuitMap(),getLoggingQ(), mqttHandler,energyStore);
         circuitCollector.start();
 
