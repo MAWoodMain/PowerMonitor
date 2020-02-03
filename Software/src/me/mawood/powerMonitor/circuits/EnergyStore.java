@@ -2,6 +2,9 @@ package me.mawood.powerMonitor.circuits;
 
 import me.mawood.powerMonitor.metrics.Metric;
 import me.mawood.powerMonitor.metrics.MetricReading;
+import me.mawood.powerMonitor.metrics.PowerMetricCalculator;
+
+import java.util.HashMap;
 
 import static java.time.Instant.now;
 
@@ -11,13 +14,16 @@ public class EnergyStore
     private final Double[] energyAccumulator;
     private final Double[][] energyBuckets;
     private MetricReading[][] energyMetrics;
+    private final HashMap<Circuit, PowerMetricCalculator> circuitMap;
     private int bucketIntervalMins;
     private int bucketsPerDay;
 
     private int latestBucketFilled;
 
-    public EnergyStore(int nbrCircuits, int bucketIntervalMins)
+    public EnergyStore(int bucketIntervalMins, HashMap<Circuit, PowerMetricCalculator> circuitMap)
     {
+        this.circuitMap = circuitMap;
+        int nbrCircuits = 9;
         this.accumulationCount = new long[nbrCircuits+1];//channel number is > max circuit number
         this.energyAccumulator = new Double[nbrCircuits+1];
         this. bucketsPerDay = 60*24/bucketIntervalMins;
@@ -30,7 +36,7 @@ public class EnergyStore
 
     public void resetAllEnergyAccumulation()
     {
-        for(Circuit circuit: HomeCircuits.values())
+        for(Circuit circuit : circuitMap.keySet())
         {
             resetEnergyAccumulation(circuit);
             for (int j=0; j<bucketsPerDay; j++)
@@ -42,7 +48,7 @@ public class EnergyStore
     }
     public void fillAllEnergyBuckets(int bucketNumber)
     {
-        for(Circuit circuit: HomeCircuits.values())
+        for(Circuit circuit : circuitMap.keySet())
         {
             updateEnergyBucket(circuit, bucketNumber,energyAccumulator[circuit.getChannelNumber()]);
         }
@@ -57,8 +63,12 @@ public class EnergyStore
 
     public synchronized void accumulate(Circuit circuit, double power)
     {
-        accumulationCount[circuit.getChannelNumber()] += 1;
-        energyAccumulator[circuit.getChannelNumber()]  += power;
+        try {
+            accumulationCount[circuit.getChannelNumber()] += 1;
+            energyAccumulator[circuit.getChannelNumber()] += power;
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public synchronized void updateEnergyBucket( Circuit circuit, int bucketIndex, double accumulation)
@@ -67,10 +77,6 @@ public class EnergyStore
         Double lastbucketValue =  (bucketIndex >= 1) ? energyBuckets[circuit.getChannelNumber()][bucketIndex-1] : 0.0;
         Double currentbucketValue = energyBuckets[circuit.getChannelNumber()][bucketIndex];
         Double wattHours = ((currentbucketValue-lastbucketValue)*bucketIntervalMins)/60;
-        System.out.println("EnergyStore: Circuit = "+ circuit.getDisplayName()+
-                " Current = " + currentbucketValue.toString() +
-                " Last = " + lastbucketValue.toString() +
-                " Watt Hours = "+ wattHours.toString());
         energyMetrics[circuit.getChannelNumber()][bucketIndex]= new MetricReading(wattHours, now(), Metric.WATT_HOURS);
     }
 
