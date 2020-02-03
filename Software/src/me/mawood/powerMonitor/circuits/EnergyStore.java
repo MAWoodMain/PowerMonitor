@@ -54,6 +54,8 @@ public class EnergyStore
         for(Circuit circuit : circuitMap.keySet())
         {
             updateEnergyBucket(circuit, bucketNumber,energyAccumulator[circuit.getChannelNumber()]);
+            loggingQ.add("EnergyStore: Circuit = "+ circuit.getDisplayName()+
+                     getLatestEnergyMetric(circuit).toString());
         }
         latestBucketFilled = bucketNumber;
     }
@@ -80,10 +82,6 @@ public class EnergyStore
         Double lastBucketValue =  (bucketIndex >= 1) ? energyBuckets[circuit.getChannelNumber()][bucketIndex-1] : 0.0;
         Double currentBucketValue = energyBuckets[circuit.getChannelNumber()][bucketIndex];
         Double wattHours = ((currentBucketValue-lastBucketValue)*bucketIntervalMins)/60;
-        loggingQ.add("EnergyStore: Circuit = "+ circuit.getDisplayName()+
-                " Current = " + currentBucketValue.toString() +
-                " Last = " + lastBucketValue.toString() +
-                " Watt Hours = "+ wattHours.toString());
         energyMetrics[circuit.getChannelNumber()][bucketIndex]= new MetricReading(wattHours, now(), Metric.WATT_HOURS);
     }
 

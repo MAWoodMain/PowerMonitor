@@ -49,8 +49,8 @@ public class EnergyBucketFiller
             };
 
             //work out when to start
-            LocalDateTime nextCall = now().truncatedTo(ChronoUnit.DAYS);
-            while (nextCall.isBefore(now())) {
+            LocalDateTime nextCall = now(ZoneId.of("Europe/London")).truncatedTo(ChronoUnit.DAYS);
+            while (nextCall.isBefore(now(ZoneId.of("Europe/London")))) {
                 nextCall = nextCall.plusMinutes(intervalInMins);
                 bucketToFill += 1;
             }
@@ -89,7 +89,7 @@ public class EnergyBucketFiller
         }
     }
 
-    int lastFilledBucket()
+    public int lastFilledBucket()
     {
         return (bucketToFill>0)? (bucketToFill-1) : -1;
     }
