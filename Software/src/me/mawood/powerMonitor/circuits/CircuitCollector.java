@@ -105,7 +105,7 @@ public class CircuitCollector extends Thread
                 try {
                     publishCircuitToBroker(circuit);
                 } catch (InvalidDataException | OperationNotSupportedException e) {
-                    //System.out.println("no data for circuit: " + circuit.getDisplayName());
+                    loggingQ.add("no data for circuit: " + circuit.getDisplayName());
                 }
             }
 

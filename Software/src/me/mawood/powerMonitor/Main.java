@@ -116,7 +116,7 @@ public class Main
         boolean[] circuitRequired = {false, false, false, false, false, false, false, false, false, true}; // 0-9 0 not used, 9 is Whole_House
         energyStore = new EnergyStore(HomeCircuits.values().length+1,energyBucketInterval,circuitMap );
         circuitCollector = new CircuitCollector(getCircuitMap(),getLoggingQ(), mqttHandler,energyStore);
-        circuitCollector.start();
+
 
         loggingQ.add("Enabling EnergyBucketFiller");
         bucketfiller = new EnergyBucketFiller(energyStore,energyBucketInterval,true,circuitCollector,getLoggingQ());
@@ -134,5 +134,6 @@ public class Main
             if (circuitRequired[circuit.getChannelNumber()])
                 enableCollection(circuit);
         }
+        circuitCollector.start();
     }
 }
