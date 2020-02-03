@@ -38,7 +38,7 @@ public class CircuitCollector extends Thread
         this.mqttHandler = publisher;
         //this.energyStore = energyStore;
         for (Circuit circuit : circuitMap.keySet()) {
-            storeMap.put(circuit,new CircuitEnergyStore(circuit,bucketIntervalMins,loggingQ));
+            this.storeMap.put(circuit,new CircuitEnergyStore(circuit,bucketIntervalMins,loggingQ));
         }
     }
 
@@ -49,7 +49,11 @@ public class CircuitCollector extends Thread
         MetricReading voltage = circuitMap.get(HomeCircuits.WHOLE_HOUSE).getAverageBetween(Metric.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
         MetricReading apparent = circuitMap.get(circuit).getAverageBetween(Metric.VA, Instant.now().minusSeconds(2), readingTime);
         MetricReading real = circuitMap.get(circuit).getAverageBetween(Metric.WATTS, Instant.now().minusSeconds(2), readingTime);
-        storeMap.get(circuit).accumulate(real.getValue());
+
+        CircuitEnergyStore circuitEnergyStore = storeMap.get(circuit);
+        if (circuitEnergyStore!=null) {circuitEnergyStore.accumulate(real.getValue());}
+        else loggingQ.add("CircuitCollector: null circuitEnergyStore for - "+ circuit.getDisplayName());
+
         MetricReading reactive = circuitMap.get(circuit).getAverageBetween(Metric.VAR, Instant.now().minusSeconds(2), readingTime);
         MetricReading current = circuitMap.get(circuit).getAverageBetween(Metric.AMPS, Instant.now().minusSeconds(2), readingTime);
         //MetricReading powerfactor = circuitMap.get(circuit).getAverageBetween(Metric.POWERFACTOR, Instant.now().minusSeconds(2), readingTime);
