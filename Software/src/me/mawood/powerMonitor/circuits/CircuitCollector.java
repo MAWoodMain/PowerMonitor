@@ -9,6 +9,7 @@ import me.mawood.powerMonitor.publishers.MQTTHandler;
 import javax.naming.OperationNotSupportedException;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -20,21 +21,25 @@ public class CircuitCollector extends Thread
     // run control variables
     private final Map<Circuit, PowerMetricCalculator> circuitMap;
     private final LinkedBlockingQueue<String> loggingQ;
-    private final EnergyStore energyStore;
+    //private final EnergyStore energyStore;
+    private final HashMap<Circuit,CircuitEnergyStore> storeMap = new HashMap<>();
 
     /**
      * MQTTHandler   Constructor
      */
     public CircuitCollector(Map<Circuit, PowerMetricCalculator> circuitMap,
-                            LinkedBlockingQueue<String> loggingQ,
                             MQTTHandler publisher,
-                            EnergyStore energyStore
+                            int bucketIntervalMins,
+                            LinkedBlockingQueue<String> loggingQ
     )
     {
         this.circuitMap = circuitMap;
         this.loggingQ = loggingQ;
         this.mqttHandler = publisher;
-        this.energyStore = energyStore;
+        //this.energyStore = energyStore;
+        for (Circuit circuit : circuitMap.keySet()) {
+            storeMap.put(circuit,new CircuitEnergyStore(circuit,bucketIntervalMins,loggingQ));
+        }
     }
 
     private void publishCircuitToBroker(Circuit circuit) throws InvalidDataException, OperationNotSupportedException
@@ -44,7 +49,7 @@ public class CircuitCollector extends Thread
         MetricReading voltage = circuitMap.get(HomeCircuits.WHOLE_HOUSE).getAverageBetween(Metric.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
         MetricReading apparent = circuitMap.get(circuit).getAverageBetween(Metric.VA, Instant.now().minusSeconds(2), readingTime);
         MetricReading real = circuitMap.get(circuit).getAverageBetween(Metric.WATTS, Instant.now().minusSeconds(2), readingTime);
-        energyStore.accumulate(circuit,real.getValue());
+        storeMap.get(circuit).accumulate(real.getValue());
         MetricReading reactive = circuitMap.get(circuit).getAverageBetween(Metric.VAR, Instant.now().minusSeconds(2), readingTime);
         MetricReading current = circuitMap.get(circuit).getAverageBetween(Metric.AMPS, Instant.now().minusSeconds(2), readingTime);
         //MetricReading powerfactor = circuitMap.get(circuit).getAverageBetween(Metric.POWERFACTOR, Instant.now().minusSeconds(2), readingTime);
@@ -74,13 +79,25 @@ public class CircuitCollector extends Thread
         MetricReading energy;
         for (Circuit circuit : circuitMap.keySet()) {
             String subTopic = MQTTHandler.TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
-            energy = energyStore.getLatestEnergyMetric(circuit);
+            energy = storeMap.get(circuit).getLatestEnergyMetric();
             String jsonReadings =
                     "{\"Time\":\"" + energy.getTimestamp().toString() + "\"," +
                             "\"Readings\":{" +
                             "\"Energy\":" + energy.getValue().toString()  +
                             "}}";
             mqttHandler.publishToBroker(subTopic, jsonReadings);
+        }
+    }
+    public void fillAllEnergyBuckets(int bucketToFill)
+    {
+        for (Circuit circuit : circuitMap.keySet()) {
+            storeMap.get(circuit).updateEnergyBucket(bucketToFill);
+        }
+    }
+    public void resetAllEnergyBuckets()
+    {
+        for (Circuit circuit : circuitMap.keySet()) {
+            storeMap.get(circuit).resetAllEnergyData();
         }
     }
     //

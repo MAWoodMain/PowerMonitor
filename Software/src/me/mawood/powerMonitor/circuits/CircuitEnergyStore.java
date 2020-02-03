@@ -34,6 +34,14 @@ public class CircuitEnergyStore
         resetEnergyAccumulation();
     }
 
+    public void resetAllEnergyData()
+    {
+        resetEnergyAccumulation();
+        for (int j = 0; j < bucketsPerDay; j++) {
+            updateEnergyBucket(j);
+        }
+        latestBucketFilled = -1;
+    }
 
     public synchronized void resetEnergyAccumulation()
     {
@@ -41,34 +49,35 @@ public class CircuitEnergyStore
         energyAccumulator = 0.0;
     }
 
-    public synchronized void accumulate( double power)
+    public synchronized void accumulate(double power)
     {
         accumulationCount += 1;
         energyAccumulator += power;
     }
 
-    public synchronized void updateEnergyBucket( int bucketIndex, double accumulation) throws Exception
+    public synchronized void updateEnergyBucket(int bucketIndex)
     {
-        energyBuckets[bucketIndex] = accumulation / (bucketIntervalMins * 60); //average
+        energyBuckets[bucketIndex] = energyAccumulator / (bucketIntervalMins * 60); //average
         Double lastBucketValue = (bucketIndex >= 1) ? energyBuckets[bucketIndex - 1] : 0.0;
         Double currentBucketValue = energyBuckets[bucketIndex];
         Double wattHours = ((currentBucketValue - lastBucketValue) * bucketIntervalMins) / 60;
         energyMetrics[bucketIndex] = new MetricReading(wattHours, now(), Metric.WATT_HOURS);
         latestBucketFilled = bucketIndex;
     }
+
     public MetricReading getLatestEnergyMetric()
     {
         return (energyMetrics[latestBucketFilled]);
     }
+
     public MetricReading getCumulativeEnergyForToday()
     {
         Double total = new Double(0.0);
-        for (int bucketIndex = 0; bucketIndex <= latestBucketFilled; bucketIndex++)
-        {
-            if( energyMetrics[bucketIndex]!=null)
-                if(energyMetrics[bucketIndex].getValue()>0.0) total =+ energyMetrics[bucketIndex].getValue();
+        for (int bucketIndex = 0; bucketIndex <= latestBucketFilled; bucketIndex++) {
+            if (energyMetrics[bucketIndex] != null)
+                if (energyMetrics[bucketIndex].getValue() > 0.0) total = +energyMetrics[bucketIndex].getValue();
         }
-        return new MetricReading(total/1000,now(),Metric.KILOWATT_HOURS);
+        return new MetricReading(total / 1000, now(), Metric.KILOWATT_HOURS);
     }
 /*
     public Double getEnergyAccumulator(){return energyAccumulator;}

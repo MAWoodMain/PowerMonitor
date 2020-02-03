@@ -12,22 +12,18 @@ public class EnergyBucketFiller
 {
     private long intervalInMins;
     private Integer bucketToFill;
-    private final EnergyStore energyStore;
     private final LinkedBlockingQueue<String> loggingQ;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final ScheduledExecutorService dailyReset = Executors.newScheduledThreadPool(1);
     private boolean publishEnergy;
     private final CircuitCollector circuitCollector;
 
-    public EnergyBucketFiller(EnergyStore energyStore,
-                              long intervalInMins,
+    public EnergyBucketFiller(long intervalInMins,
                               boolean publishEnergy,
                               CircuitCollector circuitCollector,
                               LinkedBlockingQueue<String> loggingQ)
     {
         this.intervalInMins = intervalInMins;
-        this.energyStore = energyStore;
-        energyStore.resetAllEnergyAccumulation();
         this.bucketToFill = 0;
         this.publishEnergy = publishEnergy;
         this.loggingQ = loggingQ;
@@ -40,7 +36,7 @@ public class EnergyBucketFiller
         try {
             final Runnable filler = () -> {
                 //fill buckets now
-                energyStore.fillAllEnergyBuckets(bucketToFill);
+                circuitCollector.fillAllEnergyBuckets(bucketToFill);
                 if (publishEnergy) {
                     circuitCollector.publishEnergyMetricsForCircuits();
                 }
@@ -66,7 +62,7 @@ public class EnergyBucketFiller
 
             final Runnable resetter = () -> {
                 //fill buckets now
-                energyStore.resetAllEnergyAccumulation();
+                circuitCollector.resetAllEnergyBuckets();
                 bucketToFill = 0;
                 loggingQ.add("EnergyBucketFiller: buckets reset");
             };
