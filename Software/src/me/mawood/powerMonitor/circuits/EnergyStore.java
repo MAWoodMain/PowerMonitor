@@ -6,6 +6,8 @@ import me.mawood.powerMonitor.metrics.PowerMetricCalculator;
 
 import java.util.HashMap;
 
+import java.util.concurrent.LinkedBlockingQueue;
+
 import static java.time.Instant.now;
 
 public class EnergyStore
@@ -17,6 +19,7 @@ public class EnergyStore
     private final HashMap<Circuit, PowerMetricCalculator> circuitMap;
     private int bucketIntervalMins;
     private int bucketsPerDay;
+    private final LinkedBlockingQueue<String> loggingQ;
 
     private int latestBucketFilled;
 
@@ -74,9 +77,13 @@ public class EnergyStore
     public synchronized void updateEnergyBucket( Circuit circuit, int bucketIndex, double accumulation)
     {
         energyBuckets[circuit.getChannelNumber()][bucketIndex]= accumulation/(bucketIntervalMins*60); //average
-        Double lastbucketValue =  (bucketIndex >= 1) ? energyBuckets[circuit.getChannelNumber()][bucketIndex-1] : 0.0;
-        Double currentbucketValue = energyBuckets[circuit.getChannelNumber()][bucketIndex];
-        Double wattHours = ((currentbucketValue-lastbucketValue)*bucketIntervalMins)/60;
+        Double lastBucketValue =  (bucketIndex >= 1) ? energyBuckets[circuit.getChannelNumber()][bucketIndex-1] : 0.0;
+        Double currentBucketValue = energyBuckets[circuit.getChannelNumber()][bucketIndex];
+        Double wattHours = ((currentBucketValue-lastBucketValue)*bucketIntervalMins)/60;
+        loggingQ.add("EnergyStore: Circuit = "+ circuit.getDisplayName()+
+                " Current = " + currentBucketValue.toString() +
+                " Last = " + lastBucketValue.toString() +
+                " Watt Hours = "+ wattHours.toString());
         energyMetrics[circuit.getChannelNumber()][bucketIndex]= new MetricReading(wattHours, now(), Metric.WATT_HOURS);
     }
 
