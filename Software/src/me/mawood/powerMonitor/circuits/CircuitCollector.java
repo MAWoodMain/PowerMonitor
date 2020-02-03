@@ -23,6 +23,7 @@ public class CircuitCollector extends Thread
     private final LinkedBlockingQueue<String> loggingQ;
     //private final EnergyStore energyStore;
     private final HashMap<Circuit,CircuitEnergyStore> storeMap = new HashMap<>();
+    private int bucketIntervalMins;
 
     /**
      * MQTTHandler   Constructor
@@ -36,11 +37,8 @@ public class CircuitCollector extends Thread
         this.circuitMap = circuitMap;
         this.loggingQ = loggingQ;
         this.mqttHandler = publisher;
+        this.bucketIntervalMins = bucketIntervalMins;
         //this.energyStore = energyStore;
-        for (Circuit circuit : circuitMap.keySet()) {
-            this.storeMap.put(circuit,new CircuitEnergyStore(circuit,bucketIntervalMins,loggingQ));
-        }
-        loggingQ.add("CircuitCollector: storemap - " + storeMap.toString());
     }
 
     private void publishCircuitToBroker(Circuit circuit) throws InvalidDataException, OperationNotSupportedException
@@ -121,6 +119,11 @@ public class CircuitCollector extends Thread
             Thread.sleep(2010);
         } catch (InterruptedException ignored) {
         }
+        for (Circuit circuit : circuitMap.keySet()) {
+            this.storeMap.put(circuit,new CircuitEnergyStore(circuit,bucketIntervalMins,loggingQ));
+        }
+        loggingQ.add("CircuitCollector: storemap - " + storeMap.toString());
+
         while (!Thread.interrupted()) {
             startTime = System.currentTimeMillis();
             //rawMetricsBuffer.printMetricsBuffer();
