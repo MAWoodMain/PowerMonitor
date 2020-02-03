@@ -46,8 +46,8 @@ public class CircuitCollector extends Thread
         MetricReading real = circuitMap.get(circuit).getAverageBetween(Metric.WATTS, Instant.now().minusSeconds(2), readingTime);
         MetricReading reactive = circuitMap.get(circuit).getAverageBetween(Metric.VAR, Instant.now().minusSeconds(2), readingTime);
         MetricReading current = circuitMap.get(circuit).getAverageBetween(Metric.AMPS, Instant.now().minusSeconds(2), readingTime);
-        MetricReading powerfactor = circuitMap.get(circuit).getAverageBetween(Metric.POWERFACTOR, Instant.now().minusSeconds(2), readingTime);
-        //Double powerFactor = Math.round(real.getValue()/apparent.getValue()*1000000.0)/1000000.0;
+        //MetricReading powerfactor = circuitMap.get(circuit).getAverageBetween(Metric.POWERFACTOR, Instant.now().minusSeconds(2), readingTime);
+        Double powerFactor = Math.round(real.getValue()/apparent.getValue()*1000000.0)/1000000.0;
         String jsonReadings =
                 "{\"Time\":\""+readingTime.toString()+"\","+
                 "\"Readings\":{"+
@@ -56,8 +56,8 @@ public class CircuitCollector extends Thread
                 "\""+ apparent.getMetric().getMetricName()+"\":"+ apparent.getValue().toString()+","+
                 "\""+ reactive.getMetric().getMetricName()+"\":"+ reactive.getValue().toString()+","+
                 "\""+ current.getMetric().getMetricName()+"\":"+ current.getValue().toString()+","+
-                "\""+ powerfactor.getMetric().getMetricName()+"\":"+ current.getValue().toString()+","+
-                //"\"PowerFactor\":"+ powerFactor.toString()+
+                //"\""+ powerfactor.getMetric().getMetricName()+"\":"+ current.getValue().toString()+","+
+                "\"PowerFactor\":"+ powerFactor.toString()+
                 "}}";
         mqttHandler.publishToBroker(subTopic,jsonReadings);
     }
