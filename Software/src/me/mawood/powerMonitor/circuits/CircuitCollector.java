@@ -8,6 +8,7 @@ import me.mawood.powerMonitor.publishers.MQTTHandler;
 
 import javax.naming.OperationNotSupportedException;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -105,7 +106,10 @@ public class CircuitCollector extends Thread
                 try {
                     publishCircuitToBroker(circuit);
                 } catch (InvalidDataException | OperationNotSupportedException e) {
-                    loggingQ.add("no data for circuit: " + circuit.getDisplayName());
+                    loggingQ.add("no data for circuit: " +
+                            circuit.getDisplayName() +
+                            Arrays.toString(e.getStackTrace())
+                    );
                 }
             }
 
