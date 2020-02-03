@@ -85,7 +85,7 @@ public class EnergyBucketFiller
             loggingQ.add("EnergyBucketFiller: tasks scheduled");
         } catch (Exception e) {
             loggingQ.add("EnergyBucketFiller: Exception - " + Arrays.toString(e.getStackTrace()));
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 
