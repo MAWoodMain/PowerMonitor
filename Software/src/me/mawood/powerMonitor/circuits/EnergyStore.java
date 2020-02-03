@@ -6,6 +6,7 @@ import me.mawood.powerMonitor.metrics.PowerMetricCalculator;
 
 import java.util.HashMap;
 
+import java.util.Arrays;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import static java.time.Instant.now;
@@ -31,31 +32,39 @@ public class EnergyStore
         this.energyAccumulator = new Double[nbrCircuits+1];
         this. bucketsPerDay = 60*24/bucketIntervalMins;
         this.bucketIntervalMins = bucketIntervalMins;
-        this.energyBuckets = new Double[nbrCircuits][bucketsPerDay+1];
-        this.energyMetrics = new MetricReading[nbrCircuits][bucketsPerDay+1];
+        this.energyBuckets = new Double[nbrCircuits][bucketsPerDay + 1];
+        this.energyMetrics = new MetricReading[nbrCircuits][bucketsPerDay + 1];
         this.latestBucketFilled = -1;
         resetAllEnergyAccumulation();
     }
 
     public void resetAllEnergyAccumulation()
     {
-        for(Circuit circuit : circuitMap.keySet())
-        {
-            resetEnergyAccumulation(circuit);
-            for (int j=0; j<bucketsPerDay; j++)
-            {
-                updateEnergyBucket(circuit,j,0.0);
+        try {
+            for (Circuit circuit : HomeCircuits.values()) {
+                resetEnergyAccumulation(circuit);
+                for (int j = 0; j < bucketsPerDay; j++) {
+                    updateEnergyBucket(circuit, j, 0.0);
+                }
             }
+        } catch (Exception e) {
+            loggingQ.add("EnergyStore: reset Exception - " + Arrays.toString(e.getStackTrace()));
         }
         latestBucketFilled = -1;
     }
+
     public void fillAllEnergyBuckets(int bucketNumber)
     {
-        for(Circuit circuit : circuitMap.keySet())
-        {
-            updateEnergyBucket(circuit, bucketNumber,energyAccumulator[circuit.getChannelNumber()]);
-            loggingQ.add("EnergyStore: Circuit = "+ circuit.getDisplayName()+
-                     getLatestEnergyMetric(circuit).toString());
+        loggingQ.add("EnergyStore: fill all energy buckets");
+        try {
+            for (Circuit circuit : HomeCircuits.values()) {
+
+                updateEnergyBucket(circuit, bucketNumber, energyAccumulator[circuit.getChannelNumber()]);
+                loggingQ.add("EnergyStore: Circuit = " + circuit.getDisplayName() +
+                        getLatestEnergyMetric(circuit).toString());
+            }
+        } catch (Exception e) {
+            loggingQ.add("EnergyStore: fill Exception - " + Arrays.toString(e.getStackTrace()));
         }
         latestBucketFilled = bucketNumber;
     }
@@ -63,7 +72,7 @@ public class EnergyStore
     public synchronized void resetEnergyAccumulation(Circuit circuit)
     {
         accumulationCount[circuit.getChannelNumber()] = 0;
-        energyAccumulator[circuit.getChannelNumber()]  = 0.0;
+        energyAccumulator[circuit.getChannelNumber()] = 0.0;
     }
 
     public synchronized void accumulate(Circuit circuit, double power)
@@ -76,13 +85,13 @@ public class EnergyStore
         }
     }
 
-    public synchronized void updateEnergyBucket( Circuit circuit, int bucketIndex, double accumulation)
+    public synchronized void updateEnergyBucket(Circuit circuit, int bucketIndex, double accumulation) throws Exception
     {
-        energyBuckets[circuit.getChannelNumber()][bucketIndex]= accumulation/(bucketIntervalMins*60); //average
-        Double lastBucketValue =  (bucketIndex >= 1) ? energyBuckets[circuit.getChannelNumber()][bucketIndex-1] : 0.0;
+        energyBuckets[circuit.getChannelNumber()][bucketIndex] = accumulation / (bucketIntervalMins * 60); //average
+        Double lastBucketValue = (bucketIndex >= 1) ? energyBuckets[circuit.getChannelNumber()][bucketIndex - 1] : 0.0;
         Double currentBucketValue = energyBuckets[circuit.getChannelNumber()][bucketIndex];
-        Double wattHours = ((currentBucketValue-lastBucketValue)*bucketIntervalMins)/60;
-        energyMetrics[circuit.getChannelNumber()][bucketIndex]= new MetricReading(wattHours, now(), Metric.WATT_HOURS);
+        Double wattHours = ((currentBucketValue - lastBucketValue) * bucketIntervalMins) / 60;
+        energyMetrics[circuit.getChannelNumber()][bucketIndex] = new MetricReading(wattHours, now(), Metric.WATT_HOURS);
     }
 
     public Double getEnergyAccumulator(Circuit circuit)
@@ -105,11 +114,13 @@ public class EnergyStore
         if (bucketIndex < 0) return -1.0;
         return energyBuckets[circuit.getChannelNumber()][bucketIndex];
     }
+
     public Double getLatestFilledBucket(Circuit circuit)
     {
         if (latestBucketFilled < 0) return -1.0;
         return energyBuckets[circuit.getChannelNumber()][latestBucketFilled];
     }
+
     public MetricReading getLatestEnergyMetric(Circuit circuit)
     {
         return (energyMetrics[circuit.getChannelNumber()][latestBucketFilled]);
