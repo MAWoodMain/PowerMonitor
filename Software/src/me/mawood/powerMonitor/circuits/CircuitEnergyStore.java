@@ -55,7 +55,7 @@ public class CircuitEnergyStore
         energyAccumulator += power;
     }
 
-    public synchronized void updateEnergyBucket(int bucketIndex)
+    public synchronized String updateEnergyBucket(int bucketIndex)
     {
         energyBuckets[bucketIndex] = energyAccumulator / (bucketIntervalMins * 60); //average
         Double lastBucketValue = (bucketIndex >= 1) ? energyBuckets[bucketIndex - 1] : 0.0;
@@ -63,6 +63,8 @@ public class CircuitEnergyStore
         Double wattHours = ((currentBucketValue - lastBucketValue) * bucketIntervalMins) / 60;
         energyMetrics[bucketIndex] = new MetricReading(wattHours, now(), Metric.WATT_HOURS);
         latestBucketFilled = bucketIndex;
+        return ("CircuitEnergyStore: updated EnergyBucket "+ Integer.toString(bucketIndex) +
+                " for circuit "+ circuit.getDisplayName() + "Value "+ wattHours.toString() );
     }
 
     public MetricReading getLatestEnergyMetric()
