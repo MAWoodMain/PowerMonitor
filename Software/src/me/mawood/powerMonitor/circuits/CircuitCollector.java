@@ -40,6 +40,7 @@ public class CircuitCollector extends Thread
         for (Circuit circuit : circuitMap.keySet()) {
             this.storeMap.put(circuit,new CircuitEnergyStore(circuit,bucketIntervalMins,loggingQ));
         }
+        loggingQ.add("CircuitCollector: storemap - " + storeMap.toString());
     }
 
     private void publishCircuitToBroker(Circuit circuit) throws InvalidDataException, OperationNotSupportedException
@@ -52,7 +53,7 @@ public class CircuitCollector extends Thread
 
         CircuitEnergyStore circuitEnergyStore = storeMap.get(circuit);
         if (circuitEnergyStore!=null) {circuitEnergyStore.accumulate(real.getValue());}
-        else loggingQ.add("CircuitCollector: null circuitEnergyStore for - "+ circuit.getDisplayName());
+        else /*loggingQ.add("CircuitCollector: null circuitEnergyStore for - "+ circuit.getDisplayName())*/;
 
         MetricReading reactive = circuitMap.get(circuit).getAverageBetween(Metric.VAR, Instant.now().minusSeconds(2), readingTime);
         MetricReading current = circuitMap.get(circuit).getAverageBetween(Metric.AMPS, Instant.now().minusSeconds(2), readingTime);
