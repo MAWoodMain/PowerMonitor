@@ -21,7 +21,6 @@ public class CircuitCollector extends Thread
     // run control variables
     private final Map<Circuit, PowerMetricCalculator> circuitMap;
     private final LinkedBlockingQueue<String> loggingQ;
-    //private final EnergyStore energyStore;
     private final HashMap<Circuit,CircuitEnergyStore> storeMap = new HashMap<>();
     private int bucketIntervalMins;
 
@@ -80,22 +79,25 @@ public class CircuitCollector extends Thread
     public void publishEnergyMetricsForCircuits()
     {
         MetricReading energy;
+        MetricReading cumulativeEnergy;
         for (Circuit circuit : circuitMap.keySet()) {
             String subTopic = MQTTHandler.TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
             energy = storeMap.get(circuit).getLatestEnergyMetric();
+            cumulativeEnergy = storeMap.get(circuit).getCumulativeEnergyForToday();
             String jsonReadings =
                     "{\"Time\":\"" + energy.getTimestamp().toString() + "\"," +
                             "\"Readings\":{" +
                             "\"Energy\":" + energy.getValue().toString()  +
+                            "\"CumulativeEnergy\":" + cumulativeEnergy.getValue().toString()  +
                             "}}";
             mqttHandler.publishToBroker(subTopic, jsonReadings);
         }
     }
     public void fillAllEnergyBuckets(int bucketToFill)
     {
-        loggingQ.add("CircuitCollector: fill buckets storemap - " + storeMap.toString());
+        //loggingQ.add("CircuitCollector: fill buckets storemap - " + storeMap.toString());
         for (Circuit circuit : circuitMap.keySet()) {
-            loggingQ.add("CircuitCollector: updateEnergyBucket for cct - "+ circuit.getDisplayName());
+            //loggingQ.add("CircuitCollector: updateEnergyBucket for cct - "+ circuit.getDisplayName());
             storeMap.get(circuit).updateEnergyBucket(bucketToFill);
         }
     }
@@ -124,7 +126,7 @@ public class CircuitCollector extends Thread
         for (Circuit circuit : circuitMap.keySet()) {
             this.storeMap.put(circuit,new CircuitEnergyStore(circuit,bucketIntervalMins,loggingQ));
         }
-        loggingQ.add("CircuitCollector: storemap - " + storeMap.toString());
+        //loggingQ.add("CircuitCollector: storemap - " + storeMap.toString());
 
         while (!Thread.interrupted()) {
             startTime = System.currentTimeMillis();

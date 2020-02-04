@@ -31,7 +31,6 @@ public class Main
     private static LinkedBlockingQueue<String> loggingQ;
     private static PMLogger logger;
     private static CircuitCollector circuitCollector;
-    //private static EnergyStore energyStore;
     private static EnergyBucketFiller bucketfiller;
     // Getters and Setters
     public static boolean isEnabled_MQTT()

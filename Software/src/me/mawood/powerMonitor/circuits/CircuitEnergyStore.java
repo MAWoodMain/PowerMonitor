@@ -59,14 +59,16 @@ public class CircuitEnergyStore
 
     public void updateEnergyBucket(int bucketIndex)
     {
-        energyBuckets[bucketIndex] = (accumulationCount>0) ? energyAccumulator / accumulationCount : 0.0; //average
-        double lastBucketValue = (bucketIndex >= 1) ? energyBuckets[bucketIndex - 1] : 0.0;
+        energyBuckets[bucketIndex] = (accumulationCount>0) ? energyAccumulator / accumulationCount : 0.0; //average avoiding divide by zero
+        double lastBucketValue = (bucketIndex >= 1) ? energyBuckets[bucketIndex - 1] : 0.0; // avoid issue with first bucket (index 0)
         double currentBucketValue = energyBuckets[bucketIndex];
         double wattHours = ((currentBucketValue - lastBucketValue) * bucketIntervalMins) / 60;
         energyMetrics[bucketIndex] = new MetricReading(wattHours, now(), Metric.WATT_HOURS);
         latestBucketFilled = bucketIndex;
         loggingQ.add("CircuitEnergyStore: updated EnergyBucket "+ bucketIndex +
-                " for circuit "+ circuit.getDisplayName() + "Value "+ wattHours );
+                " for circuit "+ circuit.getDisplayName() +
+                "Value "+ wattHours +" =("+currentBucketValue +
+                "-"+ lastBucketValue+ ")");
     }
 
     public MetricReading getLatestEnergyMetric()

@@ -43,7 +43,7 @@ public class EnergyBucketFiller
                 if (publishEnergy) {
                     circuitCollector.publishEnergyMetricsForCircuits();
                 }
-                loggingQ.add("EnergyBucketFiller: bucket(s) " + bucketToFill.toString() + " filled ");
+                //loggingQ.add("EnergyBucketFiller: bucket(s) " + bucketToFill.toString() + " filled ");
                 bucketToFill += 1;
             };
 
@@ -63,7 +63,7 @@ public class EnergyBucketFiller
                 bucketToFill += 1;
             }
 
-            loggingQ.add("EnergyBucketFiller: schedule bucketToFill = " + bucketToFill.toString() + "First call " + nextCall.toString());
+            //loggingQ.add("EnergyBucketFiller: schedule bucketToFill = " + bucketToFill.toString() + "First call " + nextCall.toString());
 
             //schedule the bucket filler
             scheduler.scheduleAtFixedRate(
