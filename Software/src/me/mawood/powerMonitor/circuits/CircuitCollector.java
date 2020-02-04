@@ -96,7 +96,7 @@ public class CircuitCollector extends Thread
         loggingQ.add("CircuitCollector: fill buckets storemap - " + storeMap.toString());
         for (Circuit circuit : circuitMap.keySet()) {
             loggingQ.add("CircuitCollector: updateEnergyBucket for cct - "+ circuit.getDisplayName());
-            loggingQ.add(storeMap.get(circuit).updateEnergyBucket(bucketToFill));
+            storeMap.get(circuit).updateEnergyBucket(bucketToFill);
         }
     }
     public void resetAllEnergyBuckets()

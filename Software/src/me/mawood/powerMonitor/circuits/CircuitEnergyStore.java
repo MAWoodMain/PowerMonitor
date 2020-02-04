@@ -10,11 +10,11 @@ import static java.time.Instant.now;
 public class CircuitEnergyStore
 {
     private long accumulationCount;
-    private Double energyAccumulator;
-    private final Double[] energyBuckets;
-    private MetricReading[] energyMetrics;
-    private int bucketIntervalMins;
-    private int bucketsPerDay;
+    private double energyAccumulator;
+    private final double[] energyBuckets;
+    private final MetricReading[] energyMetrics;
+    private final int bucketIntervalMins;
+    private final int bucketsPerDay;
     private final LinkedBlockingQueue<String> loggingQ;
     private final Circuit circuit;
 
@@ -25,21 +25,23 @@ public class CircuitEnergyStore
         this.circuit = circuit;
         this.loggingQ = loggingQ;
         this.accumulationCount = 0;
-        this.energyAccumulator = new Double(0);
+        this.energyAccumulator = 0.0;
         this.bucketsPerDay = 60 * 24 / bucketIntervalMins;
         this.bucketIntervalMins = bucketIntervalMins;
-        this.energyBuckets = new Double[bucketsPerDay + 1];
+        this.energyBuckets = new double[bucketsPerDay + 1];
         this.energyMetrics = new MetricReading[bucketsPerDay + 1];
         this.latestBucketFilled = -1;
         resetEnergyAccumulation();
     }
 
-    public void resetAllEnergyData()
+    public synchronized void resetAllEnergyData()
     {
-        resetEnergyAccumulation();
         for (int j = 0; j < bucketsPerDay; j++) {
-            updateEnergyBucket(j);
+            energyBuckets[j] = 0.0;
+            energyMetrics[j] = null;
         }
+        accumulationCount = 0;
+        energyAccumulator = 0;
         latestBucketFilled = -1;
     }
 
@@ -55,16 +57,16 @@ public class CircuitEnergyStore
         energyAccumulator += power;
     }
 
-    public String updateEnergyBucket(int bucketIndex)
+    public void updateEnergyBucket(int bucketIndex)
     {
-        energyBuckets[bucketIndex] = energyAccumulator / (bucketIntervalMins * 60); //average
-        Double lastBucketValue = (bucketIndex >= 1) ? energyBuckets[bucketIndex - 1] : 0.0;
-        Double currentBucketValue = energyBuckets[bucketIndex];
-        Double wattHours = ((currentBucketValue - lastBucketValue) * bucketIntervalMins) / 60;
+        energyBuckets[bucketIndex] = (accumulationCount>0) ? energyAccumulator / accumulationCount : 0.0; //average
+        double lastBucketValue = (bucketIndex >= 1) ? energyBuckets[bucketIndex - 1] : 0.0;
+        double currentBucketValue = energyBuckets[bucketIndex];
+        double wattHours = ((currentBucketValue - lastBucketValue) * bucketIntervalMins) / 60;
         energyMetrics[bucketIndex] = new MetricReading(wattHours, now(), Metric.WATT_HOURS);
         latestBucketFilled = bucketIndex;
-        return ("CircuitEnergyStore: updated EnergyBucket "+ Integer.toString(bucketIndex) +
-                " for circuit "+ circuit.getDisplayName() + "Value "+ wattHours.toString() );
+        loggingQ.add("CircuitEnergyStore: updated EnergyBucket "+ bucketIndex +
+                " for circuit "+ circuit.getDisplayName() + "Value "+ wattHours );
     }
 
     public MetricReading getLatestEnergyMetric()
@@ -74,27 +76,11 @@ public class CircuitEnergyStore
 
     public MetricReading getCumulativeEnergyForToday()
     {
-        Double total = new Double(0.0);
+        double total = 0.0;
         for (int bucketIndex = 0; bucketIndex <= latestBucketFilled; bucketIndex++) {
             if (energyMetrics[bucketIndex] != null)
                 if (energyMetrics[bucketIndex].getValue() > 0.0) total = +energyMetrics[bucketIndex].getValue();
         }
         return new MetricReading(total / 1000, now(), Metric.KILOWATT_HOURS);
     }
-/*
-    public Double getEnergyAccumulator(){return energyAccumulator;}
-    public long getAccumulationCount(){return accumulationCount;}
-    public int getBucketIntervalMins(){return bucketIntervalMins;}
-    public Double getEnergyBucket(int bucketIndex)
-    {
-        if (bucketIndex < 0) return -1.0;
-        return energyBuckets[bucketIndex];
-    }
-    public Double getLatestFilledBucket()
-    {
-        if (latestBucketFilled < 0) return -1.0;
-        return energyBuckets[latestBucketFilled];
-    }
-*/
-
 }
