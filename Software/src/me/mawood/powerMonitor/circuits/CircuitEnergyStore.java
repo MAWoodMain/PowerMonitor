@@ -55,7 +55,7 @@ public class CircuitEnergyStore
         energyAccumulator += power;
     }
 
-    public synchronized String updateEnergyBucket(int bucketIndex)
+    public String updateEnergyBucket(int bucketIndex)
     {
         energyBuckets[bucketIndex] = energyAccumulator / (bucketIntervalMins * 60); //average
         Double lastBucketValue = (bucketIndex >= 1) ? energyBuckets[bucketIndex - 1] : 0.0;
