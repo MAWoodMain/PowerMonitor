@@ -81,7 +81,7 @@ public class CircuitEnergyStore
         double total = 0.0;
         for (int bucketIndex = 0; bucketIndex <= latestBucketFilled; bucketIndex++) {
             if (energyMetrics[bucketIndex] != null)
-                if (energyMetrics[bucketIndex].getValue() > 0.0) total = +energyMetrics[bucketIndex].getValue();
+                if (energyMetrics[bucketIndex].getValue() > 0.0) total += energyMetrics[bucketIndex].getValue();
         }
         return new MetricReading(total / 1000, now(), Metric.KILOWATT_HOURS);
     }
