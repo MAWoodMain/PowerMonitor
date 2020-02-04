@@ -87,7 +87,7 @@ public class CircuitCollector extends Thread
             String jsonReadings =
                     "{\"Time\":\"" + energy.getTimestamp().toString() + "\"," +
                             "\"Readings\":{" +
-                            "\"Energy\":" + energy.getValue().toString()  +
+                            "\"Energy\":" + energy.getValue().toString() + ","+
                             "\"CumulativeEnergy\":" + cumulativeEnergy.getValue().toString()  +
                             "}}";
             mqttHandler.publishToBroker(subTopic, jsonReadings);
