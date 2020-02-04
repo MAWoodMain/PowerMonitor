@@ -34,31 +34,18 @@ public class EnergyBucketFiller
     {
         loggingQ.add("EnergyBucketFiller: start");
         try {
+            //
+            // Define functions to be called by timers
+            //
             final Runnable filler = () -> {
                 //fill buckets now
                 circuitCollector.fillAllEnergyBuckets(bucketToFill);
                 if (publishEnergy) {
                     circuitCollector.publishEnergyMetricsForCircuits();
                 }
-                loggingQ.add("EnergyBucketFiller: buckets filled " + ((Integer) bucketToFill).toString());
+                loggingQ.add("EnergyBucketFiller: bucket(s) " + bucketToFill.toString() + " filled ");
                 bucketToFill += 1;
             };
-
-            //work out when to start
-            LocalDateTime nextCall = now(ZoneId.of("Europe/London")).truncatedTo(ChronoUnit.DAYS);
-            while (nextCall.isBefore(now(ZoneId.of("Europe/London")))) {
-                nextCall = nextCall.plusMinutes(intervalInMins);
-                bucketToFill += 1;
-            }
-            loggingQ.add("EnergyBucketFiller: bucketToFill = " + bucketToFill.toString() + "First call "+ nextCall.toString());
-
-            //schedule the bucket filler
-            final ScheduledFuture<?> fillerHandle =
-                    scheduler.scheduleAtFixedRate(
-                            filler,
-                            LocalDateTime.now().until(nextCall, ChronoUnit.SECONDS),
-                            intervalInMins * 60,
-                            SECONDS);
 
             final Runnable resetter = () -> {
                 //fill buckets now
@@ -67,26 +54,37 @@ public class EnergyBucketFiller
                 loggingQ.add("EnergyBucketFiller: buckets reset");
             };
 
-            LocalTime midnight = LocalTime.MIDNIGHT;
-            LocalDate today = LocalDate.now(ZoneId.of("Europe/London"));
-            LocalDateTime todayMidnight = LocalDateTime.of(today, midnight); //start of today
+            //work out when to start
+            LocalDateTime localNow = now(ZoneId.of("Europe/London"));
+            LocalDateTime todayMidnight = localNow.truncatedTo(ChronoUnit.DAYS); //start of today
+            LocalDateTime nextCall = todayMidnight;
+            while (nextCall.isBefore(localNow)) {
+                nextCall = nextCall.plusMinutes(intervalInMins);
+                bucketToFill += 1;
+            }
+
+            loggingQ.add("EnergyBucketFiller: schedule bucketToFill = " + bucketToFill.toString() + "First call " + nextCall.toString());
+
+            //schedule the bucket filler
+            scheduler.scheduleAtFixedRate(
+                    filler,
+                    localNow.until(nextCall, ChronoUnit.SECONDS),
+                    intervalInMins * 60, //convert to seconds
+                    SECONDS);
+
+            //Work out when to reset
             LocalDateTime tomorrowMidnight = todayMidnight.plusDays(1); //start of tomorrow
 
-            //reset at midnight
+            //schedule reset at tomorrow midnight
             dailyReset.scheduleAtFixedRate(
                     resetter,
-                    LocalDateTime.now().until(tomorrowMidnight, ChronoUnit.SECONDS),
+                    localNow.until(tomorrowMidnight, ChronoUnit.SECONDS),
                     TimeUnit.DAYS.toSeconds(1),
                     SECONDS);
-            loggingQ.add("EnergyBucketFiller: tasks scheduled");
+            loggingQ.add("EnergyBucketFiller: both tasks scheduled");
         } catch (Exception e) {
             loggingQ.add("EnergyBucketFiller: Exception - " + Arrays.toString(e.getStackTrace()));
             //e.printStackTrace();
         }
-    }
-
-    public int lastFilledBucket()
-    {
-        return (bucketToFill>0)? (bucketToFill-1) : -1;
     }
 }
