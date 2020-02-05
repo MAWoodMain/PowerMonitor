@@ -10,7 +10,7 @@ The software has been developed in Java. Java language level 8 is used because o
 The firmware written in C is based on that produced by the [EmonPi project](https://github.com/openenergymonitor/emonpi) but has been modified to read multiple circuits, and operates with a shorter cycle time to help with disgregation. As such it needs a A/C to A/C transofrmer to provide a waveform plus a power supply for the RPi
 
 ## Hardware
-The hardware was developed by [Matt Wood](https://github.com/MAWoodMain) at an early stage of his experimentaion with hardware, from my perspective it does a fine job, but he now sees ways it can be done better. Future improvements may include noise reduction and higher accuracy.
+The hardware was developed by [Matt Wood](https://github.com/MAWoodMain) at an early stage of his experimentation with hardware, from my perspective it does a fine job, but he now sees ways it can be done better. Future improvements may include noise reduction and higher accuracy.
 
 ## Metrics
 The following Metrics are collected
