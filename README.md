@@ -9,15 +9,15 @@ The firmware written in C is based on that produced by the [EmonPi project](http
 
 ## Metrics
 The following Metrics are collected
-1. Basic Metrics
+### Basic Metrics
   1. Voltage in Volts
   2. Current in Amps
-2. Power Metrics (calculated from basic metrics)
+### Power Metrics (calculated from basic metrics)
   1. Real Power in Watts
   2. Apparent Power in VA (Volt Amps)
   3. Reactive Power in VAR (Volt Amps Reactive)
   4. Power Factor (Real / Apparent)
-3. Energy Metrics (calculated from power metrics)
+### Energy Metrics (calculated from power metrics)
   1. Energy over accumulation interval (Watt Hours)
   2. Cumulative Energy today (Kilowatt Hours)
 
