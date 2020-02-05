@@ -7,8 +7,6 @@
     <JAVADOC>
       <root url="jar://$PROJECT_DIR$/Software/lib/pi4j-core-1.2-SNAPSHOT-javadoc.jar!/" />
     </JAVADOC>
-    <SOURCES>
-      <root url="jar://$PROJECT_DIR$/Software/lib/pi4j-core-1.2-SNAPSHOT-sources.jar!/" />
-    </SOURCES>
+    <SOURCES />
   </library>
 </component>
