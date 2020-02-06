@@ -1,6 +1,6 @@
 package org.ladbury.powerMonitor;
 
-import org.ladbury.powerMonitor.circuits.*;
+import com.beust.jcommander.JCommander;
 import org.ladbury.powerMonitor.circuits.Circuit;
 import org.ladbury.powerMonitor.circuits.CircuitCollector;
 import org.ladbury.powerMonitor.circuits.EnergyBucketFiller;
@@ -14,7 +14,6 @@ import org.ladbury.powerMonitor.packets.monitors.VoltageMonitor;
 import org.ladbury.powerMonitor.packets.monitors.configs.VoltageSenseConfig;
 import org.ladbury.powerMonitor.publishers.MQTTHandler;
 import org.ladbury.powerMonitor.publishers.PMLogger;
-import org.ladbury.powerMonitor.publishers.PowerDataAPIPublisher;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
 import java.io.IOException;
@@ -23,19 +22,20 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class Main
 {
+
     private static boolean enable_MQTT = true;
     private static boolean enable_API = false;
     private static HashMap<Circuit, PowerMetricCalculator> circuitMap = new HashMap<>();
     private static VoltageMonitor vm;
     private static STM8PacketCollector packetCollector;
     private static MQTTHandler mqttHandler;
-    private static PowerDataAPIPublisher powerDataDataBaseUpdater;
     private static CommandProcessor commandProcessor;
     private static LinkedBlockingQueue<String> commandQ;
     private static LinkedBlockingQueue<String> loggingQ;
     private static PMLogger logger;
     private static CircuitCollector circuitCollector;
     private static EnergyBucketFiller bucketfiller;
+
     // Getters and Setters
     public static boolean isEnabled_MQTT()
     {
@@ -65,7 +65,6 @@ public class Main
 
     public static HashMap<Circuit, PowerMetricCalculator> getCircuitMap() {return circuitMap;}
     public static MQTTHandler getMqttHandler() {return mqttHandler;}
-    public static PowerDataAPIPublisher getPowerDataDataBaseUpdater() {return powerDataDataBaseUpdater;}
     public static LinkedBlockingQueue<String>  getCommandQ() {return commandQ;}
     public static LinkedBlockingQueue<String>  getLoggingQ() {return loggingQ;}
 
@@ -85,8 +84,14 @@ public class Main
         loggingQ.add("Not monitoring circuit "+circuit.getDisplayName());
     }
 
-    public static void main(String[] args) throws IOException
+    public static void main(String[] argv) throws IOException
     {
+        Args args = new Args();
+        JCommander.newBuilder()
+                .addObject(args)
+                .build()
+                .parse(argv);
+
         commandQ = new LinkedBlockingQueue<>();
         loggingQ = new LinkedBlockingQueue<>();
         int energyBucketInterval = 5; // Minutes
@@ -100,11 +105,6 @@ public class Main
                 MQTTHandler.handleMQTTException(e);
                 System.exit(9);
             }
-        }
-        if (isEnabled_API()) {
-            loggingQ.add("Enabling API");
-            powerDataDataBaseUpdater = new PowerDataAPIPublisher(getCircuitMap());
-            powerDataDataBaseUpdater.start();
         }
 
         // set up & start support processes
