@@ -48,12 +48,18 @@ public class MQTTHandler implements MqttCallback
         connOpts.setPassword(PASSWORD.toCharArray());
         System.out.println("Connecting MQTTHandler to broker: " + broker);
         // make connection to MQTT broker
-        mqttClient.connect(connOpts);
-        System.out.println("MQTTHandler Connected");
-        loggingQ.add("MQTTHandler Connected");
-        mqttClient.setCallback(this);
-        mqttClient.subscribe(CMND_TOPIC+"/#");
-        loggingQ.add("MQTTHandler: Subscribed to <"+ CMND_TOPIC+">");
+        try {
+            mqttClient.connect(connOpts);
+            System.out.println("MQTTHandler Connected");
+            loggingQ.add("MQTTHandler Connected");
+            mqttClient.setCallback(this);
+            mqttClient.subscribe(CMND_TOPIC + "/#");
+            loggingQ.add("MQTTHandler: Subscribed to <" + CMND_TOPIC + ">");
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            System.out.println("broker: "+broker + " Addr param" +brokerAddr + " Full addr: "+ brokerAddress);
+        }
     }
 
     //
