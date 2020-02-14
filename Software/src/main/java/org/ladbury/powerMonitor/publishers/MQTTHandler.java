@@ -9,16 +9,23 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class MQTTHandler implements MqttCallback
 {
 
-    private static final String CLIENT_ID = "PMon10pi3";
-    public static final String TOPIC = "emon/" + CLIENT_ID;
     private static String brokerAddress = "10.0.128.2";
     private static final String PORT = "1883";
     private static final String PROTOCOL = "tcp";
     private static String broker;
+
     private static final String USERNAME = "emonpi";
     private static final String PASSWORD = "emonpimqtt2016";
-    private static final String CMND_TOPIC = TOPIC+"/cmnd";
-    private static final String LOG_TOPIC = TOPIC+"/log";
+
+    private static String clientID = "PMon10";
+    private static  String topic = "emon/" + clientID;
+    private static  String cmndTopic = topic +"/cmnd";
+    private static  String logTopic = topic+"/log";
+
+    public static String getTopic()
+    {
+        return topic;
+    }
 
     private final MqttClient mqttClient;
     private final MqttConnectOptions connOpts;
@@ -32,15 +39,30 @@ public class MQTTHandler implements MqttCallback
      * MQTTHandler   Constructor
      */
     public MQTTHandler( String brokerAddr,
+                        String clientname,
                         LinkedBlockingQueue<String> loggingQ,
                         LinkedBlockingQueue<String> commandQ) throws MqttException
     {
         this.loggingQ = loggingQ;
         this.commandQ = commandQ;
         noMessagesSentOK = 0;
-        if (brokerAddr != null) {brokerAddress = brokerAddr;}
+        if (brokerAddr != null) {
+            if (!brokerAddr.equals(""))
+            {
+                brokerAddress = brokerAddr;
+            }
+        }
         broker = PROTOCOL + "://" + brokerAddress + ":" + PORT;
-        mqttClient = new MqttClient(broker, CLIENT_ID, new MemoryPersistence());
+        if (clientname != null) {
+            if (!clientname.equals(""))
+            {
+                clientID = clientname;
+                topic =  "emon/" + clientname;
+                logTopic = topic + "/log";
+                cmndTopic = topic + "/cmnd";
+            }
+        }
+        mqttClient = new MqttClient(broker, clientID, new MemoryPersistence());
         // set up MQTT stream definitions
         connOpts = new MqttConnectOptions();
         connOpts.setCleanSession(true);
@@ -53,8 +75,8 @@ public class MQTTHandler implements MqttCallback
             System.out.println("MQTTHandler Connected");
             loggingQ.add("MQTTHandler Connected");
             mqttClient.setCallback(this);
-            mqttClient.subscribe(CMND_TOPIC + "/#");
-            loggingQ.add("MQTTHandler: Subscribed to <" + CMND_TOPIC + ">");
+            mqttClient.subscribe(cmndTopic + "/#");
+            loggingQ.add("MQTTHandler: Subscribed to <" + cmndTopic + ">");
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -174,7 +196,7 @@ public class MQTTHandler implements MqttCallback
 
     public void logToBroker(String msg)
     {
-        publishToBroker(LOG_TOPIC,msg);
+        publishToBroker(logTopic,msg);
     }
 
 }

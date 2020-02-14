@@ -42,7 +42,7 @@ public class CircuitCollector extends Thread
 
     private void publishCircuitToBroker(Circuit circuit) throws InvalidDataException, OperationNotSupportedException
     {
-        String subTopic = MQTTHandler.TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
+        String subTopic = MQTTHandler.getTopic() + "/" + circuit.getDisplayName().replace(" ", "_");
         Instant readingTime = Instant.now().minusSeconds(1);
         MetricReading voltage = circuitMap.get(HomeCircuits.WHOLE_HOUSE).getAverageBetween(Metric.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
         MetricReading apparent = circuitMap.get(circuit).getAverageBetween(Metric.VA, Instant.now().minusSeconds(2), readingTime);
@@ -81,7 +81,7 @@ public class CircuitCollector extends Thread
         MetricReading energy;
         MetricReading cumulativeEnergy;
         for (Circuit circuit : circuitMap.keySet()) {
-            String subTopic = MQTTHandler.TOPIC + "/" + circuit.getDisplayName().replace(" ", "_");
+            String subTopic = MQTTHandler.getTopic() + "/" + circuit.getDisplayName().replace(" ", "_");
             energy = storeMap.get(circuit).getLatestEnergyMetric();
             cumulativeEnergy = storeMap.get(circuit).getCumulativeEnergyForToday();
             String jsonReadings =

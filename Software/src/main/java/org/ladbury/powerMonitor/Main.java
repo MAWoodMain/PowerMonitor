@@ -84,7 +84,7 @@ public class Main
         //if required enable publishing processes
         try {
             loggingQ.add("Enabling MQTT");
-            mqttHandler = new MQTTHandler(args.getMqttServer(),getLoggingQ(), getCommandQ());
+            mqttHandler = new MQTTHandler(args.getMqttServer(), args.getClientName(), getLoggingQ(), getCommandQ());
         } catch (MqttException e) {
             MQTTHandler.handleMQTTException(e);
             System.exit(9);
