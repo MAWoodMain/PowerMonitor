@@ -11,7 +11,7 @@ public class MQTTHandler implements MqttCallback
 
     private static final String CLIENT_ID = "PMon10";
     public static final String TOPIC = "emon/" + CLIENT_ID;
-    private static  String brokerAddress = "tcp://10.0.128.2:1883";
+    private static String brokerAddress = "10.0.128.2";
     private static final String PORT = "1883";
     private static final String PROTOCOL = "tcp";
     private static String broker;
@@ -38,7 +38,7 @@ public class MQTTHandler implements MqttCallback
         this.loggingQ = loggingQ;
         this.commandQ = commandQ;
         noMessagesSentOK = 0;
-        if (brokerAddr != null) {brokerAddress= brokerAddr;}
+        if (brokerAddr != null) {brokerAddress = brokerAddr;}
         broker = PROTOCOL + "://" + brokerAddress + ":" + PORT;
         mqttClient = new MqttClient(broker, CLIENT_ID, new MemoryPersistence());
         // set up MQTT stream definitions
@@ -68,7 +68,7 @@ public class MQTTHandler implements MqttCallback
     @Override
     public void connectionLost(Throwable throwable)
     {
-        System.out.println("Subscriber connection lost!");
+        System.out.println("Subscriber connection lost! " + broker);
         // code to reconnect to the broker
         try
         {
