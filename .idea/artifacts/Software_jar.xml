@@ -6,6 +6,8 @@
         <element id="module-output" name="Software" />
       </element>
       <element id="library" level="project" name="org.eclipse.paho.client.mqttv3-1.1.1-sources" />
+      <element id="library" level="project" name="Maven: com.beust:jcommander:1.78" />
+      <element id="library" level="project" name="Maven: com.pi4j:pi4j-core:1.2" />
     </root>
   </artifact>
 </component>
