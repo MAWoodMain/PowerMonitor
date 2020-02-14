@@ -1,5 +1,4 @@
 Manifest-Version: 1.0
-Class-Path: org.eclipse.paho.client.mqttv3-1.1.1.jar data_api_client.j
- ar pi4j-core-1.2-SNAPSHOT.jar
+Class-Path: org.eclipse.paho.client.mqttv3-1.1.1.jar  pi4j-core-1.2.jar jcommander-1.78.jar
 Main-Class: org.ladbury.powerMonitor.Main
 
