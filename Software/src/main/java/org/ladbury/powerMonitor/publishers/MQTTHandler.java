@@ -9,7 +9,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class MQTTHandler implements MqttCallback
 {
 
-    private static final String CLIENT_ID = "PMon10";
+    private static final String CLIENT_ID = "PMon10pi3";
     public static final String TOPIC = "emon/" + CLIENT_ID;
     private static String brokerAddress = "10.0.128.2";
     private static final String PORT = "1883";
