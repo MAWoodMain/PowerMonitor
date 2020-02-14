@@ -1,6 +1,7 @@
 package org.ladbury.powerMonitor;
 
 import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
 import org.ladbury.powerMonitor.circuits.Circuit;
 import org.ladbury.powerMonitor.circuits.CircuitCollector;
 import org.ladbury.powerMonitor.circuits.EnergyBucketFiller;
@@ -65,6 +66,18 @@ public class Main
         loggingQ.add("Not monitoring circuit " + circuit.getDisplayName());
     }
 
+    private static void help()
+    {
+        System.out.println( "Energy Monitor Help");
+        System.out.println();
+        System.out.println(" The following parameters may be entered on the command line:");
+        System.out.println("--mqqtserver or -m  This switch must be followed by an IP address for the MQTT server");
+        System.out.println("--ClientName or -c  This switch must be followed by a client name for this monitor");
+        System.out.println("--interval or -i  This switch must be followed by an integer number of minutes over which time energy is to be accumulated ");
+        System.out.println( "--help or -h  This switch causes this help to be displayed and the program terminates" );
+        System.out.println( "Any or all of the parameters may be omitted, in which case hard coded values will be used (see code)");
+    }
+
     public static void main(String[] argv) throws IOException
     {
         //Initialise variables
@@ -80,6 +93,11 @@ public class Main
                 .build()
                 .parse(argv);
 
+        if (args.isHelp())
+        {
+            help();
+            System.exit(0);
+        }
         if (args.getAccumulationInterval()>0){energyBucketInterval = args.getAccumulationInterval();}
         //if required enable publishing processes
         try {

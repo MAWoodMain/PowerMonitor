@@ -11,11 +11,12 @@ public class Args
     private String clientName;
     @Parameter(names={"--interval", "-i"})
     private int accumulationInterval;
-    @Parameter(names = "--help", help = true)
+    @Parameter(names = {"--help","-h"}, help = true)
     private boolean help;
 
     //Getters
     public String getMqttServer() {return mqttServer;}
     public String getClientName() {return clientName;}
     public int getAccumulationInterval(){return accumulationInterval;}
+    public boolean isHelp(){return help;}
 }
