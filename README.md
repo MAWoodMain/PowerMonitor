@@ -27,12 +27,18 @@ The following Metrics are collected
   2. Cumulative Energy today (Kilowatt Hours)
 
 ## Current Release
-The current release 0.1-alpha works for me, but has all parameters hard coded, so you would need to change things like the MQTT server address in the code to make it work for you.
+The current release 0.2-alpha has the following improvements over the first release
+### Command line parameters (see below)
+  1. -h to get help
+  2. -m <ip address> to set the MQQT server address
+  3. -c <client name> to set a client name (also used in MQTT topics)
+  4. -i <number of minutes> to set the accumulation interval for energy collection and output
+### Maven
+  Maven is now used for all build dependencies
+### API
+  API code has been deleted
 
 ## Future Plans
 Things on my to do list include
-* Improve the build to use Maven dependencies
-* Add command line parameters for MQTT and API configuration
-* Add command line parameter for Energy acccumulation interval (current default 5 minutes)
 * Interpret commands sent to the RPi over MQTT
 * Introduce polling for metrics as an alternative to streaming
