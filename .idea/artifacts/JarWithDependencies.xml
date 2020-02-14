@@ -1,7 +1,7 @@
 <component name="ArtifactManager">
-  <artifact name="Software:jar">
-    <output-path>$PROJECT_DIR$/Software/out/artifacts/PowerMonitor_jar</output-path>
-    <root id="root">
+  <artifact type="jar" name="JarWithDependencies">
+    <output-path>$PROJECT_DIR$/Software/deployment</output-path>
+    <root id="archive" name="JarWithDependencies.jar">
       <element id="archive" name="PowerMonitor.jar">
         <element id="module-output" name="Software" />
       </element>
