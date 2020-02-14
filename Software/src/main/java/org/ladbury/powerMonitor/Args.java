@@ -12,4 +12,14 @@ public class Args
     @Parameter(names = "--help", help = true)
     private boolean help;
 
+    public String getMqttServer()
+    {
+        return mqttServer;
+    }
+
+    public int getAccumulationInterval()
+    {
+        return accumulationInterval;
+    }
 }
+

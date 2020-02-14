@@ -11,7 +11,10 @@ public class MQTTHandler implements MqttCallback
 
     private static final String CLIENT_ID = "PMon10";
     public static final String TOPIC = "emon/" + CLIENT_ID;
-    private static final String BROKER = "tcp://10.0.128.2:1883";
+    private static  String brokerAddress = "tcp://10.0.128.2:1883";
+    private static final String PORT = "1883";
+    private static final String PROTOCOL = "tcp";
+    private static String broker;
     private static final String USERNAME = "emonpi";
     private static final String PASSWORD = "emonpimqtt2016";
     private static final String CMND_TOPIC = TOPIC+"/cmnd";
@@ -28,20 +31,22 @@ public class MQTTHandler implements MqttCallback
     /**
      * MQTTHandler   Constructor
      */
-    public MQTTHandler(LinkedBlockingQueue<String> loggingQ,
-                       LinkedBlockingQueue<String> commandQ) throws MqttException
+    public MQTTHandler( String brokerAddr,
+                        LinkedBlockingQueue<String> loggingQ,
+                        LinkedBlockingQueue<String> commandQ) throws MqttException
     {
         this.loggingQ = loggingQ;
         this.commandQ = commandQ;
         noMessagesSentOK = 0;
-
-        mqttClient = new MqttClient(BROKER, CLIENT_ID, new MemoryPersistence());
+        if (brokerAddr != null) {brokerAddress= brokerAddr;}
+        broker = PROTOCOL + "://" + brokerAddress + ":" + PORT;
+        mqttClient = new MqttClient(broker, CLIENT_ID, new MemoryPersistence());
         // set up MQTT stream definitions
         connOpts = new MqttConnectOptions();
         connOpts.setCleanSession(true);
         connOpts.setUserName(USERNAME);
         connOpts.setPassword(PASSWORD.toCharArray());
-        System.out.println("Connecting MQTTHandler to broker: " + BROKER);
+        System.out.println("Connecting MQTTHandler to broker: " + broker);
         // make connection to MQTT broker
         mqttClient.connect(connOpts);
         System.out.println("MQTTHandler Connected");

@@ -30,27 +30,25 @@ public class Main
     private static LinkedBlockingQueue<String> commandQ;
     private static LinkedBlockingQueue<String> loggingQ;
 
+    // Getters
     public static HashMap<Circuit, PowerMetricCalculator> getCircuitMap()
     {
         return circuitMap;
     }
-
     public static MQTTHandler getMqttHandler()
     {
         return mqttHandler;
     }
-
     public static LinkedBlockingQueue<String> getCommandQ()
     {
         return commandQ;
     }
-
     public static LinkedBlockingQueue<String> getLoggingQ()
     {
         return loggingQ;
     }
 
-
+    //Setters
     public static void enableCollection(Circuit circuit)
     {
         circuitMap.put(
@@ -69,20 +67,24 @@ public class Main
 
     public static void main(String[] argv) throws IOException
     {
+        //Initialise variables
+        commandQ = new LinkedBlockingQueue<>();
+        loggingQ = new LinkedBlockingQueue<>();
+        int energyBucketInterval = 5; // Minutes
+        boolean[] circuitRequired = {false, false, false, false, false, false, false, false, false, true}; // 0-9 0 not used, 9 is Whole_House
+
+        //Handle arguments
         Args args = new Args();
         JCommander.newBuilder()
                 .addObject(args)
                 .build()
                 .parse(argv);
 
-        commandQ = new LinkedBlockingQueue<>();
-        loggingQ = new LinkedBlockingQueue<>();
-        int energyBucketInterval = 5; // Minutes
-
+        if (args.getAccumulationInterval()>0){energyBucketInterval = args.getAccumulationInterval();}
         //if required enable publishing processes
         try {
             loggingQ.add("Enabling MQTT");
-            mqttHandler = new MQTTHandler(getLoggingQ(), getCommandQ());
+            mqttHandler = new MQTTHandler(args.getMqttServer(),getLoggingQ(), getCommandQ());
         } catch (MqttException e) {
             MQTTHandler.handleMQTTException(e);
             System.exit(9);
@@ -97,9 +99,7 @@ public class Main
         commandProcessor.start();
 
         loggingQ.add("Enabling CircuitCollector");
-        boolean[] circuitRequired = {false, false, false, false, false, false, false, false, false, true}; // 0-9 0 not used, 9 is Whole_House
         CircuitCollector circuitCollector = new CircuitCollector(getCircuitMap(), mqttHandler, 5, getLoggingQ());
-
 
         loggingQ.add("Enabling EnergyBucketFiller");
         EnergyBucketFiller bucketfiller = new EnergyBucketFiller(energyBucketInterval, true, circuitCollector, getLoggingQ());

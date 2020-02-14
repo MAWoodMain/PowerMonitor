@@ -6,7 +6,6 @@
         <element id="module-output" name="Software" />
       </element>
       <element id="library" level="project" name="org.eclipse.paho.client.mqttv3-1.1.1-sources" />
-      <element id="library" level="project" name="com.pi4j:pi4j-core:1.2-SNAPSHOT" />
     </root>
   </artifact>
 </component>
