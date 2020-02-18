@@ -2,7 +2,7 @@ package org.ladbury.powerMonitor.circuits;
 
 import org.ladbury.powerMonitor.packets.monitors.configs.CurrentClampConfig;
 
-public enum HomeCircuits implements Circuit
+public enum HomeCircuits implements CircuitData
 {
     CH1("Upstairs Lighting", 1, CurrentClampConfig.SCT013_5A1V),
     CH2("Downstairs Lighting", 2, CurrentClampConfig.SCT013_5A1V),

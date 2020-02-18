@@ -16,13 +16,13 @@ public class CircuitEnergyStore
     private final int bucketIntervalMins;
     private final int bucketsPerDay;
     private final LinkedBlockingQueue<String> loggingQ;
-    private final Circuit circuit;
+    private final CircuitData circuitData;
 
     private int latestBucketFilled;
 
-    public CircuitEnergyStore(Circuit circuit, int bucketIntervalMins, LinkedBlockingQueue<String> loggingQ)
+    public CircuitEnergyStore(CircuitData circuitData, int bucketIntervalMins, LinkedBlockingQueue<String> loggingQ)
     {
-        this.circuit = circuit;
+        this.circuitData = circuitData;
         this.loggingQ = loggingQ;
         this.accumulationCount = 0;
         this.energyAccumulator = 0.0;
@@ -66,7 +66,7 @@ public class CircuitEnergyStore
         energyMetrics[bucketIndex] = new MetricReading(wattHours, now(), Metric.WATT_HOURS);
         latestBucketFilled = bucketIndex;
         loggingQ.add("CircuitEnergyStore: updated EnergyBucket "+ bucketIndex +
-                " for circuit "+ circuit.getDisplayName() +
+                " for circuitData "+ circuitData.getDisplayName() +
                 "Value "+ wattHours );
         resetEnergyAccumulation();
     }

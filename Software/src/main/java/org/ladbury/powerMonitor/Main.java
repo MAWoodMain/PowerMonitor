@@ -1,8 +1,7 @@
 package org.ladbury.powerMonitor;
 
 import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import org.ladbury.powerMonitor.circuits.Circuit;
+import org.ladbury.powerMonitor.circuits.CircuitData;
 import org.ladbury.powerMonitor.circuits.CircuitCollector;
 import org.ladbury.powerMonitor.circuits.EnergyBucketFiller;
 import org.ladbury.powerMonitor.circuits.HomeCircuits;
@@ -24,7 +23,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class Main
 {
 
-    private static HashMap<Circuit, PowerMetricCalculator> circuitMap = new HashMap<>();
+    private static HashMap<CircuitData, PowerMetricCalculator> circuitMap = new HashMap<>();
     private static VoltageMonitor vm;
     private static STM8PacketCollector packetCollector;
     private static MQTTHandler mqttHandler;
@@ -32,7 +31,7 @@ public class Main
     private static LinkedBlockingQueue<String> loggingQ;
 
     // Getters
-    public static HashMap<Circuit, PowerMetricCalculator> getCircuitMap()
+    public static HashMap<CircuitData, PowerMetricCalculator> getCircuitMap()
     {
         return circuitMap;
     }
@@ -50,20 +49,20 @@ public class Main
     }
 
     //Setters
-    public static void enableCollection(Circuit circuit)
+    public static void enableCollection(CircuitData circuitData)
     {
         circuitMap.put(
-                circuit,
+                circuitData,
                 new PowerMetricCalculator(vm,
-                        new CurrentMonitor(1000, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector),
-                        new RealPowerMonitor(1000, VoltageSenseConfig.UK9V, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector)));
-        loggingQ.add("Monitoring circuit " + circuit.getDisplayName());
+                        new CurrentMonitor(1000, circuitData.getClampConfig(), circuitData.getChannelNumber(), packetCollector),
+                        new RealPowerMonitor(1000, VoltageSenseConfig.UK9V, circuitData.getClampConfig(), circuitData.getChannelNumber(), packetCollector)));
+        loggingQ.add("Monitoring circuitData " + circuitData.getDisplayName());
     }
 
-    public static void disableCollection(Circuit circuit)
+    public static void disableCollection(CircuitData circuitData)
     {
-        circuitMap.remove(circuit);
-        loggingQ.add("Not monitoring circuit " + circuit.getDisplayName());
+        circuitMap.remove(circuitData);
+        loggingQ.add("Not monitoring circuitData " + circuitData.getDisplayName());
     }
 
     private static void help()
@@ -130,9 +129,9 @@ public class Main
         loggingQ.add("Enabling VoltageMonitor ");
         vm = new VoltageMonitor(1000, VoltageSenseConfig.UK9V, packetCollector);
         // Enable interpretation for required circuits
-        for (Circuit circuit : HomeCircuits.values()) {
-            if (circuitRequired[circuit.getChannelNumber()])
-                enableCollection(circuit);
+        for (CircuitData circuitData : HomeCircuits.values()) {
+            if (circuitRequired[circuitData.getChannelNumber()])
+                enableCollection(circuitData);
         }
         circuitCollector.start();
     }
