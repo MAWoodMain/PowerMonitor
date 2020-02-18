@@ -44,7 +44,7 @@ public class CircuitCollector extends Thread
     {
         String subTopic = MQTTHandler.getTopic() + "/" + circuit.getDisplayName().replace(" ", "_");
         Instant readingTime = Instant.now().minusSeconds(1);
-        MetricReading voltage = circuitMap.get(HomeCircuits.WHOLE_HOUSE).getAverageBetween(Metric.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
+        MetricReading voltage = circuitMap.get(HomeCircuits.CH9).getAverageBetween(Metric.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
         MetricReading apparent = circuitMap.get(circuit).getAverageBetween(Metric.VA, Instant.now().minusSeconds(2), readingTime);
         MetricReading real = circuitMap.get(circuit).getAverageBetween(Metric.WATTS, Instant.now().minusSeconds(2), readingTime);
 
