@@ -1,10 +1,7 @@
 package org.ladbury.powerMonitor;
 
 import com.beust.jcommander.JCommander;
-import org.ladbury.powerMonitor.circuits.CircuitData;
-import org.ladbury.powerMonitor.circuits.CircuitCollector;
-import org.ladbury.powerMonitor.circuits.EnergyBucketFiller;
-import org.ladbury.powerMonitor.circuits.HomeCircuits;
+import org.ladbury.powerMonitor.circuits.*;
 import org.ladbury.powerMonitor.control.CommandProcessor;
 import org.ladbury.powerMonitor.metrics.PowerMetricCalculator;
 import org.ladbury.powerMonitor.packets.STM8PacketCollector;
@@ -29,6 +26,7 @@ public class Main
     private static MQTTHandler mqttHandler;
     private static LinkedBlockingQueue<String> commandQ;
     private static LinkedBlockingQueue<String> loggingQ;
+    private static final Circuits circuits= new Circuits();
 
     // Getters
     public static HashMap<CircuitData, PowerMetricCalculator> getCircuitMap()

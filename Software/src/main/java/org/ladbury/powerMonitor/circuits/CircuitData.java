@@ -8,4 +8,5 @@ public interface CircuitData
     int getChannelNumber();
     CurrentClampConfig getClampConfig();
     String getTag();
+    boolean isMonitored();
 }
