@@ -2,7 +2,7 @@ package org.ladbury.powerMonitor.circuits;
 
 import org.ladbury.powerMonitor.packets.monitors.configs.CurrentClampConfig;
 
-public class Circuit implements CircuitData
+public class Circuit
 {
     private String displayName;
     private String tag;
@@ -10,6 +10,7 @@ public class Circuit implements CircuitData
     private CurrentClampConfig clampConfig;
     private boolean monitor;
 
+    //Constructor
     Circuit(String displayName,  int channelNumber, CurrentClampConfig clampConfig, boolean monitor)
     {
         this.displayName = displayName;
@@ -18,6 +19,8 @@ public class Circuit implements CircuitData
         this.clampConfig = clampConfig;
         this.monitor = monitor;
     }
+
+    //Getters
     public String getDisplayName()
     {
         return displayName;
@@ -35,6 +38,8 @@ public class Circuit implements CircuitData
         return tag;
     }
     public boolean isMonitored() {return monitor; }
+
+    //Setters
     public void setCircuit( Circuit cct)
     {
         displayName = cct.displayName;

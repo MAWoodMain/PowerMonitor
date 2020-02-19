@@ -3,10 +3,10 @@ package org.ladbury.powerMonitor.control;
 public enum CommandParameters
 {
     // Where set is allowed the first parameter is the key
-    CircuitStatus("CircuitData Status",2), //get & set
-        // CircuitData name, get only
+    CircuitStatus("Circuit Status",2), //get & set
+        // Circuit name, get only
         // enabled boolean
-    CircuitMap("CircuitData Map",2), //get & set
+    CircuitMap("Circuit Map",2), //get & set
         //"CircuitName": "String",
         //"ChannelNumber": 5;
     ChannelMap("Channel Map",2),//get & set
@@ -20,7 +20,7 @@ public enum CommandParameters
         //"turnsFactor":1800,
         //"calibrationFactor":1.0913432471,
         //" calibrationOffset":-0.0069045
-    CircuitData("CircuitData Data",7), //get only
+    CircuitData("Circuit Data",7), //get only
         //"circuit": "Whole_House", get only  ...rest as object
         //"voltage":float,
         //"current":float,
@@ -28,7 +28,7 @@ public enum CommandParameters
         //"reactivepower":float,
         //"apparentpower":float,
         //"energy":float;
-    CircuitNames("CircuitData names",1); //get & set
+    CircuitNames("Circuit names",1); //get & set
 
     final String displayName;
     final int numberOfValues;

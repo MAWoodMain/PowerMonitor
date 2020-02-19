@@ -20,7 +20,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class Main
 {
 
-    private static HashMap<CircuitData, PowerMetricCalculator> circuitMap = new HashMap<>();
+    private static HashMap<Circuit, PowerMetricCalculator> circuitMap = new HashMap<>();
     private static VoltageMonitor vm;
     private static STM8PacketCollector packetCollector;
     private static MQTTHandler mqttHandler;
@@ -29,7 +29,7 @@ public class Main
     private static final Circuits circuits= new Circuits();
 
     // Getters
-    public static HashMap<CircuitData, PowerMetricCalculator> getCircuitMap()
+    public static HashMap<Circuit, PowerMetricCalculator> getCircuitMap()
     {
         return circuitMap;
     }
@@ -47,7 +47,7 @@ public class Main
     }
 
     //Setters
-    public static void enableCollection(CircuitData circuitData)
+    public static void enableCollection(Circuit circuitData)
     {
         circuitMap.put(
                 circuitData,
@@ -57,10 +57,10 @@ public class Main
         loggingQ.add("Monitoring circuitData " + circuitData.getDisplayName());
     }
 
-    public static void disableCollection(CircuitData circuitData)
+    public static void disableCollection(Circuit circuit)
     {
-        circuitMap.remove(circuitData);
-        loggingQ.add("Not monitoring circuitData " + circuitData.getDisplayName());
+        circuitMap.remove(circuit);
+        loggingQ.add("Not monitoring circuitData " + circuit.getDisplayName());
     }
 
     private static void help()
@@ -81,7 +81,7 @@ public class Main
         commandQ = new LinkedBlockingQueue<>();
         loggingQ = new LinkedBlockingQueue<>();
         int energyBucketInterval = 5; // Minutes
-        boolean[] circuitRequired = {false, false, false, false, false, false, false, false, false, true}; // 0-9 0 not used, 9 is Whole_House
+       //boolean[] circuitRequired = {false, false, false, false, false, false, false, false, false, true}; // 0-9 0 not used, 9 is Whole_House
 
         //Handle arguments
         Args args = new Args();
@@ -127,9 +127,9 @@ public class Main
         loggingQ.add("Enabling VoltageMonitor ");
         vm = new VoltageMonitor(1000, VoltageSenseConfig.UK9V, packetCollector);
         // Enable interpretation for required circuits
-        for (CircuitData circuitData : HomeCircuits.values()) {
-            if (circuitRequired[circuitData.getChannelNumber()])
-                enableCollection(circuitData);
+        for( int channel = Circuits.MIN_CHANNEL_NUMBER; channel <= Circuits.MAX_CHANNEL_NUMBER; channel++){
+            if (circuits.isMonitored(channel))
+                enableCollection(circuits.getCircuit(channel));
         }
         circuitCollector.start();
     }
