@@ -1,4 +1,4 @@
-package org.ladbury.powerMonitor.packets.monitors;
+package org.ladbury.powerMonitor.monitors;
 
 import org.ladbury.powerMonitor.metrics.MetricReading;
 import org.ladbury.powerMonitor.packets.Packet;

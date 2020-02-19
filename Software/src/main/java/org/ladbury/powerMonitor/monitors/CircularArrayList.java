@@ -1,4 +1,4 @@
-package org.ladbury.powerMonitor.packets.monitors;
+package org.ladbury.powerMonitor.monitors;
 
 import java.util.*;
 

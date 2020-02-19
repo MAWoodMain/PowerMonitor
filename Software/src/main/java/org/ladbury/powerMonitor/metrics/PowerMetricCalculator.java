@@ -1,8 +1,8 @@
 package org.ladbury.powerMonitor.metrics;
 
-import org.ladbury.powerMonitor.packets.monitors.CurrentMonitor;
-import org.ladbury.powerMonitor.packets.monitors.RealPowerMonitor;
-import org.ladbury.powerMonitor.packets.monitors.VoltageMonitor;
+import org.ladbury.powerMonitor.monitors.CurrentMonitor;
+import org.ladbury.powerMonitor.monitors.RealPowerMonitor;
+import org.ladbury.powerMonitor.monitors.VoltageMonitor;
 
 import javax.naming.OperationNotSupportedException;
 import java.time.Instant;

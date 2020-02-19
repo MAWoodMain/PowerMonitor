@@ -1,6 +1,6 @@
 package org.ladbury.powerMonitor.circuits;
 
-import org.ladbury.powerMonitor.packets.monitors.configs.CurrentClampConfig;
+import org.ladbury.powerMonitor.monitors.configs.CurrentClampConfig;
 
 public class Circuits
 {

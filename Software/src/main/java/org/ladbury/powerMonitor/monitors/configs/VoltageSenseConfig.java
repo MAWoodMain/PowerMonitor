@@ -1,4 +1,4 @@
-package org.ladbury.powerMonitor.packets.monitors.configs;
+package org.ladbury.powerMonitor.monitors.configs;
 
 public enum VoltageSenseConfig
 {
