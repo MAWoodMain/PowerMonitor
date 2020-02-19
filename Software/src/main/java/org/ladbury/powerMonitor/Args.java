@@ -5,6 +5,7 @@ import com.beust.jcommander.Parameter;
 public class Args
 {
     // Command line parameters
+    @SuppressWarnings("SpellCheckingInspection")
     @Parameter(names={"--mqqtserver", "-m"})
     private String mqttServer;
     @Parameter(names={"--ClientName", "-c"})

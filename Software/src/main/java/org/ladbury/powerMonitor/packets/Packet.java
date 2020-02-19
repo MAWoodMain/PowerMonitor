@@ -1,7 +1,7 @@
 package org.ladbury.powerMonitor.packets;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -113,10 +113,10 @@ public class Packet
             if(buffer[i] == 0)
             {
                 buffer = Arrays.copyOf(buffer,i);
-                return Double.parseDouble(new String(buffer, Charset.forName("US-ASCII")));
+                return Double.parseDouble(new String(buffer, StandardCharsets.US_ASCII));
             }
         }
-        return Double.parseDouble(new String(buffer, Charset.forName("US-ASCII")));
+        return Double.parseDouble(new String(buffer, StandardCharsets.US_ASCII));
     }
 
     @Override

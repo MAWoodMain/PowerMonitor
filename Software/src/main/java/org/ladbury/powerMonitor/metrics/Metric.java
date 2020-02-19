@@ -20,6 +20,7 @@ public enum Metric
     final String symbol;
     final String unitName;
 
+    //Constructor
     Metric(MetricType metricType, String metricName, double factor, String symbol, String unitName)
     {
         this.metricType = metricType;
@@ -29,31 +30,23 @@ public enum Metric
         this.unitName = unitName;
     }
 
-    public MetricType getType()
-    {
-        return MetricType.CURRENT;
-    }
-
+    //Getters
     public String getUnitName()
     {
         return unitName;
     }
-
     public String getSymbol()
     {
         return symbol;
     }
-
     public String getMetricName()
     {
         return metricName;
     }
-
     public double getFactor()
     {
         return factor;
     }
-
     public MetricType getMetricType()
     {
         return metricType;

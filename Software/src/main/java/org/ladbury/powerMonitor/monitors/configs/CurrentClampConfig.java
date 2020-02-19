@@ -19,7 +19,7 @@ public enum CurrentClampConfig
     private final double calibrationFactor;
     private final double calibrationOffset;
 
-    CurrentClampConfig(int maxCurrent, double samplingResistor, int turnsFactor, double calibrationFactor, double calibrationOffset)
+    CurrentClampConfig(int maxCurrent, double samplingResistor, @SuppressWarnings("SameParameterValue") int turnsFactor, double calibrationFactor, double calibrationOffset)
     {
         this.maxCurrent = maxCurrent;
         this.samplingResistor = samplingResistor;

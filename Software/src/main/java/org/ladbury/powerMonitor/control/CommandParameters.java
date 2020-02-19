@@ -1,5 +1,6 @@
 package org.ladbury.powerMonitor.control;
 
+@SuppressWarnings("SpellCheckingInspection")
 public enum CommandParameters
 {
     // Where set is allowed the first parameter is the key

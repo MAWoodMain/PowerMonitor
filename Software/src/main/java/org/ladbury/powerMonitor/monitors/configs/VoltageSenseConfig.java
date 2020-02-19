@@ -1,5 +1,6 @@
 package org.ladbury.powerMonitor.monitors.configs;
 
+@SuppressWarnings({"SameParameterValue", "SameReturnValue"})
 public enum VoltageSenseConfig
 {
     // (230V x 13) / (9V x 1.2) = 276.9

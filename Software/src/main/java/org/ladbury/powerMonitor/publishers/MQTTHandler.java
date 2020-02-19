@@ -3,9 +3,11 @@ package org.ladbury.powerMonitor.publishers;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
+import java.util.Arrays;
 import java.util.concurrent.LinkedBlockingQueue;
 
 
+@SuppressWarnings("SpellCheckingInspection")
 public class MQTTHandler implements MqttCallback
 {
 
@@ -33,8 +35,8 @@ public class MQTTHandler implements MqttCallback
     private long noMessagesSentOK;
 
     // run control variables
-    LinkedBlockingQueue<String> loggingQ;
-    LinkedBlockingQueue<String> commandQ;
+    final LinkedBlockingQueue<String> loggingQ;
+    final LinkedBlockingQueue<String> commandQ;
     /**
      * MQTTHandler   Constructor
      */
@@ -116,10 +118,11 @@ public class MQTTHandler implements MqttCallback
      * @param mqttMessage Message
      * @throws Exception if we can't handle it
      */
+    @SuppressWarnings("RedundantThrows")
     @Override
     public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception
     {
-        String payload = String.valueOf(mqttMessage.getPayload());
+        String payload = Arrays.toString(mqttMessage.getPayload());
         loggingQ.add("MQTT msg received Topic: " + topic + " Message: " + payload);
         System.out.println("MQTT msg received Topic: " + topic + " Message: " +payload);
         String[] subtopics = topic.split("/");

@@ -10,12 +10,12 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class EnergyBucketFiller
 {
-    private long intervalInMins;
+    private final long intervalInMins;
     private Integer bucketToFill;
     private final LinkedBlockingQueue<String> loggingQ;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final ScheduledExecutorService dailyReset = Executors.newScheduledThreadPool(1);
-    private boolean publishEnergy;
+    private final boolean publishEnergy;
     private final CircuitCollector circuitCollector;
 
     public EnergyBucketFiller(long intervalInMins,

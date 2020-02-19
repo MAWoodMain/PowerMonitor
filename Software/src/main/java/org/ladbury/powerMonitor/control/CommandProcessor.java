@@ -6,12 +6,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class CommandProcessor extends Thread
 {
     String command;
-    LinkedBlockingQueue<String> commandQ;
-    LinkedBlockingQueue<String> loggingQ;
+    final LinkedBlockingQueue<String> commandQ;
+    final LinkedBlockingQueue<String> loggingQ;
 
-    public CommandProcessor(LinkedBlockingQueue<String> comdQ, LinkedBlockingQueue<String> logQ)
+    public CommandProcessor(LinkedBlockingQueue<String> commandQ, LinkedBlockingQueue<String> logQ)
     {
-        this.commandQ = comdQ;
+        this.commandQ = commandQ;
         this.loggingQ = logQ;
     }
 
@@ -53,7 +53,7 @@ public class CommandProcessor extends Thread
                         case "get": {
                             if (commandElements.length > 1) {
                                 processGetCommand(Arrays.copyOfRange(commandElements, 1, commandElements.length));
-                            } //elsenot enough arguments
+                            } //else not enough arguments
                             break;
                         }
                         case "exit": {

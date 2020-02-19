@@ -8,7 +8,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class PMLogger extends Thread
 {
     String msg;
-    LinkedBlockingQueue<String> loggingQ;
+    final LinkedBlockingQueue<String> loggingQ;
 
     public PMLogger(LinkedBlockingQueue<String> logQ)
     {
@@ -44,7 +44,6 @@ public class PMLogger extends Thread
             }
         } catch (InterruptedException | NullPointerException e) {
             e.printStackTrace();
-            exit = true;
         }
     }
 }

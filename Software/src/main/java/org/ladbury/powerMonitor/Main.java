@@ -20,7 +20,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class Main
 {
 
-    private static HashMap<Circuit, PowerMetricCalculator> circuitMap = new HashMap<>();
+    private static final HashMap<Circuit, PowerMetricCalculator> circuitMap = new HashMap<>();
     private static VoltageMonitor vm;
     private static STM8PacketCollector packetCollector;
     private static MQTTHandler mqttHandler;
@@ -63,6 +63,7 @@ public class Main
         loggingQ.add("Not monitoring circuitData " + circuit.getDisplayName());
     }
 
+    @SuppressWarnings("SpellCheckingInspection")
     private static void help()
     {
         System.out.println( "Energy Monitor Help");
@@ -117,8 +118,8 @@ public class Main
         CircuitCollector circuitCollector = new CircuitCollector(getCircuitMap(), mqttHandler, 5, getLoggingQ());
 
         loggingQ.add("Enabling EnergyBucketFiller");
-        EnergyBucketFiller bucketfiller = new EnergyBucketFiller(energyBucketInterval, true, circuitCollector, getLoggingQ());
-        bucketfiller.start();
+        EnergyBucketFiller bucketFiller = new EnergyBucketFiller(energyBucketInterval, true, circuitCollector, getLoggingQ());
+        bucketFiller.start();
 
         // Start packet collection
         loggingQ.add("Enabling PacketCollector");
