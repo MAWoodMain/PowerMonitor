@@ -8,11 +8,13 @@ public class CommandProcessor extends Thread
     String command;
     final LinkedBlockingQueue<String> commandQ;
     final LinkedBlockingQueue<String> loggingQ;
+    final Commands commands;
 
     public CommandProcessor(LinkedBlockingQueue<String> commandQ, LinkedBlockingQueue<String> logQ)
     {
         this.commandQ = commandQ;
         this.loggingQ = logQ;
+        this.commands = new Commands();
     }
 
     /**
