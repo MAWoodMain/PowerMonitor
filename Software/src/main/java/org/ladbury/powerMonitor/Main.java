@@ -47,18 +47,20 @@ public class Main
     }
 
     //Setters
-    public static void enableCollection(Circuit circuitData)
+    public static void enableCollection(Circuit circuit)
     {
+        circuits.setMonitoring(circuit.getChannelNumber(),true);
         circuitMap.put(
-                circuitData,
+                circuit,
                 new PowerMetricCalculator(vm,
-                        new CurrentMonitor(1000, circuitData.getClampConfig(), circuitData.getChannelNumber(), packetCollector),
-                        new RealPowerMonitor(1000, VoltageSenseConfig.UK9V, circuitData.getClampConfig(), circuitData.getChannelNumber(), packetCollector)));
-        loggingQ.add("Monitoring circuitData " + circuitData.getDisplayName());
+                        new CurrentMonitor(1000, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector),
+                        new RealPowerMonitor(1000, VoltageSenseConfig.UK9V, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector)));
+        loggingQ.add("Monitoring circuitData " + circuit.getDisplayName());
     }
 
     public static void disableCollection(Circuit circuit)
     {
+        circuits.setMonitoring(circuit.getChannelNumber(),false);
         circuitMap.remove(circuit);
         loggingQ.add("Not monitoring circuitData " + circuit.getDisplayName());
     }
