@@ -1,22 +1,20 @@
 package org.ladbury.powerMonitor.circuits;
 
-import org.ladbury.powerMonitor.monitors.configs.CurrentClampConfig;
-
 public class Circuit
 {
     private String displayName;
     private String tag;
     private  int channelNumber;
-    private CurrentClampConfig clampConfig;
+    private String clampName;
     private boolean monitor;
 
     //Constructor
-    Circuit(String displayName,  int channelNumber, CurrentClampConfig clampConfig, boolean monitor)
+    Circuit(String displayName,  int channelNumber, String clampName, boolean monitor)
     {
         this.displayName = displayName;
         this.tag = displayName.replace(" ", "_").toLowerCase();
         this.channelNumber = channelNumber;
-        this.clampConfig = clampConfig;
+        this.clampName = clampName;
         this.monitor = monitor;
     }
 
@@ -29,9 +27,9 @@ public class Circuit
     {
         return channelNumber;
     }
-    public CurrentClampConfig getClampConfig()
+    public String getClampName()
     {
-        return clampConfig;
+        return clampName;
     }
     public String getTag()
     {
@@ -45,7 +43,7 @@ public class Circuit
         displayName = cct.displayName;
         tag = cct.tag;
         channelNumber = cct.channelNumber;
-        clampConfig = cct.clampConfig;
+        clampName = cct.clampName;
         monitor = cct.monitor;
     }
     public void setNames(String displayName)
@@ -53,6 +51,6 @@ public class Circuit
         this.displayName = displayName;
         this.tag = displayName.replace(" ", "_").toLowerCase();
     }
-    public void setClampConfig( CurrentClampConfig clampConfig) {this.clampConfig = clampConfig;}
+    public void setClampName(String clampName) {this.clampName = clampName;}
     public void setMonitoring(boolean monitor){ this.monitor = monitor;}
 }

@@ -3,6 +3,7 @@ package org.ladbury.powerMonitor;
 import com.beust.jcommander.JCommander;
 import org.ladbury.powerMonitor.circuits.*;
 import org.ladbury.powerMonitor.control.CommandProcessor;
+import org.ladbury.powerMonitor.currentClamps.Clamps;
 import org.ladbury.powerMonitor.metrics.PowerMetricCalculator;
 import org.ladbury.powerMonitor.packets.STM8PacketCollector;
 import org.ladbury.powerMonitor.monitors.CurrentMonitor;
@@ -27,6 +28,7 @@ public class Main
     private static LinkedBlockingQueue<String> commandQ;
     private static LinkedBlockingQueue<String> loggingQ;
     private static final Circuits circuits= new Circuits();
+    private static final Clamps clamps = new Clamps();
 
     // Getters
     public static HashMap<Circuit, PowerMetricCalculator> getCircuitMap()
@@ -53,8 +55,15 @@ public class Main
         circuitMap.put(
                 circuit,
                 new PowerMetricCalculator(vm,
-                        new CurrentMonitor(1000, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector),
-                        new RealPowerMonitor(1000, VoltageSenseConfig.UK9V, circuit.getClampConfig(), circuit.getChannelNumber(), packetCollector)));
+                        new CurrentMonitor(1000,
+                                            clamps.getClamp(circuit.getClampName()),
+                                            circuit.getChannelNumber(),
+                                            packetCollector),
+                        new RealPowerMonitor(1000,
+                                            VoltageSenseConfig.UK9V,
+                                            clamps.getClamp(circuit.getClampName()),
+                                            circuit.getChannelNumber(),
+                                            packetCollector)));
         loggingQ.add("Monitoring circuitData " + circuit.getDisplayName());
     }
 
@@ -84,7 +93,6 @@ public class Main
         commandQ = new LinkedBlockingQueue<>();
         loggingQ = new LinkedBlockingQueue<>();
         int energyBucketInterval = 5; // Minutes
-       //boolean[] circuitRequired = {false, false, false, false, false, false, false, false, false, true}; // 0-9 0 not used, 9 is Whole_House
 
         //Handle arguments
         Args args = new Args();
