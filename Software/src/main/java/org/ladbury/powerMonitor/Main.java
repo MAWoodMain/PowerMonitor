@@ -47,7 +47,8 @@ public class Main
     {
         return loggingQ;
     }
-
+    public static Circuits getCircuits(){return circuits;}
+    public static Clamps getClamps(){return clamps;}
     //Setters
     public static void enableCollection(Circuit circuit)
     {

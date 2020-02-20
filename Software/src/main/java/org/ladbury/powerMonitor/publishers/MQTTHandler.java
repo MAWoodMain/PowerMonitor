@@ -23,11 +23,8 @@ public class MQTTHandler implements MqttCallback
     private static  String topic = "emon/" + clientID;
     private static  String cmndTopic = topic +"/cmnd";
     private static  String logTopic = topic+"/log";
+    private static String responseTopic = topic+"/response";
 
-    public static String getTopic()
-    {
-        return topic;
-    }
 
     private final MqttClient mqttClient;
     private final MqttConnectOptions connOpts;
@@ -84,6 +81,15 @@ public class MQTTHandler implements MqttCallback
             e.printStackTrace();
             System.out.println("broker: "+broker + " Addr param" +brokerAddr + " Full addr: "+ brokerAddress);
         }
+    }
+
+    public String getTopic()
+    {
+        return topic;
+    }
+    public String getResponseTopic()
+    {
+        return responseTopic;
     }
 
     //

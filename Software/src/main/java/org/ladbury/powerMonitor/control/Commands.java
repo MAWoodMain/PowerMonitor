@@ -1,7 +1,5 @@
 package org.ladbury.powerMonitor.control;
 
-import org.ladbury.powerMonitor.circuits.Circuit;
-
 import java.util.ArrayList;
 
 public class Commands
@@ -22,4 +20,17 @@ public class Commands
         }
     }
 
+    public Command getCommand( String commandString, String subjectString)
+    {
+        try
+        {
+            for( Command c : commands)
+            {
+                if (c.getCommand().equalsIgnoreCase(commandString) && c.getCommandSubject().equalsIgnoreCase(subjectString)) return c;
+            }
+            } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

@@ -20,7 +20,7 @@ public class Circuits
         circuits[8] = new Circuit("Whole House", 9, "SCT013_100A1V", true);
     }
 
-    public boolean validChannel(int channel)
+    public static boolean validChannel(int channel)
     {
         return ((channel >= MIN_CHANNEL_NUMBER) && (channel <= MAX_CHANNEL_NUMBER));
     }
@@ -40,7 +40,7 @@ public class Circuits
         {
             if (circuits[i].getDisplayName().equalsIgnoreCase(circuitName)) return i;
         }
-        return 0;
+        return -1;
     }
 
     public String getCircuitName(int channel) {return getCircuit(channel).getDisplayName();}
