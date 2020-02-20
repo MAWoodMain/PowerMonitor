@@ -3,8 +3,8 @@ package org.ladbury.powerMonitor.circuits;
 public class Circuits
 {
     public static final int MIN_CHANNEL_NUMBER = 1;
-    public static final int MAX_CHANNEL_NUMBER = 9;
-    private final Circuit[] circuits = new Circuit[MAX_CHANNEL_NUMBER];
+    public static final int MAX_CHANNEL_NUMBER = 8;
+    private final Circuit[] circuits = new Circuit[MAX_CHANNEL_NUMBER+1];
 
     public Circuits()
     {
