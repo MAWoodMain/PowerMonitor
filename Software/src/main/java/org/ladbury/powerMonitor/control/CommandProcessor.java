@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import org.ladbury.powerMonitor.Main;
 import org.ladbury.powerMonitor.circuits.Circuit;
 import org.ladbury.powerMonitor.circuits.Circuits;
+import org.ladbury.powerMonitor.currentClamps.Clamp;
 import org.ladbury.powerMonitor.publishers.MQTTHandler;
 
 import java.util.Arrays;
@@ -64,6 +65,13 @@ public class CommandProcessor extends Thread
         }
         return null;
     }
+    private String getClamp(String[] keys, Class parameterClass)
+    {
+        Clamp clamp;
+        clamp = Main.getClamps().getClamp(keys[0]);
+        if (clamp != null)return gson.toJson(clamp);
+        return null;
+    }
 
     private void processGetCommand(String[] params)
     {
@@ -84,19 +92,22 @@ public class CommandProcessor extends Thread
                 if (json != null) {
                     mqqtHandler.publishToBroker(mqqtHandler.getResponseTopic(), json);
                 } else loggingQ.add("failed to get json for circuit");
-
                 break;
             }
             case "clamp": {
                 loggingQ.add("Get clamp");
+                json = getClamp(keys,command.getParameterClass());
+                if (json != null) {
+                    mqqtHandler.publishToBroker(mqqtHandler.getResponseTopic(), json);
+                } else loggingQ.add("failed to get json for clamp");
                 break;
             }
             case "metricreading": {
-                loggingQ.add("Get metric reading");
+                loggingQ.add("Get metric reading not implemented");
                 break;
             }
             case "circuitdata": {
-                loggingQ.add("Get circuit data");
+                loggingQ.add("Get circuit data not implemented");
                 break;
             }
             default: loggingQ.add("Get Command subject not handled");
