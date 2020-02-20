@@ -128,7 +128,7 @@ public class MQTTHandler implements MqttCallback
     @Override
     public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception
     {
-        String payload = Arrays.toString(mqttMessage.getPayload());
+        String payload = mqttMessage.getPayload().toString();
         loggingQ.add("MQTT msg received Topic: " + topic + " Message: " + payload);
         System.out.println("MQTT msg received Topic: " + topic + " Message: " +payload);
         String[] subtopics = topic.split("/");
