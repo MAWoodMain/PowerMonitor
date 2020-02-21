@@ -20,11 +20,11 @@ public class MQTTHandler implements MqttCallback
     private static final String USERNAME = "emonpi";
     private static final String PASSWORD = "emonpimqtt2016";
 
-    private static String clientID = "PMon10";
-    private static  String topic = "emon/" + clientID;
-    private static  String cmndTopic = topic +"/cmnd";
-    private static  String logTopic = topic+"/log";
-    private static String responseTopic = topic+"/response";
+    private static String clientID;
+    private static String topic;
+    private static String cmndTopic;
+    private static String logTopic;
+    private static String responseTopic;
 
 
     private final MqttClient mqttClient;
@@ -60,6 +60,7 @@ public class MQTTHandler implements MqttCallback
                 topic =  "emon/" + clientname;
                 logTopic = topic + "/log";
                 cmndTopic = topic + "/cmnd";
+                responseTopic = topic+ "/response";
             }
         }
         mqttClient = new MqttClient(broker, clientID, new MemoryPersistence());

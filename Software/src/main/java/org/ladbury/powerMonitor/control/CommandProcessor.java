@@ -35,7 +35,7 @@ public class CommandProcessor extends Thread
         loggingQ.add("Set Command Received: " + Arrays.toString(params));
     }
 
-    private String getCircuit(String[] keys, Class parameterClass)
+    private String getCircuit(String[] keys)
     {
         int channel;
         Circuit circuit;
@@ -63,13 +63,15 @@ public class CommandProcessor extends Thread
                 return gson.toJson(circuit);
             }
         }
+        loggingQ.add("getCircuit: failed with param - " + Arrays.toString(keys));
         return null;
     }
-    private String getClamp(String[] keys, Class parameterClass)
+    private String getClamp(String[] keys)
     {
         Clamp clamp;
         clamp = Main.getClamps().getClamp(keys[0]);
         if (clamp != null)return gson.toJson(clamp);
+        loggingQ.add("getClamp: failed with param - " + Arrays.toString(keys));
         return null;
     }
 
@@ -88,7 +90,7 @@ public class CommandProcessor extends Thread
         {
             case "circuit": {
                 loggingQ.add("Get circuit");
-                json = getCircuit(keys,command.getParameterClass());
+                json = getCircuit(keys);
                 if (json != null) {
                     mqqtHandler.publishToBroker(mqqtHandler.getResponseTopic(), json);
                 } else loggingQ.add("failed to get json for circuit");
@@ -96,7 +98,7 @@ public class CommandProcessor extends Thread
             }
             case "clamp": {
                 loggingQ.add("Get clamp");
-                json = getClamp(keys,command.getParameterClass());
+                json = getClamp(keys);
                 if (json != null) {
                     mqqtHandler.publishToBroker(mqqtHandler.getResponseTopic(), json);
                 } else loggingQ.add("failed to get json for clamp");
