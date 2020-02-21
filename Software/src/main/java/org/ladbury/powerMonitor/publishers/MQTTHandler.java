@@ -3,6 +3,7 @@ package org.ladbury.powerMonitor.publishers;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -128,7 +129,7 @@ public class MQTTHandler implements MqttCallback
     @Override
     public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception
     {
-        String payload =  String.valueOf(mqttMessage.getPayload());
+        String payload = new String(mqttMessage.getPayload(), StandardCharsets.UTF_8);
         loggingQ.add("MQTT msg received Topic: " + topic + " Message: " + payload);
         System.out.println("MQTT msg received Topic: " + topic + " Message: " +payload);
         String[] subtopics = topic.split("/");
