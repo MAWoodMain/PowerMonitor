@@ -43,6 +43,15 @@ public class Circuits
         return -1;
     }
 
+    public int getChannelByTag(String circuitName)
+    {
+        for( int i = 0; i < MAX_CHANNEL_NUMBER; i++)
+        {
+            if (circuits[i].getTag().equalsIgnoreCase(circuitName)) return i+1;
+        }
+        return -1;
+    }
+
     public String getCircuitName(int channel) {return getCircuit(channel).getDisplayName();}
     public boolean isMonitored(int channel) {return getCircuit(channel).isMonitored();}
     public int getChannelNumber(int channel) {return getCircuit(channel).getChannelNumber();}

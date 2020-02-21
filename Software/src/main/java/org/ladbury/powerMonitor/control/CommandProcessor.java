@@ -53,9 +53,9 @@ public class CommandProcessor extends Thread
             loggingQ.add("getCircuit: circuit(1) = " + circuit.toString());
             return gson.toJson(circuit);
         } else {
-            loggingQ.add("getCircuit: get by name " + keys[0]);
+            loggingQ.add("getCircuit: get by tag " + keys[0]);
             //assume we have a circuit name
-            channel = Main.getCircuits().getChannelByName(keys[0]);
+            channel = Main.getCircuits().getChannelByTag(keys[0]);
             loggingQ.add("getCircuit: channel(2) = " + channel);
             if (Circuits.validChannel(channel)) {
                 circuit = Main.getCircuits().getCircuit(channel);
