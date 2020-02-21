@@ -3,12 +3,14 @@ package org.ladbury.powerMonitor.circuits;
 import org.ladbury.powerMonitor.Main;
 
 import java.util.Arrays;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Circuits
 {
     public static final int MIN_CHANNEL_NUMBER = 1;
     public static final int MAX_CHANNEL_NUMBER = 9;
     private final Circuit[] circuits = new Circuit[MAX_CHANNEL_NUMBER];
+    private final LinkedBlockingQueue<String> loggingQ;
 
     public Circuits()
     {
@@ -22,6 +24,7 @@ public class Circuits
         circuits[6] = new Circuit("Outside Plugs", 7, "SCT013_20A1V", false);
         circuits[7] = new Circuit("Cooker", 8, "SCT013_30A1V", false);
         circuits[8] = new Circuit("Whole House", 9, "SCT013_100A1V", true);
+        loggingQ = Main.getLoggingQ();
     }
 
     public static boolean validChannel(int channel)
@@ -47,11 +50,11 @@ public class Circuits
         return -1;
     }
 
-    public int getChannelByTag(String circuitName)
+    public int getChannelByTag(String circuitTag)
     {
         for( int i = 0; i < MAX_CHANNEL_NUMBER; i++)
         {
-            if (circuits[i].getTag().equalsIgnoreCase(circuitName)) return i+1;
+            if (circuits[i].getTag().equalsIgnoreCase(circuitTag)) return i+1;
         }
         return -1;
     }
@@ -59,23 +62,27 @@ public class Circuits
     public int getChannelFromInput(String input)
     {
         int channel;
+        loggingQ.add("getChannelFromInput: (" + input + ")");
         try {
             channel = Integer.parseInt(input);
         } catch (NumberFormatException e) {
             channel = -1;
         }
+        loggingQ.add("getChannelFromInput: channel1- " + channel );
         if (Circuits.validChannel(channel)){
             return channel;
         } else
             {
             //assume we have a circuit tag
             channel = getChannelByTag(input);
+            loggingQ.add("getChannelFromInput: channel2- " + channel );
             if (channel ==-1)
             {
                 // not a tag, try by name
                 channel = getChannelByName(input);
             }
         }
+        loggingQ.add("getChannelFromInput: channel3- " + channel );
         return channel;
     }
     public String getCircuitName(int channel) {return getCircuit(channel).getDisplayName();}
