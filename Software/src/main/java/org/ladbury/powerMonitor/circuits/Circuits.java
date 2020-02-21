@@ -65,6 +65,10 @@ public class Circuits
     public int getChannelFromInput(String input)
     {
         int channel;
+        if (input == null) {
+            loggingQ.add("getChannelFromInput: null input");
+            return -1;
+        }
         loggingQ.add("getChannelFromInput: (" + input + ")");
         try {
             channel = Integer.parseInt(input);

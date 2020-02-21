@@ -39,6 +39,10 @@ public class CommandProcessor extends Thread
     private String getCircuit(String[] keys)
     {
         Circuit circuit;
+        if (keys == null){
+            loggingQ.add("GetCircuit: null keys");
+            return null;
+        }
         int channel = Main.getCircuits().getChannelFromInput(keys[0]);
         if (Circuits.validChannel(channel))
         {
@@ -59,6 +63,10 @@ public class CommandProcessor extends Thread
     }
     private String getMetricReading(String[] keys)
     {
+        if (keys == null){
+            loggingQ.add("getMetricReading: null keys");
+            return null;
+        }
         Circuit circuit;
         int channel = Main.getCircuits().getChannelFromInput(keys[0]);
         if (Circuits.validChannel(channel)) {
@@ -70,6 +78,10 @@ public class CommandProcessor extends Thread
 
     private String getCircuitData(String[] keys)
     {
+        if (keys == null){
+            loggingQ.add("getCircuitData: null keys");
+            return null;
+        }
         Circuit circuit;
         CircuitData circuitData = new CircuitData();
         int channel = Main.getCircuits().getChannelFromInput(keys[0]);
