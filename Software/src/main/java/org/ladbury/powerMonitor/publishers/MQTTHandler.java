@@ -133,9 +133,9 @@ public class MQTTHandler implements MqttCallback
         String payload = new String(mqttMessage.getPayload(), StandardCharsets.UTF_8);
         loggingQ.add("MQTT msg received Topic: " + topic + " Message: " + payload);
         System.out.println("MQTT msg received Topic: " + topic + " Message: " +payload);
-        String[] subtopics = topic.split("/");
-        if (subtopics[2].equalsIgnoreCase("cmnd"))
+        if (topic.equalsIgnoreCase(cmndTopic))
         {
+            loggingQ.add("MQTT msg is command, adding to queue");
             commandQ.add(payload);
         }
     }

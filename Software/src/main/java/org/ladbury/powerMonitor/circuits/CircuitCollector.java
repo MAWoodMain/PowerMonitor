@@ -153,6 +153,7 @@ public class CircuitCollector extends Thread
     @Override
     public void run()
     {
+        boolean firstNoDataReport = true;
         long startTime;
         try {
             // wait for first readings to be ready
@@ -172,10 +173,17 @@ public class CircuitCollector extends Thread
                 try {
                     publishCircuitToBroker(circuit);
                 } catch (InvalidDataException | OperationNotSupportedException e) {
-                    loggingQ.add("no data for circuitData: " +
-                            circuit.getDisplayName() +
-                            Arrays.toString(e.getStackTrace())
-                    );
+                    if (firstNoDataReport ) {
+                        loggingQ.add("no data for circuitData: " +
+                                circuit.getDisplayName() +
+                                Arrays.toString(e.getStackTrace())
+                        );
+                        System.out.println("no data for circuitData: " +
+                                circuit.getDisplayName() +
+                                Arrays.toString(e.getStackTrace())
+                        );
+                        firstNoDataReport = false; //prevent jabbering
+                    }
                 }
             }
 
