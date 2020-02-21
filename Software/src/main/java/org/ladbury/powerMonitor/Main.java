@@ -141,9 +141,9 @@ public class Main
         loggingQ.add("Enabling VoltageMonitor ");
         vm = new VoltageMonitor(1000, VoltageSenseConfig.UK9V, packetCollector);
         // Enable interpretation for required circuits
-        for( int channel = Circuits.MIN_CHANNEL_NUMBER; channel <= Circuits.MAX_CHANNEL_NUMBER; channel++){
-            if (circuits.isMonitored(channel))
-                enableCollection(circuits.getCircuit(channel));
+        for( Circuit circuit : circuits.getCircuits()){
+            if (circuit.isMonitored())
+                enableCollection(circuit);
         }
         circuitCollector.start();
     }
