@@ -3,6 +3,7 @@ package org.ladbury.powerMonitor.control;
 import com.google.gson.Gson;
 import org.ladbury.powerMonitor.Main;
 import org.ladbury.powerMonitor.circuits.Circuit;
+import org.ladbury.powerMonitor.circuits.CircuitData;
 import org.ladbury.powerMonitor.circuits.Circuits;
 import org.ladbury.powerMonitor.currentClamps.Clamp;
 import org.ladbury.powerMonitor.publishers.MQTTHandler;
@@ -37,33 +38,14 @@ public class CommandProcessor extends Thread
 
     private String getCircuit(String[] keys)
     {
-        loggingQ.add("getCircuit: param " + Arrays.toString(keys));
-
-        int channel;
         Circuit circuit;
-        try {
-            channel = Integer.parseInt(keys[0]);
-        } catch (NumberFormatException e) {
-            channel = -1;
-        }
-        loggingQ.add("getCircuit: channel(1) = " + channel);
-
-        if (Circuits.validChannel(channel)) {
+        int channel = Main.getCircuits().getChannelFromInput(keys[0]);
+        if (Circuits.validChannel(channel))
+        {
             circuit = Main.getCircuits().getCircuit(channel);
-            loggingQ.add("getCircuit: circuit(1) = " + circuit.toString());
             return gson.toJson(circuit);
-        } else {
-            loggingQ.add("getCircuit: get by tag " + keys[0]);
-            //assume we have a circuit name
-            channel = Main.getCircuits().getChannelByTag(keys[0]);
-            loggingQ.add("getCircuit: channel(2) = " + channel);
-            if (Circuits.validChannel(channel)) {
-                circuit = Main.getCircuits().getCircuit(channel);
-                loggingQ.add("getCircuit: circuit(2) = " + circuit.toString());
-                return gson.toJson(circuit);
-            }
         }
-        loggingQ.add("getCircuit: returned null");
+        loggingQ.add("getCircuit: failed with param-  " + Arrays.toString(keys));
         return null;
     }
 
@@ -73,6 +55,32 @@ public class CommandProcessor extends Thread
         clamp = Main.getClamps().getClamp(keys[0]);
         if (clamp != null) return gson.toJson(clamp);
         loggingQ.add("getClamp: failed with param - " + Arrays.toString(keys));
+        return null;
+    }
+    private String getMetricReading(String[] keys)
+    {
+        Circuit circuit;
+        int channel = Main.getCircuits().getChannelFromInput(keys[0]);
+        if (Circuits.validChannel(channel)) {
+            circuit = Main.getCircuits().getCircuit(channel);
+        }
+        loggingQ.add("getMetricReading: failed with param- " + Arrays.toString(keys));
+        return null;
+    }
+
+    private String getCircuitData(String[] keys)
+    {
+        Circuit circuit;
+        CircuitData circuitData = new CircuitData();
+        int channel = Main.getCircuits().getChannelFromInput(keys[0]);
+        if (Circuits.validChannel(channel)) {
+            circuit = Main.getCircuits().getCircuit(channel);
+            circuitData = Main.getCircuitCollector().getCircuitData(circuit);
+            if (circuitData!= null){
+                return gson.toJson(circuitData);
+            }
+        }
+        loggingQ.add("getCircuitData: failed with param- " + Arrays.toString(keys));
         return null;
     }
 
@@ -89,7 +97,6 @@ public class CommandProcessor extends Thread
         }
         switch (subject) {
             case "circuit": {
-                loggingQ.add("Get circuit");
                 json = getCircuit(keys);
                 if (json != null) {
                     mqqtHandler.publishToBroker(mqqtHandler.getResponseTopic(), json);
@@ -97,7 +104,6 @@ public class CommandProcessor extends Thread
                 break;
             }
             case "clamp": {
-                loggingQ.add("Get clamp");
                 json = getClamp(keys);
                 if (json != null) {
                     mqqtHandler.publishToBroker(mqqtHandler.getResponseTopic(), json);
@@ -105,11 +111,17 @@ public class CommandProcessor extends Thread
                 break;
             }
             case "metricreading": {
-                loggingQ.add("Get metric reading not implemented");
+                json = getMetricReading(keys);
+                if (json != null) {
+                    mqqtHandler.publishToBroker(mqqtHandler.getResponseTopic(), json);
+                } else loggingQ.add("failed to get json for metricreading");
                 break;
             }
             case "circuitdata": {
-                loggingQ.add("Get circuit data not implemented");
+                json = getCircuitData(keys);
+                if (json != null) {
+                    mqqtHandler.publishToBroker(mqqtHandler.getResponseTopic(), json);
+                } else loggingQ.add("failed to get json for getCircuitData");
                 break;
             }
             default:

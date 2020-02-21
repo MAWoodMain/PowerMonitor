@@ -12,7 +12,7 @@ public class Circuit
     Circuit(String displayName,  int channelNumber, String clampName, boolean monitor)
     {
         this.displayName = displayName;
-        this.tag = displayName.replace(" ", "_").toLowerCase();
+        this.tag = displayName.replace(" ", "_");
         this.channelNumber = channelNumber;
         this.clampName = clampName;
         this.monitor = monitor;

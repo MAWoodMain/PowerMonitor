@@ -40,21 +40,57 @@ public class CircuitCollector extends Thread
         //this.energyStore = energyStore;
     }
 
+    public CircuitData getCircuitData(Circuit circuit)
+    {
+        try {
+            CircuitData circuitData = new CircuitData();
+            Instant readingTime = Instant.now().minusSeconds(1);
+            Instant readingTimeMinusInterval = readingTime.minusSeconds(1);
+            circuitData.channel = circuit.getChannelNumber();
+            circuitData.circuitName = circuit.getDisplayName();
+            circuitData.timestamp = readingTime;
+            MetricReading voltage = circuitMap.get(circuit).getAverageBetween(Metric.VOLTS, readingTimeMinusInterval, readingTime);
+            MetricReading apparent = circuitMap.get(circuit).getAverageBetween(Metric.VA, readingTimeMinusInterval, readingTime);
+            MetricReading real = circuitMap.get(circuit).getAverageBetween(Metric.WATTS, readingTimeMinusInterval, readingTime);
+
+            CircuitEnergyStore circuitEnergyStore = storeMap.get(circuit);
+
+            MetricReading reactive = circuitMap.get(circuit).getAverageBetween(Metric.VAR, readingTimeMinusInterval, readingTime);
+            MetricReading current = circuitMap.get(circuit).getAverageBetween(Metric.AMPS, readingTimeMinusInterval, readingTime);
+            //MetricReading powerfactor = circuitMap.get(circuitData).getAverageBetween(Metric.POWERFACTOR, readingTimeMinusInterval, readingTime);
+            Double powerFactor = Math.round(real.getValue() / apparent.getValue() * 1000000.0) / 1000000.0;
+            circuitData.voltage = voltage.getValue();
+            circuitData.realPower = real.getValue() ;
+            circuitData.apparentPower = apparent.getValue() ;
+            circuitData.reactivePower = reactive.getValue();
+            circuitData.current = current.getValue();
+            circuitData.powerFactor = powerFactor;
+            if (circuitEnergyStore != null) {
+                circuitData.energy = circuitEnergyStore.getLatestEnergyMetric().getValue();
+            } else loggingQ.add("CircuitCollector: null circuitEnergyStore for - " + circuit.getDisplayName());
+            return circuitData;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     private void publishCircuitToBroker(Circuit circuit) throws InvalidDataException, OperationNotSupportedException
     {
-        String subTopic = mqttHandler.getTopic() + "/" + circuit.getDisplayName().replace(" ", "_");
+        String subTopic = mqttHandler.getTopic() + "/" + circuit.getTag();
         Instant readingTime = Instant.now().minusSeconds(1);
-        MetricReading voltage = circuitMap.get(circuit).getAverageBetween(Metric.VOLTS, Instant.now().minusSeconds(2), Instant.now().minusSeconds(1));
-        MetricReading apparent = circuitMap.get(circuit).getAverageBetween(Metric.VA, Instant.now().minusSeconds(2), readingTime);
-        MetricReading real = circuitMap.get(circuit).getAverageBetween(Metric.WATTS, Instant.now().minusSeconds(2), readingTime);
+        Instant readingTimeMinusInterval = readingTime.minusSeconds(1);
+        MetricReading voltage = circuitMap.get(circuit).getAverageBetween(Metric.VOLTS, readingTimeMinusInterval, readingTime);
+        MetricReading apparent = circuitMap.get(circuit).getAverageBetween(Metric.VA, readingTimeMinusInterval, readingTime);
+        MetricReading real = circuitMap.get(circuit).getAverageBetween(Metric.WATTS, readingTimeMinusInterval, readingTime);
 
         CircuitEnergyStore circuitEnergyStore = storeMap.get(circuit);
         if (circuitEnergyStore!=null) {circuitEnergyStore.accumulate(real.getValue());}
         else loggingQ.add("CircuitCollector: null circuitEnergyStore for - "+ circuit.getDisplayName());
 
-        MetricReading reactive = circuitMap.get(circuit).getAverageBetween(Metric.VAR, Instant.now().minusSeconds(2), readingTime);
-        MetricReading current = circuitMap.get(circuit).getAverageBetween(Metric.AMPS, Instant.now().minusSeconds(2), readingTime);
-        //MetricReading powerfactor = circuitMap.get(circuitData).getAverageBetween(Metric.POWERFACTOR, Instant.now().minusSeconds(2), readingTime);
+        MetricReading reactive = circuitMap.get(circuit).getAverageBetween(Metric.VAR, readingTimeMinusInterval, readingTime);
+        MetricReading current = circuitMap.get(circuit).getAverageBetween(Metric.AMPS, readingTimeMinusInterval, readingTime);
+        //MetricReading powerfactor = circuitMap.get(circuitData).getAverageBetween(Metric.POWERFACTOR, readingTimeMinusInterval, readingTime);
         Double powerFactor = Math.round(real.getValue()/apparent.getValue()*1000000.0)/1000000.0;
         String jsonReadings =
                 "{\"Time\":\""+readingTime.toString()+"\","+

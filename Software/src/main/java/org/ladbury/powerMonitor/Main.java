@@ -29,6 +29,7 @@ public class Main
     private static LinkedBlockingQueue<String> loggingQ;
     private static final Circuits circuits= new Circuits();
     private static final Clamps clamps = new Clamps();
+    private static CircuitCollector circuitCollector;
 
     // Getters
     public static HashMap<Circuit, PowerMetricCalculator> getCircuitMap()
@@ -49,6 +50,7 @@ public class Main
     }
     public static Circuits getCircuits(){return circuits;}
     public static Clamps getClamps(){return clamps;}
+    public static CircuitCollector getCircuitCollector() {return circuitCollector;}
     //Setters
     public static void enableCollection(Circuit circuit)
     {

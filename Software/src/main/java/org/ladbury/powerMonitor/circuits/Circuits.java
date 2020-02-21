@@ -1,5 +1,9 @@
 package org.ladbury.powerMonitor.circuits;
 
+import org.ladbury.powerMonitor.Main;
+
+import java.util.Arrays;
+
 public class Circuits
 {
     public static final int MIN_CHANNEL_NUMBER = 1;
@@ -52,6 +56,28 @@ public class Circuits
         return -1;
     }
 
+    public int getChannelFromInput(String input)
+    {
+        int channel;
+        try {
+            channel = Integer.parseInt(input);
+        } catch (NumberFormatException e) {
+            channel = -1;
+        }
+        if (Circuits.validChannel(channel)){
+            return channel;
+        } else
+            {
+            //assume we have a circuit tag
+            channel = getChannelByTag(input);
+            if (channel ==-1)
+            {
+                // not a tag, try by name
+                channel = getChannelByName(input);
+            }
+        }
+        return channel;
+    }
     public String getCircuitName(int channel) {return getCircuit(channel).getDisplayName();}
     public boolean isMonitored(int channel) {return getCircuit(channel).isMonitored();}
     public int getChannelNumber(int channel) {return getCircuit(channel).getChannelNumber();}
