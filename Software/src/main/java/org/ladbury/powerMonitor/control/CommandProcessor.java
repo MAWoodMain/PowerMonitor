@@ -37,40 +37,41 @@ public class CommandProcessor extends Thread
 
     private String getCircuit(String[] keys)
     {
+        loggingQ.add("getCircuit: param " + Arrays.toString(keys));
+
         int channel;
         Circuit circuit;
         try {
             channel = Integer.parseInt(keys[0]);
-        }
-        catch (NumberFormatException e)
-        {
+        } catch (NumberFormatException e) {
             channel = -1;
         }
-        if (channel != -1)
-        {
-            if (Circuits.validChannel(channel))
-            {
-                circuit = Main.getCircuits().getCircuit(channel);
-                return gson.toJson(circuit);
-            }
-        }
-        else
-        {
+        loggingQ.add("getCircuit: channel(1) = " + channel);
+
+        if (Circuits.validChannel(channel)) {
+            circuit = Main.getCircuits().getCircuit(channel);
+            loggingQ.add("getCircuit: circuit(1) = " + circuit.toString());
+            return gson.toJson(circuit);
+        } else {
+            loggingQ.add("getCircuit: get by name " + keys[0]);
             //assume we have a circuit name
             channel = Main.getCircuits().getChannelByName(keys[0]);
+            loggingQ.add("getCircuit: channel(2) = " + channel);
             if (Circuits.validChannel(channel)) {
                 circuit = Main.getCircuits().getCircuit(channel);
+                loggingQ.add("getCircuit: circuit(2) = " + circuit.toString());
                 return gson.toJson(circuit);
             }
         }
-        loggingQ.add("getCircuit: failed with param - " + Arrays.toString(keys));
+        loggingQ.add("getCircuit: returned null");
         return null;
     }
+
     private String getClamp(String[] keys)
     {
         Clamp clamp;
         clamp = Main.getClamps().getClamp(keys[0]);
-        if (clamp != null)return gson.toJson(clamp);
+        if (clamp != null) return gson.toJson(clamp);
         loggingQ.add("getClamp: failed with param - " + Arrays.toString(keys));
         return null;
     }
@@ -81,13 +82,12 @@ public class CommandProcessor extends Thread
         String subject = params[0];
         String[] keys = Arrays.copyOfRange(params, 1, params.length);
         String json;
-        Command command = commands.getCommand("get",subject);
+        Command command = commands.getCommand("get", subject);
         if (command == null) {
             loggingQ.add("Get Command subject not found");
             return;
         }
-        switch (subject)
-        {
+        switch (subject) {
             case "circuit": {
                 loggingQ.add("Get circuit");
                 json = getCircuit(keys);
@@ -112,7 +112,8 @@ public class CommandProcessor extends Thread
                 loggingQ.add("Get circuit data not implemented");
                 break;
             }
-            default: loggingQ.add("Get Command subject not handled");
+            default:
+                loggingQ.add("Get Command subject not handled");
         }
     }
     //
@@ -129,9 +130,9 @@ public class CommandProcessor extends Thread
         try {
             while (!(interrupted() || exit)) {
                 commandString = commandQ.take().toLowerCase();
-                loggingQ.add("CommandProcessor: <"+ commandString +"> arrived");
+                loggingQ.add("CommandProcessor: <" + commandString + "> arrived");
                 commandElements = commandString.split(" ");
-                if (commandElements.length >=1) { //ignore if no elements
+                if (commandElements.length >= 1) { //ignore if no elements
                     switch (commandElements[0]) {
                         case "set": {
                             if (commandElements.length > 1) {
@@ -150,7 +151,7 @@ public class CommandProcessor extends Thread
                             break;
                         }
                         default: {
-                            loggingQ.add("CommandProcessor: unknown command <"+ commandString +">");
+                            loggingQ.add("CommandProcessor: unknown command <" + commandString + ">");
                         }
                     }
                 }
