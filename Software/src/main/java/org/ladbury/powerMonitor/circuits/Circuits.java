@@ -3,8 +3,8 @@ package org.ladbury.powerMonitor.circuits;
 public class Circuits
 {
     public static final int MIN_CHANNEL_NUMBER = 1;
-    public static final int MAX_CHANNEL_NUMBER = 8;
-    private final Circuit[] circuits = new Circuit[MAX_CHANNEL_NUMBER+1];
+    public static final int MAX_CHANNEL_NUMBER = 9;
+    private final Circuit[] circuits = new Circuit[MAX_CHANNEL_NUMBER];
 
     public Circuits()
     {
@@ -36,9 +36,9 @@ public class Circuits
 
     public int getChannelByName(String circuitName)
     {
-        for( int i = MIN_CHANNEL_NUMBER; i <= MAX_CHANNEL_NUMBER; i++)
+        for( int i = 0; i < MAX_CHANNEL_NUMBER; i++)
         {
-            if (circuits[i].getDisplayName().equalsIgnoreCase(circuitName)) return i;
+            if (circuits[i].getDisplayName().equalsIgnoreCase(circuitName)) return i+1;
         }
         return -1;
     }
