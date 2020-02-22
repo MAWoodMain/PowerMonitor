@@ -126,7 +126,7 @@ public class Main
         commandProcessor.start();
 
         loggingQ.add("Enabling CircuitCollector");
-        CircuitCollector circuitCollector = new CircuitCollector(getCircuitMap(), mqttHandler, 5, getLoggingQ());
+        circuitCollector = new CircuitCollector(getCircuitMap(), mqttHandler, 5, getLoggingQ());
 
         loggingQ.add("Enabling EnergyBucketFiller");
         EnergyBucketFiller bucketFiller = new EnergyBucketFiller(energyBucketInterval, true, circuitCollector, getLoggingQ());
