@@ -21,7 +21,7 @@ public class CircuitCollector extends Thread
     // run control variables
     private final Map<Circuit, PowerMetricCalculator> circuitMap;
     private final LinkedBlockingQueue<String> loggingQ;
-    private final HashMap<Circuit,CircuitEnergyStore> storeMap = new HashMap<>();
+    private final HashMap<Circuit, CircuitEnergyStore> storeMap = new HashMap<>();
     private final int bucketIntervalMins;
 
     /**
@@ -42,37 +42,30 @@ public class CircuitCollector extends Thread
 
     public CircuitData getCircuitData(Circuit circuit)
     {
+        CircuitData circuitData = new CircuitData();
+        Instant readingTime = Instant.now().minusSeconds(1);
+        Instant readingTimeMinusInterval = readingTime.minusSeconds(1);
+        circuitData.channel = circuit.getChannelNumber();
+        circuitData.circuitName = circuit.getDisplayName();
+        circuitData.timestamp = readingTime;
         try {
-            CircuitData circuitData = new CircuitData();
-            Instant readingTime = Instant.now().minusSeconds(1);
-            Instant readingTimeMinusInterval = readingTime.minusSeconds(1);
-            circuitData.channel = circuit.getChannelNumber();
-            circuitData.circuitName = circuit.getDisplayName();
-            circuitData.timestamp = readingTime;
-            MetricReading voltage = circuitMap.get(circuit).getAverageBetween(Metric.VOLTS, readingTimeMinusInterval, readingTime);
-            MetricReading apparent = circuitMap.get(circuit).getAverageBetween(Metric.VA, readingTimeMinusInterval, readingTime);
-            MetricReading real = circuitMap.get(circuit).getAverageBetween(Metric.WATTS, readingTimeMinusInterval, readingTime);
+            circuitData.voltage = circuitMap.get(circuit).getAverageBetween(Metric.VOLTS, readingTimeMinusInterval, readingTime).getValue();
+            circuitData.current = circuitMap.get(circuit).getAverageBetween(Metric.AMPS, readingTimeMinusInterval, readingTime).getValue();
+            circuitData.realPower = circuitMap.get(circuit).getAverageBetween(Metric.WATTS, readingTimeMinusInterval, readingTime).getValue();
+            circuitData.apparentPower = circuitMap.get(circuit).getAverageBetween(Metric.VA, readingTimeMinusInterval, readingTime).getValue();
+            circuitData.reactivePower = circuitMap.get(circuit).getAverageBetween(Metric.VAR, readingTimeMinusInterval, readingTime).getValue();
+            circuitData.powerFactor = circuitMap.get(circuit).getAverageBetween(Metric.POWERFACTOR, readingTimeMinusInterval, readingTime).getValue();
 
             CircuitEnergyStore circuitEnergyStore = storeMap.get(circuit);
-
-            MetricReading reactive = circuitMap.get(circuit).getAverageBetween(Metric.VAR, readingTimeMinusInterval, readingTime);
-            MetricReading current = circuitMap.get(circuit).getAverageBetween(Metric.AMPS, readingTimeMinusInterval, readingTime);
-            //MetricReading powerfactor = circuitMap.get(circuitData).getAverageBetween(Metric.POWERFACTOR, readingTimeMinusInterval, readingTime);
-            Double powerFactor = Math.round(real.getValue() / apparent.getValue() * 1000000.0) / 1000000.0;
-            circuitData.voltage = voltage.getValue();
-            circuitData.realPower = real.getValue() ;
-            circuitData.apparentPower = apparent.getValue() ;
-            circuitData.reactivePower = reactive.getValue();
-            circuitData.current = current.getValue();
-            circuitData.powerFactor = powerFactor;
             if (circuitEnergyStore != null) {
-                circuitData.energy = circuitEnergyStore.getLatestEnergyMetric().getValue();
+                circuitData.energy = circuitEnergyStore.getLatestEnergyMetric().getValue(); //TODO select for time period
             } else loggingQ.add("CircuitCollector: null circuitEnergyStore for - " + circuit.getDisplayName());
+
             return circuitData;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return circuitData; //this may be partially complete if some data wash't available
     }
 
     private void publishCircuitToBroker(Circuit circuit) throws InvalidDataException, OperationNotSupportedException
@@ -83,27 +76,26 @@ public class CircuitCollector extends Thread
         MetricReading voltage = circuitMap.get(circuit).getAverageBetween(Metric.VOLTS, readingTimeMinusInterval, readingTime);
         MetricReading apparent = circuitMap.get(circuit).getAverageBetween(Metric.VA, readingTimeMinusInterval, readingTime);
         MetricReading real = circuitMap.get(circuit).getAverageBetween(Metric.WATTS, readingTimeMinusInterval, readingTime);
-
-        CircuitEnergyStore circuitEnergyStore = storeMap.get(circuit);
-        if (circuitEnergyStore!=null) {circuitEnergyStore.accumulate(real.getValue());}
-        else loggingQ.add("CircuitCollector: null circuitEnergyStore for - "+ circuit.getDisplayName());
-
         MetricReading reactive = circuitMap.get(circuit).getAverageBetween(Metric.VAR, readingTimeMinusInterval, readingTime);
         MetricReading current = circuitMap.get(circuit).getAverageBetween(Metric.AMPS, readingTimeMinusInterval, readingTime);
-        //MetricReading powerfactor = circuitMap.get(circuitData).getAverageBetween(Metric.POWERFACTOR, readingTimeMinusInterval, readingTime);
-        Double powerFactor = Math.round(real.getValue()/apparent.getValue()*1000000.0)/1000000.0;
+        MetricReading powerfactor = circuitMap.get(circuit).getAverageBetween(Metric.POWERFACTOR, readingTimeMinusInterval, readingTime);
+
+        CircuitEnergyStore circuitEnergyStore = storeMap.get(circuit);
+        if (circuitEnergyStore != null) {
+            circuitEnergyStore.accumulate(real.getValue());
+        } else loggingQ.add("CircuitCollector: null circuitEnergyStore for - " + circuit.getDisplayName());
+
         String jsonReadings =
-                "{\"Time\":\""+readingTime.toString()+"\","+
-                "\"Readings\":{"+
-                "\""+ voltage.getMetric().getMetricName()+"\":"+ voltage.getValue().toString()+","+
-                "\""+ real.getMetric().getMetricName()+"\":"+ real.getValue().toString()+","+
-                "\""+ apparent.getMetric().getMetricName()+"\":"+ apparent.getValue().toString()+","+
-                "\""+ reactive.getMetric().getMetricName()+"\":"+ reactive.getValue().toString()+","+
-                "\""+ current.getMetric().getMetricName()+"\":"+ current.getValue().toString()+","+
-                //"\""+ powerfactor.getMetric().getMetricName()+"\":"+ current.getValue().toString()+","+
-                "\"PowerFactor\":"+ powerFactor.toString()+
-                "}}";
-        mqttHandler.publishToBroker(subTopic,jsonReadings);
+                "{\"Time\":\"" + readingTime.toString() + "\"," +
+                        "\"Readings\":{" +
+                        "\"" + voltage.getMetric().getMetricName() + "\":" + voltage.getValue().toString() + "," +
+                        "\"" + real.getMetric().getMetricName() + "\":" + real.getValue().toString() + "," +
+                        "\"" + apparent.getMetric().getMetricName() + "\":" + apparent.getValue().toString() + "," +
+                        "\"" + reactive.getMetric().getMetricName() + "\":" + reactive.getValue().toString() + "," +
+                        "\"" + current.getMetric().getMetricName() + "\":" + current.getValue().toString() + "," +
+                        "\""+ powerfactor.getMetric().getMetricName()+"\":"+ current.getValue().toString()+","+
+                        "}}";
+        mqttHandler.publishToBroker(subTopic, jsonReadings);
     }
 
     private void publishMetric(String subTopic, MetricReading metricReading)
@@ -118,17 +110,18 @@ public class CircuitCollector extends Thread
         MetricReading cumulativeEnergy;
         for (Circuit circuit : circuitMap.keySet()) {
             String subTopic = mqttHandler.getTopic() + "/" + circuit.getDisplayName().replace(" ", "_");
-            energy = storeMap.get(circuit).getLatestEnergyMetric();
+            energy = storeMap.get(circuit).getLatestEnergyMetric();  //TODO select for time period?
             cumulativeEnergy = storeMap.get(circuit).getCumulativeEnergyForToday();
             String jsonReadings =
                     "{\"Time\":\"" + energy.getTimestamp().toString() + "\"," +
                             "\"Readings\":{" +
-                            "\"Energy\":" + energy.getValue().toString() + ","+
-                            "\"CumulativeEnergy\":" + cumulativeEnergy.getValue().toString()  +
+                            "\"Energy\":" + energy.getValue().toString() + "," +
+                            "\"CumulativeEnergy\":" + cumulativeEnergy.getValue().toString() +
                             "}}";
             mqttHandler.publishToBroker(subTopic, jsonReadings);
         }
     }
+
     public void fillAllEnergyBuckets(int bucketToFill)
     {
         //loggingQ.add("CircuitCollector: fill buckets storeMap - " + storeMap.toString());
@@ -137,6 +130,7 @@ public class CircuitCollector extends Thread
             storeMap.get(circuit).updateEnergyBucket(bucketToFill);
         }
     }
+
     public void resetAllEnergyBuckets()
     {
         for (Circuit circuit : circuitMap.keySet()) {
@@ -161,7 +155,7 @@ public class CircuitCollector extends Thread
         } catch (InterruptedException ignored) {
         }
         for (Circuit circuit : circuitMap.keySet()) {
-            this.storeMap.put(circuit,new CircuitEnergyStore(circuit,bucketIntervalMins,loggingQ));
+            this.storeMap.put(circuit, new CircuitEnergyStore(circuit, bucketIntervalMins, loggingQ));
         }
         //loggingQ.add("CircuitCollector: storeMap - " + storeMap.toString());
 
@@ -173,7 +167,7 @@ public class CircuitCollector extends Thread
                 try {
                     publishCircuitToBroker(circuit);
                 } catch (InvalidDataException | OperationNotSupportedException e) {
-                    if (firstNoDataReport ) {
+                    if (firstNoDataReport) {
                         loggingQ.add("no data for circuitData: " +
                                 circuit.getDisplayName() +
                                 Arrays.toString(e.getStackTrace())

@@ -104,6 +104,7 @@ public class PowerMetricCalculator
                 {
                     output.add(new MetricReading(r.get(i).getValue()/a.get(i).getValue(),r.get(i).getTimestamp(), metric));
                 }
+                return output;
             default:
                 throw new OperationNotSupportedException();
         }
@@ -112,7 +113,10 @@ public class PowerMetricCalculator
     public MetricReading getAverageBetween(Metric metricType, Instant startTime, Instant endTime) throws OperationNotSupportedException, InvalidDataException
     {
         List<MetricReading> data = getMetricsBetween(metricType,startTime,endTime);
-        if(data.size() == 0) throw new InvalidDataException("No data available for given time period and metric");
+        if(data.size() == 0)
+            throw new InvalidDataException("No data available for " +
+                                            metricType.toString() +
+                                            " in period ("+startTime.toString() + ":" + endTime.toString() + ")");
         return new MetricReading(data.stream().mapToDouble(MetricReading::getValue).average().getAsDouble(),data.get(data.size()-1).getTimestamp(),metricType);
     }
 }
