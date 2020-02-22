@@ -1,10 +1,7 @@
 package org.ladbury.powerMonitor.circuits;
 
 import org.ladbury.powerMonitor.Main;
-import org.ladbury.powerMonitor.control.Command;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Circuits
@@ -36,7 +33,7 @@ public class Circuits
 
     // Getters
 
-    public ArrayList<Circuit> getCircuits(){return circuits;};
+    public ArrayList<Circuit> getCircuits(){return circuits;}
     public Circuit getCircuit(int channel)
     {
         if (validChannel(channel))
@@ -68,8 +65,7 @@ public class Circuits
         if (input == null) {
             loggingQ.add("getChannelFromInput: null input");
             return -1;
-        }
-        loggingQ.add("getChannelFromInput: (" + input + ")");
+        }else loggingQ.add("getChannelFromInput: (" + input + ")");
         try {
             channel = Integer.parseInt(input);
         } catch (NumberFormatException e) {
@@ -83,7 +79,7 @@ public class Circuits
             //assume we have a circuit tag
             channel = getChannelByTag(input);
             loggingQ.add("getChannelFromInput: channel2- " + channel );
-            if (channel ==-1)
+            if (!Circuits.validChannel(channel))
             {
                 // not a tag, try by name
                 channel = getChannelByName(input);
