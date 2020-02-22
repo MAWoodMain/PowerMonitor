@@ -6,6 +6,8 @@ import org.ladbury.powerMonitor.circuits.Circuit;
 import org.ladbury.powerMonitor.circuits.CircuitData;
 import org.ladbury.powerMonitor.circuits.Circuits;
 import org.ladbury.powerMonitor.currentClamps.Clamp;
+import org.ladbury.powerMonitor.metrics.Metric;
+import org.ladbury.powerMonitor.metrics.MetricReading;
 import org.ladbury.powerMonitor.publishers.MQTTHandler;
 
 import java.util.Arrays;
@@ -82,8 +84,27 @@ public class CommandProcessor extends Thread
         }
         Circuit circuit;
         int channel = Main.getCircuits().getChannelFromInput(keys[0]);
+        Metric metric = Metric.AMPS;
+        MetricReading metricReading;
         if (Circuits.validChannel(channel)) {
             circuit = Main.getCircuits().getCircuit(channel);
+            if(keys.length < 2)
+            {
+                //no additional parameter stating which metric, use default
+                metricReading = Main.getCircuitCollector().getLatestMetricReading(circuit, metric);
+            } else
+            {
+                for (Metric m : Metric.values())
+                {
+                    if (m.toString().equalsIgnoreCase(keys[2]))
+                    {
+                        metric = m;
+                        break;
+                    }
+                }
+                metricReading = Main.getCircuitCollector().getLatestMetricReading(circuit, metric);
+            }
+            return gson.toJson(metricReading);
         }
         loggingQ.add("getMetricReading: failed with param- " + Arrays.toString(keys));
         return null;
@@ -99,7 +120,7 @@ public class CommandProcessor extends Thread
             return null;
         }
         Circuit circuit;
-        CircuitData circuitData = new CircuitData();
+        CircuitData circuitData;
         int channel = Main.getCircuits().getChannelFromInput(keys[0]);
         if (Circuits.validChannel(channel)) {
             circuit = Main.getCircuits().getCircuit(channel);

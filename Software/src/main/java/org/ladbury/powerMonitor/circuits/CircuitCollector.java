@@ -1,10 +1,8 @@
 package org.ladbury.powerMonitor.circuits;
 
-import org.ladbury.powerMonitor.metrics.InvalidDataException;
-import org.ladbury.powerMonitor.metrics.Metric;
-import org.ladbury.powerMonitor.metrics.MetricReading;
-import org.ladbury.powerMonitor.metrics.PowerMetricCalculator;
+import org.ladbury.powerMonitor.metrics.*;
 import org.ladbury.powerMonitor.publishers.MQTTHandler;
+import org.omg.CosNaming.IstringHelper;
 
 import javax.naming.OperationNotSupportedException;
 import java.time.Instant;
@@ -40,6 +38,15 @@ public class CircuitCollector extends Thread
         //this.energyStore = energyStore;
     }
 
+    public MetricReading getLatestMetricReading(Circuit circuit, Metric metric)
+    {
+        try {
+            return circuitMap.get(circuit).getLatestMetric(metric);
+        } catch (OperationNotSupportedException e) {
+            System.out.println("getLatestMetric not supported for " + metric.toString());
+        }
+        return new MetricReading(0.0, Instant.now(),metric);
+    }
     public CircuitData getCircuitData(Circuit circuit)
     {
         CircuitData circuitData = new CircuitData();
@@ -96,12 +103,6 @@ public class CircuitCollector extends Thread
                         "\""+ powerfactor.getMetric().getMetricName()+"\":"+ current.getValue().toString()+","+
                         "}}";
         mqttHandler.publishToBroker(subTopic, jsonReadings);
-    }
-
-    private void publishMetric(String subTopic, MetricReading metricReading)
-    {
-        metricReading.suppressNoise();
-        mqttHandler.publishToBroker(subTopic, metricReading.toString());
     }
 
     public void publishEnergyMetricsForCircuits()
