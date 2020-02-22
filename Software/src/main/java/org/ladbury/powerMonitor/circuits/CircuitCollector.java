@@ -2,7 +2,6 @@ package org.ladbury.powerMonitor.circuits;
 
 import org.ladbury.powerMonitor.metrics.*;
 import org.ladbury.powerMonitor.publishers.MQTTHandler;
-import org.omg.CosNaming.IstringHelper;
 
 import javax.naming.OperationNotSupportedException;
 import java.time.Instant;
@@ -54,7 +53,7 @@ public class CircuitCollector extends Thread
         Instant readingTimeMinusInterval = readingTime.minusSeconds(1);
         circuitData.channel = circuit.getChannelNumber();
         circuitData.circuitName = circuit.getDisplayName();
-        circuitData.timestamp = readingTime;
+        circuitData.time = readingTime.toString();
         try {
             circuitData.voltage = circuitMap.get(circuit).getAverageBetween(Metric.VOLTS, readingTimeMinusInterval, readingTime).getValue();
             circuitData.current = circuitMap.get(circuit).getAverageBetween(Metric.AMPS, readingTimeMinusInterval, readingTime).getValue();

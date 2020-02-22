@@ -16,7 +16,7 @@ public class CircuitData
     */
     public int channel;
     public String circuitName;
-    public Instant timestamp;
+    public String time;
     public Double voltage;
     public Double current;
     public Double realPower;
@@ -28,7 +28,7 @@ public class CircuitData
     {
         channel = -1;
         circuitName = "";
-        timestamp = Instant.now();
+        time = Instant.now().toString();
         voltage = 0.0;
         current = 0.0;
         realPower = 0.0;

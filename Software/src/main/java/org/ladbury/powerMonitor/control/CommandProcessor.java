@@ -41,16 +41,15 @@ public class CommandProcessor extends Thread
     private String getCircuit(String[] keys)
     {
         Circuit circuit;
-        if (keys == null){
+        if (keys == null) {
             loggingQ.add("GetCircuit: null keys");
             return null;
-        } else if (keys.length == 0){
+        } else if (keys.length == 0) {
             loggingQ.add("getMetricReading: empty keys");
             return null;
         }
         int channel = Main.getCircuits().getChannelFromInput(keys[0]);
-        if (Circuits.validChannel(channel))
-        {
+        if (Circuits.validChannel(channel)) {
             circuit = Main.getCircuits().getCircuit(channel);
             return gson.toJson(circuit);
         }
@@ -60,10 +59,10 @@ public class CommandProcessor extends Thread
 
     private String getClamp(String[] keys)
     {
-        if (keys == null){
+        if (keys == null) {
             loggingQ.add("getClamp: null keys");
             return null;
-        } else if (keys.length == 0){
+        } else if (keys.length == 0) {
             loggingQ.add("getClamp: empty keys");
             return null;
         }
@@ -73,12 +72,13 @@ public class CommandProcessor extends Thread
         loggingQ.add("getClamp: failed with param - " + Arrays.toString(keys));
         return null;
     }
+
     private String getMetricReading(String[] keys)
     {
-        if (keys == null ){
+        if (keys == null) {
             loggingQ.add("getMetricReading: null keys");
             return null;
-        } else if (keys.length == 0){
+        } else if (keys.length == 0) {
             loggingQ.add("getMetricReading: empty keys");
             return null;
         }
@@ -88,16 +88,12 @@ public class CommandProcessor extends Thread
         MetricReading metricReading;
         if (Circuits.validChannel(channel)) {
             circuit = Main.getCircuits().getCircuit(channel);
-            if(keys.length < 2)
-            {
+            if (keys.length < 2) {
                 //no additional parameter stating which metric, use default
                 metricReading = Main.getCircuitCollector().getLatestMetricReading(circuit, metric);
-            } else
-            {
-                for (Metric m : Metric.values())
-                {
-                    if (m.toString().equalsIgnoreCase(keys[2]))
-                    {
+            } else {
+                for (Metric m : Metric.values()) {
+                    if (m.toString().equalsIgnoreCase(keys[1])) {
                         metric = m;
                         break;
                     }
@@ -112,11 +108,11 @@ public class CommandProcessor extends Thread
 
     private String getCircuitData(String[] keys)
     {
-        if (keys == null){
+        if (keys == null) {
             loggingQ.add("getCircuitData: null keys");
             return null;
-        } else if (keys.length == 0){
-            loggingQ.add("getMetricReading: empty keys");
+        } else if (keys.length == 0) {
+            loggingQ.add("getCircuitData: empty keys");
             return null;
         }
         Circuit circuit;
@@ -125,7 +121,7 @@ public class CommandProcessor extends Thread
         if (Circuits.validChannel(channel)) {
             circuit = Main.getCircuits().getCircuit(channel);
             circuitData = Main.getCircuitCollector().getCircuitData(circuit);
-            if (circuitData!= null){
+            if (circuitData != null) {
                 return gson.toJson(circuitData);
             }
         }
@@ -135,7 +131,7 @@ public class CommandProcessor extends Thread
 
     private void processGetCommand(String[] params)
     {
-        loggingQ.add("Get Command Received: " + Arrays.toString(params));
+        //loggingQ.add("Get Command Received: " + Arrays.toString(params));
         String subject = params[0];
         String[] keys = Arrays.copyOfRange(params, 1, params.length);
         String json;
@@ -174,7 +170,7 @@ public class CommandProcessor extends Thread
                 break;
             }
             default:
-                loggingQ.add("Get Command subject not handled");
+                loggingQ.add("Get Command " + subject + " not handled");
         }
     }
     //
