@@ -65,27 +65,24 @@ public class Circuits
         if (input == null) {
             loggingQ.add("getChannelFromInput: null input");
             return -1;
-        }else loggingQ.add("getChannelFromInput: (" + input + ")");
+        }
         try {
             channel = Integer.parseInt(input);
         } catch (NumberFormatException e) {
             channel = -1;
         }
-        loggingQ.add("getChannelFromInput: channel1- " + channel );
         if (Circuits.validChannel(channel)){
             return channel;
         } else
             {
             //assume we have a circuit tag
             channel = getChannelByTag(input);
-            loggingQ.add("getChannelFromInput: channel2- " + channel );
             if (!Circuits.validChannel(channel))
             {
                 // not a tag, try by name
                 channel = getChannelByName(input);
             }
         }
-        loggingQ.add("getChannelFromInput: channel3- " + channel );
         return channel;
     }
     public String getCircuitName(int channel) {return getCircuit(channel).getDisplayName();}

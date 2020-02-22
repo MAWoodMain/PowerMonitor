@@ -42,6 +42,9 @@ public class CommandProcessor extends Thread
         if (keys == null){
             loggingQ.add("GetCircuit: null keys");
             return null;
+        } else if (keys.length == 0){
+            loggingQ.add("getMetricReading: empty keys");
+            return null;
         }
         int channel = Main.getCircuits().getChannelFromInput(keys[0]);
         if (Circuits.validChannel(channel))
@@ -55,6 +58,13 @@ public class CommandProcessor extends Thread
 
     private String getClamp(String[] keys)
     {
+        if (keys == null){
+            loggingQ.add("getClamp: null keys");
+            return null;
+        } else if (keys.length == 0){
+            loggingQ.add("getClamp: empty keys");
+            return null;
+        }
         Clamp clamp;
         clamp = Main.getClamps().getClamp(keys[0]);
         if (clamp != null) return gson.toJson(clamp);
@@ -63,8 +73,11 @@ public class CommandProcessor extends Thread
     }
     private String getMetricReading(String[] keys)
     {
-        if (keys == null){
+        if (keys == null ){
             loggingQ.add("getMetricReading: null keys");
+            return null;
+        } else if (keys.length == 0){
+            loggingQ.add("getMetricReading: empty keys");
             return null;
         }
         Circuit circuit;
@@ -80,6 +93,9 @@ public class CommandProcessor extends Thread
     {
         if (keys == null){
             loggingQ.add("getCircuitData: null keys");
+            return null;
+        } else if (keys.length == 0){
+            loggingQ.add("getMetricReading: empty keys");
             return null;
         }
         Circuit circuit;
