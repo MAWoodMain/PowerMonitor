@@ -25,8 +25,8 @@ public class Main
     private static VoltageMonitor vm;
     private static STM8PacketCollector packetCollector;
     private static MQTTHandler mqttHandler;
-    private static LinkedBlockingQueue<String> commandQ;
-    private static LinkedBlockingQueue<String> loggingQ;
+    private static LinkedBlockingQueue<String> commandQ = new LinkedBlockingQueue<>();
+    private static LinkedBlockingQueue<String> loggingQ = new LinkedBlockingQueue<>();
     private static final Circuits circuits= new Circuits();
     private static final Clamps clamps = new Clamps();
     private static CircuitCollector circuitCollector;
@@ -93,8 +93,6 @@ public class Main
     public static void main(String[] argv) throws IOException
     {
         //Initialise variables
-        commandQ = new LinkedBlockingQueue<>();
-        loggingQ = new LinkedBlockingQueue<>();
         int energyBucketInterval = 5; // Minutes
 
         //Handle arguments
