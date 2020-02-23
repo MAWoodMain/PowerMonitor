@@ -2,42 +2,44 @@ package org.ladbury.powerMonitor.control;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class Commands
 {
     private final ArrayList<Command> commands = new ArrayList<>();
-    private final HashMap<Command, Class> commandClassMap = new HashMap<>();
-    public Commands ()
+    private final HashMap<Command, Function<Command,String>> commandFunctionMap = new HashMap<>();
+    public Commands (CommandProcessor cp)
     {
         Command command;
-        try
-        {
-            command = new Command("get","circuit");
-            commandClassMap.put(command,Class.forName("org.ladbury.powerMonitor.circuits.Circuit"));
-            commands.add(command);
 
-            command = new Command("set","circuit");
-            commandClassMap.put( command,Class.forName("org.ladbury.powerMonitor.circuits.Circuit") );
-            commands.add(command);
+        command = new Command("get","circuit");
+        commandFunctionMap.put(command,cp::getCircuit);
+        commands.add(command);
 
-            command = new Command("get","clamp");
-            commandClassMap.put( command,Class.forName("org.ladbury.powerMonitor.currentClamps.Clamp") );
-            commands.add(command);
+        command = new Command("set","circuit");
+        commandFunctionMap.put( command, cp::setCircuitData);
+        commands.add(command);
 
-            command = new Command("set","clamp");
-            commandClassMap.put(command, Class.forName("org.ladbury.powerMonitor.currentClamps.Clamp")  );
-            commands.add(command);
+        command = new Command("get","clamp");
+        commandFunctionMap.put( command, cp::getClamp );
+        commands.add(command);
 
-            command = new Command("get","metricreading");
-            commandClassMap.put(command, Class.forName("org.ladbury.powerMonitor.metrics.MetricReading"));
-            commands.add(command);
+        command = new Command("set","clamp");
+        commandFunctionMap.put(command, cp::setClamp  );
+        commands.add(command);
 
-            command = new Command("get","circuitdata");
-            commandClassMap.put(command, Class.forName("org.ladbury.powerMonitor.circuits.CircuitData") );
-            commands.add(command);
-        } catch (ClassNotFoundException e){
-            e.printStackTrace();
-        }
+        command = new Command("get","metricreading");
+        commandFunctionMap.put(command, cp::getMetricReading);
+        commands.add(command);
+
+        command = new Command("get","circuitdata");
+        commandFunctionMap.put(command, cp::getCircuitData);
+        commands.add(command);
+        //Class.forName("org.ladbury.powerMonitor.circuits.Circuit")
+        //Class.forName("org.ladbury.powerMonitor.currentClamps.Clamp")
+        //Class.forName("org.ladbury.powerMonitor.metrics.MetricReading")
+        // Class.forName("org.ladbury.powerMonitor.circuits.CircuitData")
     }
 
     public Command getCommand( String commandString, String subjectString)
@@ -53,8 +55,13 @@ public class Commands
         }
         return null;
     }
-    public Class getCommandClass(Command command)
+    public String callCommand(Command command)
     {
-        return commandClassMap.get(command);
+        Command MatchedCommand = getCommand(command.getCommand(),command.getSubject());
+        if (MatchedCommand == null)
+        {
+            return "Failed to find command: " + command.toString();
+        }
+        return commandFunctionMap.get(MatchedCommand).apply(command);
     }
 }

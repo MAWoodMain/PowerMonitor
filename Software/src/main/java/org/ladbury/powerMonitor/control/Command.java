@@ -26,5 +26,8 @@ public class Command
     public void setKey(String key) { this.key = key; }
     public String getData() { return data; }
     public void setData(String data) { this.data = data; }
-
+    public String toString()
+    {
+        return "{ "+command + ", " + subject + ", "+key+", " + data + " }" ;
+    }
 }

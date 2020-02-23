@@ -25,7 +25,7 @@ public class CommandProcessor extends Thread
     {
         this.commandQ = commandQ;
         this.loggingQ = logQ;
-        this.commands = new Commands();
+        this.commands = new Commands(this);
         this.mqqtHandler = Main.getMqttHandler();
         this.gson = new Gson();
     }
@@ -33,67 +33,49 @@ public class CommandProcessor extends Thread
     /**
      * run  The main Command Processor loop
      */
+    /*
     private void processSetCommand(String[] params)
     {
         loggingQ.add("Set Command Received: " + Arrays.toString(params));
     }
-
-    private String getCircuit(String[] keys)
+    */
+    String getCircuit(Command command)
     {
         Circuit circuit;
-        if (keys == null) {
-            loggingQ.add("GetCircuit: null keys");
-            return null;
-        } else if (keys.length == 0) {
-            loggingQ.add("getMetricReading: empty keys");
-            return null;
-        }
-        int channel = Main.getCircuits().getChannelFromInput(keys[0]);
+        int channel = Main.getCircuits().getChannelFromInput(command.getKey());
         if (Circuits.validChannel(channel)) {
             circuit = Main.getCircuits().getCircuit(channel);
             return gson.toJson(circuit);
         }
-        loggingQ.add("getCircuit: failed with param-  " + Arrays.toString(keys));
-        return null;
+        String error = "getCircuit: failed with param-  " + command.toString();
+        loggingQ.add(error);
+        return error;
     }
 
-    private String getClamp(String[] keys)
+    String getClamp(Command command)
     {
-        if (keys == null) {
-            loggingQ.add("getClamp: null keys");
-            return null;
-        } else if (keys.length == 0) {
-            loggingQ.add("getClamp: empty keys");
-            return null;
-        }
         Clamp clamp;
-        clamp = Main.getClamps().getClamp(keys[0]);
+        clamp = Main.getClamps().getClamp(command.getKey());
         if (clamp != null) return gson.toJson(clamp);
-        loggingQ.add("getClamp: failed with param - " + Arrays.toString(keys));
-        return null;
+        String error = "getClamp: failed command "+ command.toString();
+        loggingQ.add(error);
+        return error;
     }
-
-    private String getMetricReading(String[] keys)
+    String setClamp(Command command){return "";}
+    String getMetricReading(Command command)
     {
-        if (keys == null) {
-            loggingQ.add("getMetricReading: null keys");
-            return null;
-        } else if (keys.length == 0) {
-            loggingQ.add("getMetricReading: empty keys");
-            return null;
-        }
         Circuit circuit;
-        int channel = Main.getCircuits().getChannelFromInput(keys[0]);
+        int channel = Main.getCircuits().getChannelFromInput(command.getKey());
         Metric metric = Metric.AMPS;
         MetricReading metricReading;
         if (Circuits.validChannel(channel)) {
             circuit = Main.getCircuits().getCircuit(channel);
-            if (keys.length < 2) {
+            if (command.getData()=="") {
                 //no additional parameter stating which metric, use default
                 metricReading = Main.getCircuitCollector().getLatestMetricReading(circuit, metric);
             } else {
                 for (Metric m : Metric.values()) {
-                    if (m.toString().equalsIgnoreCase(keys[1])) {
+                    if (m.toString().equalsIgnoreCase(command.getData())) {
                         metric = m;
                         break;
                     }
@@ -102,22 +84,16 @@ public class CommandProcessor extends Thread
             }
             return gson.toJson(metricReading);
         }
-        loggingQ.add("getMetricReading: failed with param- " + Arrays.toString(keys));
-        return null;
+        String error = "getMetricReading: failed command "+ command.toString();
+        loggingQ.add(error);
+        return error;
     }
 
-    private String getCircuitData(String[] keys)
+    String getCircuitData(Command command)
     {
-        if (keys == null) {
-            loggingQ.add("getCircuitData: null keys");
-            return null;
-        } else if (keys.length == 0) {
-            loggingQ.add("getCircuitData: empty keys");
-            return null;
-        }
         Circuit circuit;
         CircuitData circuitData;
-        int channel = Main.getCircuits().getChannelFromInput(keys[0]);
+        int channel = Main.getCircuits().getChannelFromInput(command.getKey());
         if (Circuits.validChannel(channel)) {
             circuit = Main.getCircuits().getCircuit(channel);
             circuitData = Main.getCircuitCollector().getCircuitData(circuit);
@@ -125,10 +101,12 @@ public class CommandProcessor extends Thread
                 return gson.toJson(circuitData);
             }
         }
-        loggingQ.add("getCircuitData: failed with param- " + Arrays.toString(keys));
-        return null;
+        String error = "getCircuitData: failed command "+command.toString();
+        loggingQ.add(error);
+        return error;
     }
-
+    String setCircuitData(Command command){return "";}
+    /*
     private void processGetCommand(String[] params)
     {
         //loggingQ.add("Get Command Received: " + Arrays.toString(params));
@@ -173,6 +151,8 @@ public class CommandProcessor extends Thread
                 loggingQ.add("Get Command " + subject + " not handled");
         }
     }
+    */
+    /*
     private boolean processCommandString(String commandString)
     {
         String[] commandElements;
@@ -203,16 +183,25 @@ public class CommandProcessor extends Thread
         }
         return exit;
     }
+    */
 
     private boolean processJSONCommandString(String commandString)
     {
         Command command;
+        String json;
         command = gson.fromJson(commandString,Command.class);
-        loggingQ.add("CommandProcessor: processJSON " +
-                command.getCommand() + ", " +
-                command.getSubject() + ", " +
-                command.getKey()+ ", "+
-                command.getData() );
+        if(     command.getCommand() == null ||
+                command.getSubject() == null ||
+                command.getKey() == null ||
+                command.getData() == null)
+        {
+            loggingQ.add("CommandProcessor: processJSON - contained nulls");
+            return false;
+        }
+
+        loggingQ.add("CommandProcessor: processJSON " + command.toString());
+        json = commands.callCommand(command);
+        mqqtHandler.publishToBroker(mqqtHandler.getResponseTopic(), json);
         return false;
     }
 
