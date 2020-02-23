@@ -9,8 +9,6 @@ import org.ladbury.powerMonitor.currentClamps.Clamp;
 import org.ladbury.powerMonitor.metrics.Metric;
 import org.ladbury.powerMonitor.metrics.MetricReading;
 import org.ladbury.powerMonitor.publishers.MQTTHandler;
-
-import java.util.Arrays;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class CommandProcessor extends Thread
@@ -52,6 +50,14 @@ public class CommandProcessor extends Thread
         return error;
     }
 
+    String setCircuitData(Command command)
+    {
+        String error = "setCircuit: failed with param-  " + command.toString();
+        loggingQ.add(error);
+        return error;
+    }
+
+
     String getClamp(Command command)
     {
         Clamp clamp;
@@ -61,7 +67,14 @@ public class CommandProcessor extends Thread
         loggingQ.add(error);
         return error;
     }
-    String setClamp(Command command){return "";}
+
+    String setClamp(Command command)
+    {
+        String error = "setClamp: failed command "+ command.toString();
+        loggingQ.add(error);
+        return error;
+    }
+
     String getMetricReading(Command command)
     {
         Circuit circuit;
@@ -70,7 +83,7 @@ public class CommandProcessor extends Thread
         MetricReading metricReading;
         if (Circuits.validChannel(channel)) {
             circuit = Main.getCircuits().getCircuit(channel);
-            if (command.getData()=="") {
+            if (command.getData().equals("")) {
                 //no additional parameter stating which metric, use default
                 metricReading = Main.getCircuitCollector().getLatestMetricReading(circuit, metric);
             } else {
@@ -105,85 +118,6 @@ public class CommandProcessor extends Thread
         loggingQ.add(error);
         return error;
     }
-    String setCircuitData(Command command){return "";}
-    /*
-    private void processGetCommand(String[] params)
-    {
-        //loggingQ.add("Get Command Received: " + Arrays.toString(params));
-        String subject = params[0];
-        String[] keys = Arrays.copyOfRange(params, 1, params.length);
-        String json;
-        Command command = commands.getCommand("get", subject);
-        if (command == null) {
-            loggingQ.add("Get Command subject not found");
-            return;
-        }
-        switch (subject) {
-            case "circuit": {
-                json = getCircuit(keys);
-                if (json != null) {
-                    mqqtHandler.publishToBroker(mqqtHandler.getResponseTopic(), json);
-                } else loggingQ.add("failed to get json for circuit");
-                break;
-            }
-            case "clamp": {
-                json = getClamp(keys);
-                if (json != null) {
-                    mqqtHandler.publishToBroker(mqqtHandler.getResponseTopic(), json);
-                } else loggingQ.add("failed to get json for clamp");
-                break;
-            }
-            case "metricreading": {
-                json = getMetricReading(keys);
-                if (json != null) {
-                    mqqtHandler.publishToBroker(mqqtHandler.getResponseTopic(), json);
-                } else loggingQ.add("failed to get json for metricreading");
-                break;
-            }
-            case "circuitdata": {
-                json = getCircuitData(keys);
-                if (json != null) {
-                    mqqtHandler.publishToBroker(mqqtHandler.getResponseTopic(), json);
-                } else loggingQ.add("failed to get json for getCircuitData");
-                break;
-            }
-            default:
-                loggingQ.add("Get Command " + subject + " not handled");
-        }
-    }
-    */
-    /*
-    private boolean processCommandString(String commandString)
-    {
-        String[] commandElements;
-        boolean exit = false;
-        commandElements = commandString.toLowerCase().split(" ");
-        if (commandElements.length >= 1) { //ignore if no elements
-            switch (commandElements[0]) {
-                case "set": {
-                    if (commandElements.length > 1) {
-                        processSetCommand(Arrays.copyOfRange(commandElements, 1, commandElements.length));
-                    } //else not enough arguments
-                    break;
-                }
-                case "get": {
-                    if (commandElements.length > 1) {
-                        processGetCommand(Arrays.copyOfRange(commandElements, 1, commandElements.length));
-                    } //else not enough arguments
-                    break;
-                }
-                case "exit": {
-                    exit = true;
-                    break;
-                }
-                default: {
-                    loggingQ.add("CommandProcessor: unknown command <" + commandString + ">");
-                }
-            }
-        }
-        return exit;
-    }
-    */
 
     private boolean processJSONCommandString(String commandString)
     {
@@ -198,14 +132,13 @@ public class CommandProcessor extends Thread
             loggingQ.add("CommandProcessor: processJSON - contained nulls");
             return false;
         }
-
         loggingQ.add("CommandProcessor: processJSON " + command.toString());
         json = commands.callCommand(command);
         mqqtHandler.publishToBroker(mqqtHandler.getResponseTopic(), json);
         return false;
     }
 
-        //
+    //
     // Runnable implementation
     //
 
