@@ -1,20 +1,40 @@
 package org.ladbury.powerMonitor.control;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Commands
 {
     private final ArrayList<Command> commands = new ArrayList<>();
+    private final HashMap<Command, Class> commandClassMap = new HashMap<>();
     public Commands ()
     {
+        Command command;
         try
         {
-            commands.add(new Command("get","circuit", Class.forName("org.ladbury.powerMonitor.circuits.Circuit")));
-            commands.add(new Command("set","circuit", Class.forName("org.ladbury.powerMonitor.circuits.Circuit")));
-            commands.add(new Command("get","clamp", Class.forName("org.ladbury.powerMonitor.currentClamps.Clamp")));
-            commands.add(new Command("set","clamp", Class.forName("org.ladbury.powerMonitor.currentClamps.Clamp")));
-            commands.add(new Command("get","metricreading", Class.forName("org.ladbury.powerMonitor.metrics.MetricReading")));
-            commands.add(new Command("get","circuitdata", Class.forName("org.ladbury.powerMonitor.circuits.CircuitData")));
+            command = new Command("get","circuit");
+            commandClassMap.put(command,Class.forName("org.ladbury.powerMonitor.circuits.Circuit"));
+            commands.add(command);
+
+            command = new Command("set","circuit");
+            commandClassMap.put( command,Class.forName("org.ladbury.powerMonitor.circuits.Circuit") );
+            commands.add(command);
+
+            command = new Command("get","clamp");
+            commandClassMap.put( command,Class.forName("org.ladbury.powerMonitor.currentClamps.Clamp") );
+            commands.add(command);
+
+            command = new Command("set","clamp");
+            commandClassMap.put(command, Class.forName("org.ladbury.powerMonitor.currentClamps.Clamp")  );
+            commands.add(command);
+
+            command = new Command("get","metricreading");
+            commandClassMap.put(command, Class.forName("org.ladbury.powerMonitor.metrics.MetricReading"));
+            commands.add(command);
+
+            command = new Command("get","circuitdata");
+            commandClassMap.put(command, Class.forName("org.ladbury.powerMonitor.circuits.CircuitData") );
+            commands.add(command);
         } catch (ClassNotFoundException e){
             e.printStackTrace();
         }
@@ -26,11 +46,15 @@ public class Commands
         {
             for( Command c : commands)
             {
-                if (c.getCommand().equalsIgnoreCase(commandString) && c.getCommandSubject().equalsIgnoreCase(subjectString)) return c;
+                if (c.getCommand().equalsIgnoreCase(commandString) && c.getSubject().equalsIgnoreCase(subjectString)) return c;
             }
             } catch (Exception e){
             e.printStackTrace();
         }
         return null;
+    }
+    public Class getCommandClass(Command command)
+    {
+        return commandClassMap.get(command);
     }
 }

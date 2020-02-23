@@ -3,22 +3,28 @@ package org.ladbury.powerMonitor.control;
 public class Command
 {
     private String command;
-    private String commandSubject;
-    private Class parameterClass;
+    private String subject;
+    private String key;
+    private String data;
 
-    // Constructor
-    public Command(String command, String commandSubject, Class parameterClass)
+    // Constructors
+
+    public Command(String command, String subject)
     {
         this.command = command;
-        this.commandSubject = commandSubject;
-        this.parameterClass = parameterClass;
+        this.subject = subject;
+         this.key = "";
+        this.data = "";
     }
 
     // Getters and Setters
     public String getCommand() {return command;}
     public void setCommand(String command) {this.command = command;}
-    public String getCommandSubject() {return commandSubject;}
-    public void setCommandSubject(String commandSubject) {this.commandSubject = commandSubject;}
-    public Class getParameterClass() {return parameterClass;}
-    public void setParameterClass(Class parameterClass) {this.parameterClass = parameterClass;}
+    public String getSubject() {return subject;}
+    public void setSubject(String subject) {this.subject = subject;}
+    public String getKey() { return key; }
+    public void setKey(String key) { this.key = key; }
+    public String getData() { return data; }
+    public void setData(String data) { this.data = data; }
+
 }

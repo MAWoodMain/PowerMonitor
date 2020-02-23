@@ -173,7 +173,46 @@ public class CommandProcessor extends Thread
                 loggingQ.add("Get Command " + subject + " not handled");
         }
     }
-    //
+    private boolean processCommandString(String commandString)
+    {
+        String[] commandElements;
+        boolean exit = false;
+        commandElements = commandString.toLowerCase().split(" ");
+        if (commandElements.length >= 1) { //ignore if no elements
+            switch (commandElements[0]) {
+                case "set": {
+                    if (commandElements.length > 1) {
+                        processSetCommand(Arrays.copyOfRange(commandElements, 1, commandElements.length));
+                    } //else not enough arguments
+                    break;
+                }
+                case "get": {
+                    if (commandElements.length > 1) {
+                        processGetCommand(Arrays.copyOfRange(commandElements, 1, commandElements.length));
+                    } //else not enough arguments
+                    break;
+                }
+                case "exit": {
+                    exit = true;
+                    break;
+                }
+                default: {
+                    loggingQ.add("CommandProcessor: unknown command <" + commandString + ">");
+                }
+            }
+        }
+        return exit;
+    }
+
+    private boolean processJSONCommandString(String commandString)
+    {
+        Command command;
+        command = gson.fromJson(commandString,Command.class);
+        loggingQ.add(command.toString());
+        return false;
+    }
+
+        //
     // Runnable implementation
     //
 
@@ -181,37 +220,13 @@ public class CommandProcessor extends Thread
     public void run()
     {
         String commandString;
-        String[] commandElements;
-
         boolean exit = false;
         try {
             while (!(interrupted() || exit)) {
-                commandString = commandQ.take().toLowerCase();
+                commandString = commandQ.take();
                 loggingQ.add("CommandProcessor: <" + commandString + "> arrived");
-                commandElements = commandString.split(" ");
-                if (commandElements.length >= 1) { //ignore if no elements
-                    switch (commandElements[0]) {
-                        case "set": {
-                            if (commandElements.length > 1) {
-                                processSetCommand(Arrays.copyOfRange(commandElements, 1, commandElements.length));
-                            } //else not enough arguments
-                            break;
-                        }
-                        case "get": {
-                            if (commandElements.length > 1) {
-                                processGetCommand(Arrays.copyOfRange(commandElements, 1, commandElements.length));
-                            } //else not enough arguments
-                            break;
-                        }
-                        case "exit": {
-                            exit = true;
-                            break;
-                        }
-                        default: {
-                            loggingQ.add("CommandProcessor: unknown command <" + commandString + ">");
-                        }
-                    }
-                }
+                //exit = processCommandString(commandString);
+                exit = processJSONCommandString(commandString);
                 Thread.sleep(10);
             }
             loggingQ.add("CommandProcessor: Exiting");
