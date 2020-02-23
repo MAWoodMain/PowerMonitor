@@ -208,7 +208,11 @@ public class CommandProcessor extends Thread
     {
         Command command;
         command = gson.fromJson(commandString,Command.class);
-        loggingQ.add(command.toString());
+        loggingQ.add("CommandProcessor: processJSON " +
+                command.getCommand() + ", " +
+                command.getSubject() + ", " +
+                command.getKey()+ ", "+
+                command.getData() );
         return false;
     }
 
