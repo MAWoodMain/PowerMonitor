@@ -9,7 +9,10 @@ import org.ladbury.powerMonitor.currentClamps.Clamp;
 import org.ladbury.powerMonitor.metrics.Metric;
 import org.ladbury.powerMonitor.metrics.MetricReading;
 import org.ladbury.powerMonitor.publishers.MQTTHandler;
+
 import java.util.concurrent.LinkedBlockingQueue;
+
+import static java.lang.Double.parseDouble;
 
 public class CommandProcessor extends Thread
 {
@@ -57,20 +60,49 @@ public class CommandProcessor extends Thread
         return error;
     }
 
-
     String getClamp(Command command)
     {
         Clamp clamp;
         clamp = Main.getClamps().getClamp(command.getKey());
         if (clamp != null) return gson.toJson(clamp);
-        String error = "getClamp: failed command "+ command.toString();
+        String error = "getClamp: failed command " + command.toString();
         loggingQ.add(error);
         return error;
     }
 
     String setClamp(Command command)
     {
-        String error = "setClamp: failed command "+ command.toString();
+        String data = command.getData();
+        String[] elements;
+        double value;
+        if (data != null) {
+            elements = data.split(" ");
+            if (elements.length == 2) {
+                try {
+                    value = parseDouble(elements[1]);
+                } catch (NumberFormatException e) {
+                    String error = "setClamp: invalid value " + command.toString();
+                    loggingQ.add(error);
+                    return error;
+                }
+                Clamp clamp;
+                clamp = Main.getClamps().getClamp(command.getKey());
+                if (clamp != null) {
+                    if (elements[0].equalsIgnoreCase("offset")) {
+                        clamp.setOffset(value);
+                        Main.getClamps().setClamp(command.getKey(),clamp);
+                        return "Clamp offset value set to "+ value;
+                    } else {
+                        if (elements[0].equalsIgnoreCase("scale")) {
+                            clamp.setScale(value);
+                            Main.getClamps().setClamp(command.getKey(), clamp);
+                            return "Clamp scale value set to " + value;
+                        }
+                    }
+                }
+            }
+        }
+        String error = "setClamp: failed command " + command.toString();
         loggingQ.add(error);
         return error;
     }
@@ -79,25 +111,23 @@ public class CommandProcessor extends Thread
     {
         Circuit circuit;
         int channel = Main.getCircuits().getChannelFromInput(command.getKey());
-        Metric metric = Metric.AMPS;
+        Metric metric = Metric.AMPS; //set default
         MetricReading metricReading;
         if (Circuits.validChannel(channel)) {
             circuit = Main.getCircuits().getCircuit(channel);
-            if (command.getData().equals("")) {
-                //no additional parameter stating which metric, use default
-                metricReading = Main.getCircuitCollector().getLatestMetricReading(circuit, metric);
-            } else {
+            if (!command.getData().equals("")) {
                 for (Metric m : Metric.values()) {
                     if (m.toString().equalsIgnoreCase(command.getData())) {
                         metric = m;
                         break;
                     }
                 }
-                metricReading = Main.getCircuitCollector().getLatestMetricReading(circuit, metric);
             }
+            //no additional parameter stating which metric, use default (already set)
+            metricReading = Main.getCircuitCollector().getLatestMetricReading(circuit, metric);
             return gson.toJson(metricReading);
         }
-        String error = "getMetricReading: failed command "+ command.toString();
+        String error = "getMetricReading: failed command " + command.toString();
         loggingQ.add(error);
         return error;
     }
@@ -114,7 +144,7 @@ public class CommandProcessor extends Thread
                 return gson.toJson(circuitData);
             }
         }
-        String error = "getCircuitData: failed command "+command.toString();
+        String error = "getCircuitData: failed command " + command.toString();
         loggingQ.add(error);
         return error;
     }
@@ -123,12 +153,11 @@ public class CommandProcessor extends Thread
     {
         Command command;
         String json;
-        command = gson.fromJson(commandString,Command.class);
-        if(     command.getCommand() == null ||
+        command = gson.fromJson(commandString, Command.class);
+        if (command.getCommand() == null ||
                 command.getSubject() == null ||
                 command.getKey() == null ||
-                command.getData() == null)
-        {
+                command.getData() == null) {
             loggingQ.add("CommandProcessor: processJSON - contained nulls");
             return false;
         }

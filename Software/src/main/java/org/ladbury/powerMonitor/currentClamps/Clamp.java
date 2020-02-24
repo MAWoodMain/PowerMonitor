@@ -6,18 +6,18 @@ public class Clamp
     private int maxCurrent;
     private  double samplingResistor;
     private  int turnsFactor;
-    private  double calibrationFactor;
-    private  double calibrationOffset;
+    private  double scale;
+    private  double offset;
 
     // Constructor
-    Clamp(String clampName, int maxCurrent, double samplingResistor, int turnsFactor, double calibrationFactor, double calibrationOffset)
+    Clamp(String clampName, int maxCurrent, double samplingResistor, int turnsFactor, double scale, double offset)
     {
         this.clampName = clampName;
         this.maxCurrent = maxCurrent;
         this.samplingResistor = samplingResistor;
         this.turnsFactor = turnsFactor;
-        this.calibrationFactor = calibrationFactor;
-        this.calibrationOffset = calibrationOffset;
+        this.scale = scale;
+        this.offset = offset;
     }
 
     // Getters
@@ -27,14 +27,14 @@ public class Clamp
     public int getTurnsFactor() {return turnsFactor;}
     public double scaleValue(double value)
     {
-        return calibrationFactor*(turnsFactor/samplingResistor)*value;
+        return scale *(turnsFactor/samplingResistor)*value;
     }
     public double offsetValue(double value)
     {
-        return value + calibrationOffset;
+        return value + offset;
     }
 
     // Setters, Other fields are read only
-    public void setCalibrationFactor(double calibrationFactor) {this.calibrationFactor = calibrationFactor;}
-    public void setCalibrationOffset(double calibrationOffset) {this.calibrationOffset = calibrationOffset;}
+    public void setScale(double scale) {this.scale = scale;}
+    public void setOffset(double offset) {this.offset = offset;}
 }
