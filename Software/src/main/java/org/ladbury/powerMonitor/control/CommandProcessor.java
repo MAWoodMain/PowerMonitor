@@ -65,7 +65,10 @@ public class CommandProcessor extends Thread
                             } else //TODO ought to check name doesn't exist already
                             {
                                 String newName = elements[1];
-                                for (int i = 2; i<elements.length; i++) newName = newName + " "+ elements[i];
+                                for (int i = 2; i<elements.length; i++) {
+                                    newName = newName + " "+ elements[i];
+                                }
+                                Main.getCircuits().setCircuitName(channel,newName);
                             }
                             break;
                         }
