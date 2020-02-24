@@ -9,7 +9,7 @@ import org.ladbury.powerMonitor.packets.STM8PacketCollector;
 import org.ladbury.powerMonitor.monitors.CurrentMonitor;
 import org.ladbury.powerMonitor.monitors.RealPowerMonitor;
 import org.ladbury.powerMonitor.monitors.VoltageMonitor;
-import org.ladbury.powerMonitor.monitors.configs.VoltageSenseConfig;
+import org.ladbury.powerMonitor.monitors.VoltageSenseConfig;
 import org.ladbury.powerMonitor.publishers.MQTTHandler;
 import org.ladbury.powerMonitor.publishers.PMLogger;
 import org.eclipse.paho.client.mqttv3.MqttException;

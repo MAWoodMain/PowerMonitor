@@ -2,7 +2,6 @@ package org.ladbury.powerMonitor.control;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class Commands
@@ -18,7 +17,7 @@ public class Commands
         commands.add(command);
 
         command = new Command("set","circuit");
-        commandFunctionMap.put( command, cp::setCircuitData);
+        commandFunctionMap.put( command, cp::setCircuit);
         commands.add(command);
 
         command = new Command("get","clamp");

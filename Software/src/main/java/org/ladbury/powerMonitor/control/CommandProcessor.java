@@ -22,6 +22,7 @@ public class CommandProcessor extends Thread
     final MQTTHandler mqqtHandler;
     final Gson gson;
 
+    // Constructor
     public CommandProcessor(LinkedBlockingQueue<String> commandQ, LinkedBlockingQueue<String> logQ)
     {
         this.commandQ = commandQ;
@@ -31,12 +32,6 @@ public class CommandProcessor extends Thread
         this.gson = new Gson();
     }
 
-    /**
-     * run  The main Command Processor loop
-     */
-
-
-
     String getCircuit(Command command)
     {
         Circuit circuit;
@@ -45,16 +40,72 @@ public class CommandProcessor extends Thread
             circuit = Main.getCircuits().getCircuit(channel);
             return gson.toJson(circuit);
         }
-        String error = "getCircuit: failed with param-  " + command.toString();
-        loggingQ.add(error);
-        return error;
+        CommandResponse response = new CommandResponse(command, "Error", "invalid key", "getCircuit");
+        return gson.toJson(response);
     }
 
-    String setCircuitData(Command command)
+    String setCircuit(Command command)
     {
-        String error = "setCircuit: failed with param-  " + command.toString();
-        loggingQ.add(error);
-        return error;
+        Circuit circuit;
+        CommandResponse response;
+        String data = command.getData();
+        String[] elements;
+        Clamp clamp;
+        int channel = Main.getCircuits().getChannelFromInput(command.getKey());
+        if (Circuits.validChannel(channel)) {
+            circuit = Main.getCircuits().getCircuit(channel);
+            if (data != null) {
+                elements = data.split(" ");
+                if (elements.length >= 2) {
+                    switch (elements[0].toLowerCase()) {
+                        case "displayname": {
+                            if (elements[1].equalsIgnoreCase("")) {
+                                response = new CommandResponse(command, "Error", "Invalid name", "setCircuit");
+                                return gson.toJson(response);
+                            } else //TODO ought to check name doesn't exist already
+                            {
+                                String newName = elements[1];
+                                for (int i = 2; i<elements.length; i++) newName = newName + " "+ elements[i];
+                            }
+                            break;
+                        }
+                        case "clampname": {
+                            clamp = Main.getClamps().getClamp(elements[1]);
+                            if (clamp != null)
+                            {
+                                Main.getCircuits().setClampName(channel, clamp.getClampName());
+                            } else
+                            {
+                                response = new CommandResponse(command, "Error", "Invalid Clamp", "setCircuit");
+                                return gson.toJson(response);
+                            }
+                            break;
+                        }
+                        case "monitor": {
+                            if (elements[1].equalsIgnoreCase("true"))
+                            { //enable monitoring
+                                circuit.setMonitoring(true);
+                                Main.enableCollection(circuit);
+                            }else //disable monitoring
+                            {
+                                circuit.setMonitoring(false);
+                                Main.disableCollection(circuit);
+                            }
+                            break;
+                        }
+                        default: {
+                            response = new CommandResponse(command, "Error", "not supported", "setCircuit");
+                            return gson.toJson(response);
+                        }
+                    }
+                    return gson.toJson(circuit);
+                } //also insufficient data drop through
+            } //no data
+            response = new CommandResponse(command, "Error", "insufficient data", "setCircuit");
+            return gson.toJson(response);
+        }
+        response = new CommandResponse(command, "Error", "invalid key", "setCircuit");
+        return gson.toJson(response);
     }
 
     String getClamp(Command command)
@@ -62,9 +113,8 @@ public class CommandProcessor extends Thread
         Clamp clamp;
         clamp = Main.getClamps().getClamp(command.getKey());
         if (clamp != null) return gson.toJson(clamp);
-        String error = "getClamp: failed command " + command.toString();
-        loggingQ.add(error);
-        return error;
+        CommandResponse response = new CommandResponse(command, "Error", "invalid key", "getClamp");
+        return gson.toJson(response);
     }
 
     String setClamp(Command command)
@@ -80,15 +130,14 @@ public class CommandProcessor extends Thread
                     value = parseDouble(elements[1]);
                 } catch (NumberFormatException e) {
                     response = new CommandResponse(command, "Error", "invalid value", "setClamp");
-                    loggingQ.add(response.toString());
-                    return  gson.toJson(response);
+                    return gson.toJson(response);
                 }
                 Clamp clamp;
                 clamp = Main.getClamps().getClamp(command.getKey());
                 if (clamp != null) {
                     if (elements[0].equalsIgnoreCase("offset")) {
                         clamp.setOffset(value);
-                        Main.getClamps().setClamp(command.getKey(),clamp);
+                        Main.getClamps().setClamp(command.getKey(), clamp);
                         return gson.toJson(clamp);
                     } else {
                         if (elements[0].equalsIgnoreCase("scale")) {
@@ -101,8 +150,7 @@ public class CommandProcessor extends Thread
             }
         }
         response = new CommandResponse(command, "Error", "Bad parameters", "setClamp");
-        loggingQ.add(response.toString());
-        return  gson.toJson(response);
+        return gson.toJson(response);
     }
 
     String getMetricReading(Command command)
@@ -125,9 +173,8 @@ public class CommandProcessor extends Thread
             metricReading = Main.getCircuitCollector().getLatestMetricReading(circuit, metric);
             return gson.toJson(metricReading);
         }
-        String error = "getMetricReading: failed command " + command.toString();
-        loggingQ.add(error);
-        return error;
+        CommandResponse response = new CommandResponse(command, "Error", "invalid key", "getMetricReading");
+        return gson.toJson(response);
     }
 
     String getCircuitData(Command command)
@@ -142,9 +189,8 @@ public class CommandProcessor extends Thread
                 return gson.toJson(circuitData);
             }
         }
-        String error = "getCircuitData: failed command " + command.toString();
-        loggingQ.add(error);
-        return error;
+        CommandResponse response = new CommandResponse(command, "Error", "invalid key", "getCircuitData");
+        return gson.toJson(response);
     }
 
     private boolean processJSONCommandString(String commandString)
@@ -159,7 +205,7 @@ public class CommandProcessor extends Thread
             loggingQ.add("CommandProcessor: processJSON - contained nulls");
             return false;
         }
-        loggingQ.add("CommandProcessor: processJSON " + command.toString());
+        loggingQ.add("CommandProcessor: processing " + command.toString());
         json = commands.callCommand(command);
         mqqtHandler.publishToBroker(mqqtHandler.getResponseTopic(), json);
         return false;
@@ -167,8 +213,8 @@ public class CommandProcessor extends Thread
 
     //
     // Runnable implementation
+    //run  The main Command Processor loop
     //
-
     @Override
     public void run()
     {

@@ -1,4 +1,4 @@
-package org.ladbury.powerMonitor.monitors.configs;
+package org.ladbury.powerMonitor.monitors;
 
 @SuppressWarnings({"SameParameterValue", "SameReturnValue"})
 public enum VoltageSenseConfig
@@ -9,12 +9,13 @@ public enum VoltageSenseConfig
     private final int mainsRms;
     private final double transformerRms;
 
+    // Constructor
     VoltageSenseConfig(int mainsRms, double transformerRms)
     {
         this.mainsRms = mainsRms;
         this.transformerRms = transformerRms;
     }
-
+    // getters
     public int getMainsRms()
     {
         return mainsRms;
@@ -36,7 +37,6 @@ public enum VoltageSenseConfig
     {
         return ((mainsRms*12)/ (transformerRms*1.195))*value;
     }
-
     public double offsetValue(double value)
     {
         return value;

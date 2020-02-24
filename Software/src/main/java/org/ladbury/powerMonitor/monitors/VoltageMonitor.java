@@ -4,7 +4,6 @@ import org.ladbury.powerMonitor.metrics.Metric;
 import org.ladbury.powerMonitor.metrics.MetricReading;
 import org.ladbury.powerMonitor.packets.Packet;
 import org.ladbury.powerMonitor.packets.PacketCollector;
-import org.ladbury.powerMonitor.monitors.configs.VoltageSenseConfig;
 
 public class VoltageMonitor extends Monitor<MetricReading>
 {
