@@ -34,12 +34,9 @@ public class CommandProcessor extends Thread
     /**
      * run  The main Command Processor loop
      */
-    /*
-    private void processSetCommand(String[] params)
-    {
-        loggingQ.add("Set Command Received: " + Arrays.toString(params));
-    }
-    */
+
+
+
     String getCircuit(Command command)
     {
         Circuit circuit;
@@ -75,15 +72,16 @@ public class CommandProcessor extends Thread
         String data = command.getData();
         String[] elements;
         double value;
+        CommandResponse response;
         if (data != null) {
             elements = data.split(" ");
             if (elements.length == 2) {
                 try {
                     value = parseDouble(elements[1]);
                 } catch (NumberFormatException e) {
-                    String error = "setClamp: invalid value " + command.toString();
-                    loggingQ.add(error);
-                    return error;
+                    response = new CommandResponse(command, "Error", "invalid value", "setClamp");
+                    loggingQ.add(response.toString());
+                    return  gson.toJson(response);
                 }
                 Clamp clamp;
                 clamp = Main.getClamps().getClamp(command.getKey());
@@ -91,20 +89,20 @@ public class CommandProcessor extends Thread
                     if (elements[0].equalsIgnoreCase("offset")) {
                         clamp.setOffset(value);
                         Main.getClamps().setClamp(command.getKey(),clamp);
-                        return "Clamp offset value set to "+ value;
+                        return gson.toJson(clamp);
                     } else {
                         if (elements[0].equalsIgnoreCase("scale")) {
                             clamp.setScale(value);
                             Main.getClamps().setClamp(command.getKey(), clamp);
-                            return "Clamp scale value set to " + value;
+                            return gson.toJson(clamp);
                         }
                     }
                 }
             }
         }
-        String error = "setClamp: failed command " + command.toString();
-        loggingQ.add(error);
-        return error;
+        response = new CommandResponse(command, "Error", "Bad parameters", "setClamp");
+        loggingQ.add(response.toString());
+        return  gson.toJson(response);
     }
 
     String getMetricReading(Command command)
