@@ -191,6 +191,7 @@ public class CircuitCollector extends Thread
         }
         for (Circuit circuit : circuitMap.keySet()) {
             this.storeMap.put(circuit, new CircuitEnergyStore(circuit, bucketIntervalMins, loggingQ));
+            this.circuitDataMap.put(circuit,new CircuitPowerData(circuit));
         }
         //loggingQ.add("CircuitCollector: storeMap - " + storeMap.toString());
 

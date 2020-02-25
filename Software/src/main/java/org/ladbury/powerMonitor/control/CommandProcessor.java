@@ -207,15 +207,18 @@ public class CommandProcessor extends Thread
     {
         Circuit circuit;
         CircuitPowerData circuitPowerData;
+        CommandResponse response;
         int channel = Main.getCircuits().getChannelFromInput(command.getKey());
         if (Circuits.validChannel(channel)) {
             circuit = Main.getCircuits().getCircuit(channel);
             circuitPowerData = Main.getCircuitCollector().getLatestCircuitPowerData(circuit);
             if (circuitPowerData != null) {
                 return gson.toJson(circuitPowerData);
+            } else{
+                response = new CommandResponse(command, "Info", "No data available", "getCircuitPowerData");
             }
         }
-        CommandResponse response = new CommandResponse(command, "Error", "invalid key", "getCircuitPowerData");
+        response = new CommandResponse(command, "Error", "invalid key", "getCircuitPowerData");
         return gson.toJson(response);
     }
 
@@ -223,15 +226,18 @@ public class CommandProcessor extends Thread
     {
         Circuit circuit;
         CircuitEnergyData circuitEnergyData;
+        CommandResponse response;
         int channel = Main.getCircuits().getChannelFromInput(command.getKey());
         if (Circuits.validChannel(channel)) {
             circuit = Main.getCircuits().getCircuit(channel);
             circuitEnergyData = Main.getCircuitCollector().getCircuitEnergy(circuit);
             if (circuitEnergyData != null) {
                 return gson.toJson(circuitEnergyData);
+            } else{
+                response = new CommandResponse(command, "Info", "No data available", "getCircuitEnergyData");
             }
         }
-        CommandResponse response = new CommandResponse(command, "Error", "invalid key", "getCircuitEnergyData");
+        response = new CommandResponse(command, "Error", "invalid key", "getCircuitEnergyData");
         return gson.toJson(response);
     }
 

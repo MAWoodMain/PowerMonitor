@@ -15,4 +15,12 @@ public class CircuitPowerData
         time = Instant.now().toString();
         readings = new CircuitPowerReadings();
     }
+    public CircuitPowerData(Circuit circuit)
+    {
+        channel = circuit.getChannelNumber();
+        circuitName = circuit.getDisplayName();
+        time = Instant.now().toString();
+        readings = new CircuitPowerReadings();
+    }
+
 }
