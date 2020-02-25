@@ -24,6 +24,7 @@ public class MQTTHandler implements MqttCallback
     private static String cmndTopic;
     private static String logTopic;
     private static String responseTopic;
+    private static String telemetryTopic;
 
 
     private final MqttClient mqttClient;
@@ -60,6 +61,7 @@ public class MQTTHandler implements MqttCallback
                 logTopic = topic + "/log";
                 cmndTopic = topic + "/cmnd";
                 responseTopic = topic+ "/response";
+                telemetryTopic = topic + "/tele";
             }
         }
         mqttClient = new MqttClient(broker, clientID, new MemoryPersistence());
@@ -91,6 +93,18 @@ public class MQTTHandler implements MqttCallback
     public String getResponseTopic()
     {
         return responseTopic;
+    }
+    public String getTelemetryTopic()
+    {
+        return telemetryTopic;
+    }
+    public String getLogTopic()
+    {
+        return logTopic;
+    }
+    public String getCommandTopic()
+    {
+        return cmndTopic;
     }
 
     //
@@ -206,7 +220,7 @@ public class MQTTHandler implements MqttCallback
 
     public void logToBroker(String msg)
     {
-        publishToBroker(logTopic,msg);
+        publishToBroker(getLogTopic(),msg);
     }
 
 }

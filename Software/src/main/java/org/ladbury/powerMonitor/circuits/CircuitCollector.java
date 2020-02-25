@@ -20,7 +20,7 @@ public class CircuitCollector extends Thread
     private final Map<Circuit, PowerMetricCalculator> circuitMap;
     private final LinkedBlockingQueue<String> loggingQ;
     private final HashMap<Circuit, CircuitEnergyStore> storeMap = new HashMap<>();
-    private final HashMap<Circuit, CircuitPowerData> circuitDataMap = new HashMap<>();
+    private final HashMap<Circuit, CircuitPowerData> circuitPowerDataMap = new HashMap<>();
     private final HashMap<Circuit, Boolean> publishPowerMap = new HashMap<>();
     private final HashMap<Circuit, Boolean> publishEnergyMap = new HashMap<>();
     private final int bucketIntervalMins;
@@ -84,7 +84,7 @@ public class CircuitCollector extends Thread
         Instant readingTime = Instant.now().minusSeconds(1);
         Instant readingTimeMinusInterval = readingTime.minusSeconds(1);
         circuitPowerData.channel = circuit.getChannelNumber();
-        circuitPowerData.circuitName = circuit.getDisplayName();
+        circuitPowerData.circuitTag = circuit.getTag();
         circuitPowerData.time = readingTime.toString();
         circuitPowerData.readings.voltage = circuitMap.get(circuit).getAverageBetween(Metric.VOLTS, readingTimeMinusInterval, readingTime).getValue();
         circuitPowerData.readings.current = circuitMap.get(circuit).getAverageBetween(Metric.AMPS, readingTimeMinusInterval, readingTime).getValue();
@@ -101,15 +101,15 @@ public class CircuitCollector extends Thread
         return circuitPowerData;
     }
 
-    private void publishCircuitToBroker(Circuit circuit)
+    private void publishPowerDataToBroker(Circuit circuit)
     {
-        String subTopic = mqttHandler.getTopic() + "/" + circuit.getTag();
-        mqttHandler.publishToBroker(subTopic, gson.toJson(circuitDataMap.get(circuit)));
+        String subTopic = mqttHandler.getTelemetryTopic() + "/" + circuit.getTag();
+        mqttHandler.publishToBroker(subTopic, gson.toJson(circuitPowerDataMap.get(circuit)));
     }
 
     public CircuitPowerData getLatestCircuitPowerData(Circuit circuit)
     {
-        return circuitDataMap.get(circuit);
+        return circuitPowerDataMap.get(circuit);
     }
 
     //
@@ -121,7 +121,7 @@ public class CircuitCollector extends Thread
     public CircuitEnergyData getCircuitEnergy(Circuit circuit)
     {
         CircuitEnergyData circuitEnergyData = new CircuitEnergyData();
-        circuitEnergyData.circuitName = circuit.getDisplayName();
+        circuitEnergyData.circuitTag = circuit.getTag();
         circuitEnergyData.channel = circuit.getChannelNumber();
         circuitEnergyData.time = Instant.now().toString(); // change to time of reading later
         circuitEnergyData.readings = new CircuitEnergyReadings();
@@ -151,7 +151,7 @@ public class CircuitCollector extends Thread
         // called whenever energy buckets have been filled by EnergyBucketFiller
         for (Circuit circuit : circuitMap.keySet()) {
             if (publishEnergyMap.get(circuit)) {
-                String subTopic = mqttHandler.getTopic() + "/" + circuit.getDisplayName().replace(" ", "_");
+                String subTopic = mqttHandler.getTelemetryTopic() + "/" + circuit.getTag();
                 String jsonReadings = gson.toJson(getCircuitEnergy(circuit));
                 mqttHandler.publishToBroker(subTopic, jsonReadings);
             }
@@ -191,7 +191,7 @@ public class CircuitCollector extends Thread
         }
         for (Circuit circuit : circuitMap.keySet()) {
             this.storeMap.put(circuit, new CircuitEnergyStore(circuit, bucketIntervalMins, loggingQ));
-            this.circuitDataMap.put(circuit,new CircuitPowerData(circuit));
+            this.circuitPowerDataMap.put(circuit,new CircuitPowerData(circuit));
         }
         //loggingQ.add("CircuitCollector: storeMap - " + storeMap.toString());
 
@@ -202,10 +202,10 @@ public class CircuitCollector extends Thread
             for (Circuit circuit : circuitMap.keySet()) {
                 try {
                     // Always collect data for enabled circuits
-                    circuitDataMap.put(circuit, collectCircuitData(circuit));
+                    circuitPowerDataMap.put(circuit, collectCircuitData(circuit));
                     //only publish if required
                     if (publishPowerMap.get(circuit)) {
-                        publishCircuitToBroker(circuit);
+                        publishPowerDataToBroker(circuit);
                     }
                 } catch (InvalidDataException | OperationNotSupportedException e) {
                     if (firstNoDataReport) {
