@@ -187,7 +187,7 @@ public class CommandProcessor extends Thread
         int channel = Main.getCircuits().getChannelFromInput(command.getKey());
         if (Circuits.validChannel(channel)) {
             circuit = Main.getCircuits().getCircuit(channel);
-            circuitPowerData = Main.getCircuitCollector().getCircuitData(circuit);
+            circuitPowerData = Main.getCircuitCollector().getLatestCircuitData(circuit);
             if (circuitPowerData != null) {
                 return gson.toJson(circuitPowerData);
             }
