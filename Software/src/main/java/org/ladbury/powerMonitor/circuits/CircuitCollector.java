@@ -107,7 +107,7 @@ public class CircuitCollector extends Thread
         mqttHandler.publishToBroker(subTopic, gson.toJson(circuitDataMap.get(circuit)));
     }
 
-    public CircuitPowerData getLatestCircuitData(Circuit circuit)
+    public CircuitPowerData getLatestCircuitPowerData(Circuit circuit)
     {
         return circuitDataMap.get(circuit);
     }

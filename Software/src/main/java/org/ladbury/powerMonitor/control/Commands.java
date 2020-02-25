@@ -32,13 +32,13 @@ public class Commands
         commandFunctionMap.put(command, cp::getMetricReading);
         commands.add(command);
 
-        command = new Command("get","circuitdata");
-        commandFunctionMap.put(command, cp::getCircuitData);
+        command = new Command("get","powerdata");
+        commandFunctionMap.put(command, cp::getCircuitPowerData);
         commands.add(command);
-        //Class.forName("org.ladbury.powerMonitor.circuits.Circuit")
-        //Class.forName("org.ladbury.powerMonitor.currentClamps.Clamp")
-        //Class.forName("org.ladbury.powerMonitor.metrics.MetricReading")
-        // Class.forName("org.ladbury.powerMonitor.circuits.CircuitPowerData")
+
+        command = new Command("get","energydata");
+        commandFunctionMap.put(command, cp::getCircuitEnergyData);
+        commands.add(command);
     }
 
     public Command getCommand( String commandString, String subjectString)

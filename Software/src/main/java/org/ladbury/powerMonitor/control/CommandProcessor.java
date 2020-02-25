@@ -3,6 +3,7 @@ package org.ladbury.powerMonitor.control;
 import com.google.gson.Gson;
 import org.ladbury.powerMonitor.Main;
 import org.ladbury.powerMonitor.circuits.Circuit;
+import org.ladbury.powerMonitor.circuits.CircuitEnergyData;
 import org.ladbury.powerMonitor.circuits.CircuitPowerData;
 import org.ladbury.powerMonitor.circuits.Circuits;
 import org.ladbury.powerMonitor.currentClamps.Clamp;
@@ -96,6 +97,28 @@ public class CommandProcessor extends Thread
                             }
                             break;
                         }
+                        case "publishpower": {
+                            if (elements[1].equalsIgnoreCase("true")) { //enable monitoring
+                                circuit.setPublishPower (true);
+                                Main.getCircuitCollector().setPowerPublishing(circuit,true);
+                            } else //disable monitoring
+                            {
+                                circuit.setPublishPower(false);
+                                Main.getCircuitCollector().setPowerPublishing(circuit,false);
+                            }
+                            break;
+                        }
+                        case "publishenergy": {
+                            if (elements[1].equalsIgnoreCase("true")) { //enable monitoring
+                                circuit.setPublishEnergy(true);
+                                Main.getCircuitCollector().setEnergyPublishing(circuit,true);
+                            } else //disable monitoring
+                            {
+                                circuit.setPublishEnergy(false);
+                                Main.getCircuitCollector().setEnergyPublishing(circuit,false);
+                            }
+                            break;
+                        }
                         default: {
                             response = new CommandResponse(command, "Error", "not supported", "setCircuit");
                             return gson.toJson(response);
@@ -180,19 +203,35 @@ public class CommandProcessor extends Thread
         return gson.toJson(response);
     }
 
-    String getCircuitData(Command command)
+    String getCircuitPowerData(Command command)
     {
         Circuit circuit;
         CircuitPowerData circuitPowerData;
         int channel = Main.getCircuits().getChannelFromInput(command.getKey());
         if (Circuits.validChannel(channel)) {
             circuit = Main.getCircuits().getCircuit(channel);
-            circuitPowerData = Main.getCircuitCollector().getLatestCircuitData(circuit);
+            circuitPowerData = Main.getCircuitCollector().getLatestCircuitPowerData(circuit);
             if (circuitPowerData != null) {
                 return gson.toJson(circuitPowerData);
             }
         }
-        CommandResponse response = new CommandResponse(command, "Error", "invalid key", "getCircuitData");
+        CommandResponse response = new CommandResponse(command, "Error", "invalid key", "getCircuitPowerData");
+        return gson.toJson(response);
+    }
+
+    String getCircuitEnergyData(Command command)
+    {
+        Circuit circuit;
+        CircuitEnergyData circuitEnergyData;
+        int channel = Main.getCircuits().getChannelFromInput(command.getKey());
+        if (Circuits.validChannel(channel)) {
+            circuit = Main.getCircuits().getCircuit(channel);
+            circuitEnergyData = Main.getCircuitCollector().getCircuitEnergy(circuit);
+            if (circuitEnergyData != null) {
+                return gson.toJson(circuitEnergyData);
+            }
+        }
+        CommandResponse response = new CommandResponse(command, "Error", "invalid key", "getCircuitEnergyData");
         return gson.toJson(response);
     }
 

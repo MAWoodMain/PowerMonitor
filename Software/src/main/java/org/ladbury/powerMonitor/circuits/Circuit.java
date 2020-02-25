@@ -7,8 +7,20 @@ public class Circuit
     private  int channelNumber;
     private String clampName;
     private boolean monitor;
+    private boolean publishPower;
+    private boolean publishEnergy;
 
-    //Constructor
+    //Constructors
+    Circuit(String displayName,  int channelNumber, String clampName)
+    {
+        this.displayName = displayName;
+        this.tag = displayName.replace(" ", "_");
+        this.channelNumber = channelNumber;
+        this.clampName = clampName;
+        this.monitor = true;
+        this.publishPower = true;
+        this.publishEnergy = true;
+    }
     Circuit(String displayName,  int channelNumber, String clampName, boolean monitor)
     {
         this.displayName = displayName;
@@ -16,6 +28,8 @@ public class Circuit
         this.channelNumber = channelNumber;
         this.clampName = clampName;
         this.monitor = monitor;
+        this.publishPower = monitor;
+        this.publishEnergy = monitor;
     }
 
     //Getters
@@ -36,6 +50,8 @@ public class Circuit
         return tag;
     }
     public boolean isMonitored() {return monitor; }
+    public boolean isPublishingPower() {return publishPower; }
+    public boolean isPublishingEnergy() {return publishPower; }
 
     //Setters
     public void setCircuit( Circuit cct)
@@ -53,4 +69,6 @@ public class Circuit
     }
     public void setClampName(String clampName) {this.clampName = clampName;}
     public void setMonitoring(boolean monitor){ this.monitor = monitor;}
+    public void setPublishPower(boolean publish){this.publishPower = publish;}
+    public void setPublishEnergy(boolean publish){this.publishEnergy = publish;}
 }
