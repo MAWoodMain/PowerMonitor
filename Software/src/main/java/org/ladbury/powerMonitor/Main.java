@@ -142,6 +142,8 @@ public class Main
         for( Circuit circuit : circuits.getCircuits()){
             if (circuit.isMonitored())
                 enableCollection(circuit);
+                circuitCollector.setPowerPublishing(circuit,true);
+                circuitCollector.setEnergyPublishing(circuit,true);
         }
         circuitCollector.start();
     }

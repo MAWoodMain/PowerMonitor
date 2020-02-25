@@ -1,5 +1,6 @@
 package org.ladbury.powerMonitor.circuits;
 
+import com.google.gson.Gson;
 import org.ladbury.powerMonitor.metrics.*;
 import org.ladbury.powerMonitor.publishers.MQTTHandler;
 
@@ -19,7 +20,11 @@ public class CircuitCollector extends Thread
     private final Map<Circuit, PowerMetricCalculator> circuitMap;
     private final LinkedBlockingQueue<String> loggingQ;
     private final HashMap<Circuit, CircuitEnergyStore> storeMap = new HashMap<>();
+    private final HashMap<Circuit, CircuitPowerData> circuitDataMap = new HashMap<>();
+    private final HashMap<Circuit, Boolean> publishPowerMap = new HashMap<>();
+    private final HashMap<Circuit, Boolean> publishEnergyMap = new HashMap<>();
     private final int bucketIntervalMins;
+    private final Gson gson;
 
     /**
      * MQTTHandler   Constructor
@@ -34,7 +39,28 @@ public class CircuitCollector extends Thread
         this.loggingQ = loggingQ;
         this.mqttHandler = publisher;
         this.bucketIntervalMins = bucketIntervalMins;
+        this.gson = new Gson();
         //this.energyStore = energyStore;
+    }
+
+    public void setPowerPublishing(Circuit circuit, boolean publish)
+    {
+        publishPowerMap.put(circuit, publish);
+    }
+
+    public boolean getPowerPublishing(Circuit circuit)
+    {
+        return publishPowerMap.get(circuit);
+    }
+
+    public void setEnergyPublishing(Circuit circuit, boolean publish)
+    {
+        publishEnergyMap.put(circuit, publish);
+    }
+
+    public boolean getEnergyPublishing(Circuit circuit)
+    {
+        return publishEnergyMap.get(circuit);
     }
 
     public MetricReading getLatestMetricReading(Circuit circuit, Metric metric)
@@ -44,81 +70,72 @@ public class CircuitCollector extends Thread
         } catch (OperationNotSupportedException e) {
             System.out.println("getLatestMetric not supported for " + metric.toString());
         }
-        return new MetricReading(0.0, Instant.now(),metric);
+        return new MetricReading(0.0, Instant.now(), metric);
     }
-    public CircuitData getCircuitData(Circuit circuit)
-    {
-        CircuitData circuitData = new CircuitData();
-        Instant readingTime = Instant.now().minusSeconds(1);
-        Instant readingTimeMinusInterval = readingTime.minusSeconds(1);
-        circuitData.channel = circuit.getChannelNumber();
-        circuitData.circuitName = circuit.getDisplayName();
-        circuitData.time = readingTime.toString();
-        try {
-            circuitData.voltage = circuitMap.get(circuit).getAverageBetween(Metric.VOLTS, readingTimeMinusInterval, readingTime).getValue();
-            circuitData.current = circuitMap.get(circuit).getAverageBetween(Metric.AMPS, readingTimeMinusInterval, readingTime).getValue();
-            circuitData.realPower = circuitMap.get(circuit).getAverageBetween(Metric.WATTS, readingTimeMinusInterval, readingTime).getValue();
-            circuitData.apparentPower = circuitMap.get(circuit).getAverageBetween(Metric.VA, readingTimeMinusInterval, readingTime).getValue();
-            circuitData.reactivePower = circuitMap.get(circuit).getAverageBetween(Metric.VAR, readingTimeMinusInterval, readingTime).getValue();
-            circuitData.powerFactor = circuitMap.get(circuit).getAverageBetween(Metric.POWERFACTOR, readingTimeMinusInterval, readingTime).getValue();
 
+    public MetricReading getCircuitEnergy(Circuit circuit)
+    {
+        try {
             CircuitEnergyStore circuitEnergyStore = storeMap.get(circuit);
             if (circuitEnergyStore != null) {
-                circuitData.energy = circuitEnergyStore.getLatestEnergyMetric().getValue(); //TODO select for time period
+                return circuitEnergyStore.getLatestEnergyMetric(); //TODO select for time period
             } else loggingQ.add("CircuitCollector: null circuitEnergyStore for - " + circuit.getDisplayName());
-
-            return circuitData;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return circuitData; //this may be partially complete if some data wash't available
+        return new MetricReading(0, Instant.now(), Metric.WATT_HOURS);
     }
 
-    private void publishCircuitToBroker(Circuit circuit) throws InvalidDataException, OperationNotSupportedException
+    private CircuitPowerData collectCircuitData(Circuit circuit) throws InvalidDataException, OperationNotSupportedException
     {
-        String subTopic = mqttHandler.getTopic() + "/" + circuit.getTag();
+        CircuitPowerData circuitPowerData = new CircuitPowerData();
         Instant readingTime = Instant.now().minusSeconds(1);
         Instant readingTimeMinusInterval = readingTime.minusSeconds(1);
-        MetricReading voltage = circuitMap.get(circuit).getAverageBetween(Metric.VOLTS, readingTimeMinusInterval, readingTime);
-        MetricReading apparent = circuitMap.get(circuit).getAverageBetween(Metric.VA, readingTimeMinusInterval, readingTime);
-        MetricReading real = circuitMap.get(circuit).getAverageBetween(Metric.WATTS, readingTimeMinusInterval, readingTime);
-        MetricReading reactive = circuitMap.get(circuit).getAverageBetween(Metric.VAR, readingTimeMinusInterval, readingTime);
-        MetricReading current = circuitMap.get(circuit).getAverageBetween(Metric.AMPS, readingTimeMinusInterval, readingTime);
-        MetricReading powerfactor = circuitMap.get(circuit).getAverageBetween(Metric.POWERFACTOR, readingTimeMinusInterval, readingTime);
-
+        circuitPowerData.channel = circuit.getChannelNumber();
+        circuitPowerData.circuitName = circuit.getDisplayName();
+        circuitPowerData.time = readingTime.toString();
+        circuitPowerData.readings.voltage = circuitMap.get(circuit).getAverageBetween(Metric.VOLTS, readingTimeMinusInterval, readingTime).getValue();
+        circuitPowerData.readings.current = circuitMap.get(circuit).getAverageBetween(Metric.AMPS, readingTimeMinusInterval, readingTime).getValue();
+        circuitPowerData.readings.realPower = circuitMap.get(circuit).getAverageBetween(Metric.WATTS, readingTimeMinusInterval, readingTime).getValue();
         CircuitEnergyStore circuitEnergyStore = storeMap.get(circuit);
         if (circuitEnergyStore != null) {
-            circuitEnergyStore.accumulate(real.getValue());
+            circuitEnergyStore.accumulate(circuitPowerData.readings.realPower);
         } else loggingQ.add("CircuitCollector: null circuitEnergyStore for - " + circuit.getDisplayName());
+        circuitPowerData.readings.apparentPower = circuitMap.get(circuit).getAverageBetween(Metric.VA, readingTimeMinusInterval, readingTime).getValue();
+        circuitPowerData.readings.reactivePower = circuitMap.get(circuit).getAverageBetween(Metric.VAR, readingTimeMinusInterval, readingTime).getValue();
+        circuitPowerData.readings.powerFactor = circuitMap.get(circuit).getAverageBetween(Metric.POWERFACTOR, readingTimeMinusInterval, readingTime).getValue();
+        return circuitPowerData;
+    }
 
-        String jsonReadings =
-                "{\"Time\":\"" + readingTime.toString() + "\"," +
-                        "\"Readings\":{" +
-                        "\"" + voltage.getMetric().getMetricName() + "\":" + voltage.getValue().toString() + "," +
-                        "\"" + real.getMetric().getMetricName() + "\":" + real.getValue().toString() + "," +
-                        "\"" + apparent.getMetric().getMetricName() + "\":" + apparent.getValue().toString() + "," +
-                        "\"" + reactive.getMetric().getMetricName() + "\":" + reactive.getValue().toString() + "," +
-                        "\"" + current.getMetric().getMetricName() + "\":" + current.getValue().toString() + "," +
-                        "\""+ powerfactor.getMetric().getMetricName()+"\":"+ current.getValue().toString()+","+
-                        "}}";
-        mqttHandler.publishToBroker(subTopic, jsonReadings);
+    private void publishCircuitToBroker(Circuit circuit)
+    {
+        String subTopic = mqttHandler.getTopic() + "/" + circuit.getTag();
+        mqttHandler.publishToBroker(subTopic, gson.toJson(circuitDataMap.get(circuit)));
+    }
+
+    public CircuitPowerData getCircuitData(Circuit circuit)
+    {
+        return circuitDataMap.get(circuit);
     }
 
     public void publishEnergyMetricsForCircuits()
     {
+        // called whenever energy buckets have been filled by EnergyBucketFiller
         MetricReading energy;
         MetricReading cumulativeEnergy;
         for (Circuit circuit : circuitMap.keySet()) {
-            String subTopic = mqttHandler.getTopic() + "/" + circuit.getDisplayName().replace(" ", "_");
-            energy = storeMap.get(circuit).getLatestEnergyMetric();  //TODO select for time period?
-            cumulativeEnergy = storeMap.get(circuit).getCumulativeEnergyForToday();
-            String jsonReadings =
-                    "{\"Time\":\"" + energy.getTimestamp().toString() + "\"," +
-                            "\"Readings\":{" +
-                            "\"Energy\":" + energy.getValue().toString() + "," +
-                            "\"CumulativeEnergy\":" + cumulativeEnergy.getValue().toString() +
-                            "}}";
-            mqttHandler.publishToBroker(subTopic, jsonReadings);
+            if(publishEnergyMap.get(circuit)) {
+                String subTopic = mqttHandler.getTopic() + "/" + circuit.getDisplayName().replace(" ", "_");
+                CircuitEnergyData circuitEnergyData = new CircuitEnergyData();
+                circuitEnergyData.time =  storeMap.get(circuit).getLatestEnergyMetric().getTimestamp().toString();
+                circuitEnergyData.circuitName = circuit.getDisplayName();
+                circuitEnergyData.channel = circuit.getChannelNumber();
+                circuitEnergyData.readings = new CircuitEnergyReadings();
+                circuitEnergyData.readings.energy = storeMap.get(circuit).getLatestEnergyMetric().getValue();  //TODO select for time period?
+                circuitEnergyData.readings.cumulativeEnergy = storeMap.get(circuit).getCumulativeEnergyForToday().getValue();
+                String jsonReadings = gson.toJson(circuitEnergyData);
+                mqttHandler.publishToBroker(subTopic, jsonReadings);
+            }
         }
     }
 
@@ -165,7 +182,12 @@ public class CircuitCollector extends Thread
 
             for (Circuit circuit : circuitMap.keySet()) {
                 try {
-                    publishCircuitToBroker(circuit);
+                    // Always collect data for enabled circuits
+                    circuitDataMap.put(circuit, collectCircuitData(circuit));
+                    //only publish if required
+                    if (publishPowerMap.get(circuit)) {
+                        publishCircuitToBroker(circuit);
+                    }
                 } catch (InvalidDataException | OperationNotSupportedException e) {
                     if (firstNoDataReport) {
                         loggingQ.add("no data for circuitData: " +

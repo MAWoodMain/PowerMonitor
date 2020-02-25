@@ -3,7 +3,7 @@ package org.ladbury.powerMonitor.control;
 import com.google.gson.Gson;
 import org.ladbury.powerMonitor.Main;
 import org.ladbury.powerMonitor.circuits.Circuit;
-import org.ladbury.powerMonitor.circuits.CircuitData;
+import org.ladbury.powerMonitor.circuits.CircuitPowerData;
 import org.ladbury.powerMonitor.circuits.Circuits;
 import org.ladbury.powerMonitor.currentClamps.Clamp;
 import org.ladbury.powerMonitor.metrics.Metric;
@@ -183,13 +183,13 @@ public class CommandProcessor extends Thread
     String getCircuitData(Command command)
     {
         Circuit circuit;
-        CircuitData circuitData;
+        CircuitPowerData circuitPowerData;
         int channel = Main.getCircuits().getChannelFromInput(command.getKey());
         if (Circuits.validChannel(channel)) {
             circuit = Main.getCircuits().getCircuit(channel);
-            circuitData = Main.getCircuitCollector().getCircuitData(circuit);
-            if (circuitData != null) {
-                return gson.toJson(circuitData);
+            circuitPowerData = Main.getCircuitCollector().getCircuitData(circuit);
+            if (circuitPowerData != null) {
+                return gson.toJson(circuitPowerData);
             }
         }
         CommandResponse response = new CommandResponse(command, "Error", "invalid key", "getCircuitData");

@@ -38,7 +38,7 @@ public class Commands
         //Class.forName("org.ladbury.powerMonitor.circuits.Circuit")
         //Class.forName("org.ladbury.powerMonitor.currentClamps.Clamp")
         //Class.forName("org.ladbury.powerMonitor.metrics.MetricReading")
-        // Class.forName("org.ladbury.powerMonitor.circuits.CircuitData")
+        // Class.forName("org.ladbury.powerMonitor.circuits.CircuitPowerData")
     }
 
     public Command getCommand( String commandString, String subjectString)
