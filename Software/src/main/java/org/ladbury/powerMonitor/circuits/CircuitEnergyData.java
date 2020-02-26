@@ -6,10 +6,10 @@ import java.time.Instant;
 
 public class CircuitEnergyData
 {
+    String time;
     String device;
     int channel;
     String circuitTag;
-    String time;
     CircuitEnergyReadings readings;
     CircuitEnergyData()
     {
@@ -23,7 +23,7 @@ public class CircuitEnergyData
     {
         device = Main.getMqttHandler().getClientID();
         channel = circuit.getChannelNumber();
-        circuitTag = circuit.getDisplayName();
+        circuitTag = circuit.getTag();
         time = Instant.now().toString();
         readings = new CircuitEnergyReadings();
     }

@@ -5,10 +5,10 @@ import java.time.Instant;
 
 public class CircuitPowerData
 {
+    String time;
     String device;
     int channel;
     String circuitTag;
-    String time;
     CircuitPowerReadings readings;
     CircuitPowerData()
     {
