@@ -1,14 +1,13 @@
 package org.ladbury.powerMonitor.circuits;
 
-public class CircuitPowerReadings
+class CircuitPowerReadings
 {
-    public Double voltage;
-    public Double current;
-    public Double realPower;
-    public Double reactivePower;
-    public Double apparentPower;
-    public Double powerFactor;
-    public Double energy;
+    Double voltage;
+    Double current;
+    Double realPower;
+    Double reactivePower;
+    Double apparentPower;
+    Double powerFactor;
 
     public CircuitPowerReadings()
     {

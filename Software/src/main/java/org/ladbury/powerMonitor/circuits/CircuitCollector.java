@@ -80,11 +80,9 @@ public class CircuitCollector extends Thread
 
     private CircuitPowerData collectCircuitData(Circuit circuit) throws InvalidDataException, OperationNotSupportedException
     {
-        CircuitPowerData circuitPowerData = new CircuitPowerData();
+        CircuitPowerData circuitPowerData = new CircuitPowerData(circuit);
         Instant readingTime = Instant.now().minusSeconds(1);
         Instant readingTimeMinusInterval = readingTime.minusSeconds(1);
-        circuitPowerData.channel = circuit.getChannelNumber();
-        circuitPowerData.circuitTag = circuit.getTag();
         circuitPowerData.time = readingTime.toString();
         circuitPowerData.readings.voltage = circuitMap.get(circuit).getAverageBetween(Metric.VOLTS, readingTimeMinusInterval, readingTime).getValue();
         circuitPowerData.readings.current = circuitMap.get(circuit).getAverageBetween(Metric.AMPS, readingTimeMinusInterval, readingTime).getValue();
@@ -120,11 +118,7 @@ public class CircuitCollector extends Thread
 
     public CircuitEnergyData getCircuitEnergy(Circuit circuit)
     {
-        CircuitEnergyData circuitEnergyData = new CircuitEnergyData();
-        circuitEnergyData.circuitTag = circuit.getTag();
-        circuitEnergyData.channel = circuit.getChannelNumber();
-        circuitEnergyData.time = Instant.now().toString(); // change to time of reading later
-        circuitEnergyData.readings = new CircuitEnergyReadings();
+        CircuitEnergyData circuitEnergyData = new CircuitEnergyData(circuit);
         circuitEnergyData.readings.energy = 0.0; // in case data not available
         circuitEnergyData.readings.cumulativeEnergy = 0.0; // in case data not available
         CircuitEnergyStore circuitEnergyStore = storeMap.get(circuit);

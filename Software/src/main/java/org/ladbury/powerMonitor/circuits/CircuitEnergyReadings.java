@@ -1,7 +1,7 @@
 package org.ladbury.powerMonitor.circuits;
 
-public class CircuitEnergyReadings
+class CircuitEnergyReadings
 {
-    public Double energy;
-    public Double cumulativeEnergy;
+    Double energy;
+    Double cumulativeEnergy;
 }

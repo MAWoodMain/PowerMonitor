@@ -53,17 +53,22 @@ public class MQTTHandler implements MqttCallback
             }
         }
         broker = PROTOCOL + "://" + brokerAddress + ":" + PORT;
+        //set up client id
+        this.clientID = "PMon10";
         if (clientname != null) {
-            if (!clientname.equals(""))
-            {
-                clientID = clientname;
-                topic =  "emon/" + clientname;
-                logTopic = topic + "/log";
-                cmndTopic = topic + "/cmnd";
-                responseTopic = topic+ "/response";
-                telemetryTopic = topic + "/tele";
+            if (clientname.equals("")) {
+                clientname = clientID;
             }
-        }
+        } else clientname = clientID;
+        clientID = clientname; //overwrite clientID as we have a valid name now wether specfied or not
+
+        //set up topics
+        topic =  "emon/" + clientname;
+        logTopic = topic + "/log";
+        cmndTopic = topic + "/cmnd";
+        responseTopic = topic+ "/response";
+        telemetryTopic = topic + "/tele";
+
         mqttClient = new MqttClient(broker, clientID, new MemoryPersistence());
         // set up MQTT stream definitions
         connOpts = new MqttConnectOptions();
@@ -107,7 +112,11 @@ public class MQTTHandler implements MqttCallback
         return cmndTopic;
     }
 
-    //
+    public static String getClientID()
+    {
+        return clientID;
+    }
+//
     // MqttCallback implementation
     //
 
