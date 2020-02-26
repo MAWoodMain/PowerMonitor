@@ -1,4 +1,14 @@
 # PowerMonitor Commands
+## Command line parameters
+Some basic configuration can be set via the command line, some of these are required for communication so can only be supplied by this method.
+  1. -h to get help
+  2. -m <ip address> to set the MQQT server address
+  3. -c <client name> to set a client name (also used in MQTT topics)
+  4. -i <number of minutes> to set the accumulation interval for energy collection and output
+The parameters would normally be set in the PowerMonitor.service file, as the PowerMonitor should be run as a service. see example below.
+```
+ExecStart=/bin/sh -c "exec sudo java -jar /opt/PowerMonitor/Software/deployment/PowerMonitor.jar -m 10.0.128.2 -i 5 -c PMon10"
+```
 ## Basics
 PowerMonitor can receive commands via MQTT, the commands need to be sent in JSON format on the topic /emon/device name/cmnd. Replies will be sent on the topic /emon/device name/response. NB currently data changes are not persisent through restarts of the service.
 NB All fields must be completed, as "" if not required.
