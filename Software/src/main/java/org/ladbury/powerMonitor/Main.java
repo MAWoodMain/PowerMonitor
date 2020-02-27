@@ -4,38 +4,21 @@ import com.beust.jcommander.JCommander;
 import org.ladbury.powerMonitor.circuits.*;
 import org.ladbury.powerMonitor.control.CommandProcessor;
 import org.ladbury.powerMonitor.currentClamps.Clamps;
-import org.ladbury.powerMonitor.metrics.PowerMetricCalculator;
-import org.ladbury.powerMonitor.packets.STM8PacketCollector;
-import org.ladbury.powerMonitor.monitors.CurrentMonitor;
-import org.ladbury.powerMonitor.monitors.RealPowerMonitor;
-import org.ladbury.powerMonitor.monitors.VoltageMonitor;
-import org.ladbury.powerMonitor.monitors.VoltageSenseConfig;
 import org.ladbury.powerMonitor.publishers.MQTTHandler;
 import org.ladbury.powerMonitor.publishers.PMLogger;
 import org.eclipse.paho.client.mqttv3.MqttException;
-
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Main
 {
-
-    private static final HashMap<Circuit, PowerMetricCalculator> circuitMap = new HashMap<>();
-    private static VoltageMonitor vm;
-    private static STM8PacketCollector packetCollector;
     private static MQTTHandler mqttHandler;
-    private static LinkedBlockingQueue<String> commandQ = new LinkedBlockingQueue<>();
-    private static LinkedBlockingQueue<String> loggingQ = new LinkedBlockingQueue<>();
+    private static final LinkedBlockingQueue<String> commandQ = new LinkedBlockingQueue<>();
+    private static final LinkedBlockingQueue<String> loggingQ = new LinkedBlockingQueue<>();
     private static final Circuits circuits= new Circuits();
     private static final Clamps clamps = new Clamps();
     private static CircuitCollector circuitCollector;
 
     // Getters
-    public static HashMap<Circuit, PowerMetricCalculator> getCircuitMap()
-    {
-        return circuitMap;
-    }
     public static MQTTHandler getMqttHandler()
     {
         return mqttHandler;
@@ -52,30 +35,6 @@ public class Main
     public static Clamps getClamps(){return clamps;}
     public static CircuitCollector getCircuitCollector() {return circuitCollector;}
     //Setters
-    public static void enableCollection(Circuit circuit)
-    {
-        circuits.setMonitoring(circuit.getChannelNumber(),true);
-        circuitMap.put(
-                circuit,
-                new PowerMetricCalculator(vm,
-                        new CurrentMonitor(1000,
-                                            clamps.getClamp(circuit.getClampName()),
-                                            circuit.getChannelNumber(),
-                                            packetCollector),
-                        new RealPowerMonitor(1000,
-                                            VoltageSenseConfig.UK9V,
-                                            clamps.getClamp(circuit.getClampName()),
-                                            circuit.getChannelNumber(),
-                                            packetCollector)));
-        loggingQ.add("Monitoring circuitData " + circuit.getDisplayName());
-    }
-
-    public static void disableCollection(Circuit circuit)
-    {
-        circuits.setMonitoring(circuit.getChannelNumber(),false);
-        circuitMap.remove(circuit);
-        loggingQ.add("Not monitoring circuitData " + circuit.getDisplayName());
-    }
 
     @SuppressWarnings("SpellCheckingInspection")
     private static void help()
@@ -90,10 +49,11 @@ public class Main
         System.out.println( "Any or all of the parameters may be omitted, in which case hard coded values will be used (see code)");
     }
 
-    public static void main(String[] argv) throws IOException
+    public static void main(String[] argv)
     {
         //Initialise variables
-        int energyBucketInterval = 5; // Minutes
+        int energyAccumulationIntervalMins = 5; // Minutes
+        long samplingIntervalMilliSeconds = 1000; // Milliseconds
 
         //Handle arguments
         Args args = new Args();
@@ -107,10 +67,9 @@ public class Main
             help();
             System.exit(0);
         }
-        if (args.getAccumulationInterval()>0){energyBucketInterval = args.getAccumulationInterval();}
-        //if required enable publishing processes
+        if (args.getAccumulationInterval()>0){energyAccumulationIntervalMins = args.getAccumulationInterval();}
         try {
-            loggingQ.add("Enabling MQTT");
+            //loggingQ.add("Enabling MQTT");
             mqttHandler = new MQTTHandler(args.getMqttServer(), args.getClientName(), getLoggingQ(), getCommandQ());
         } catch (MqttException e) {
             MQTTHandler.handleMQTTException(e);
@@ -120,28 +79,22 @@ public class Main
         // set up & start support processes
         PMLogger logger = new PMLogger(loggingQ);
         logger.start();
-        loggingQ.add("Enabled Logger");
-        loggingQ.add("Enabling CommandProcessor");
+        //loggingQ.add("Enabled Logger");
+        //loggingQ.add("Enabling CommandProcessor");
         CommandProcessor commandProcessor = new CommandProcessor(getCommandQ(), getLoggingQ());
         commandProcessor.start();
 
-        loggingQ.add("Enabling CircuitCollector");
-        circuitCollector = new CircuitCollector(getCircuitMap(), mqttHandler, 5, getLoggingQ());
-
-        loggingQ.add("Enabling EnergyBucketFiller");
-        EnergyBucketFiller bucketFiller = new EnergyBucketFiller(energyBucketInterval, true, circuitCollector, getLoggingQ());
-        bucketFiller.start();
-
-        // Start packet collection
-        loggingQ.add("Enabling PacketCollector");
-        packetCollector = new STM8PacketCollector(1000);
-        //packetCollector.addPacketEventListener(System.out::println);
-        loggingQ.add("Enabling VoltageMonitor ");
-        vm = new VoltageMonitor(1000, VoltageSenseConfig.UK9V, packetCollector);
-        // Enable interpretation for required circuits
+        //loggingQ.add("Enabling CircuitCollector");
+        circuitCollector = new CircuitCollector(
+                samplingIntervalMilliSeconds,
+                energyAccumulationIntervalMins,
+                mqttHandler,
+                getLoggingQ());
+        //circuits has initial values set to monitor the whole house but no other circuits
+        //additional circuits can be set to monitor via the mqtt commands
         for( Circuit circuit : circuits.getCircuits()){
             if (circuit.isMonitored())
-                enableCollection(circuit);
+                circuitCollector.enableCollection(circuit);
                 circuitCollector.setPowerPublishing(circuit,true);
                 circuitCollector.setEnergyPublishing(circuit,true);
         }

@@ -2,10 +2,10 @@ package org.ladbury.powerMonitor.control;
 
 public class CommandResponse
 {
-    private Command command;
-    private String result;
-    private String detail;
-    private String location;
+    private final Command command;
+    private final String result;
+    private final String detail;
+    private final String location;
 
     CommandResponse(Command command)
     {

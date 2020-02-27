@@ -12,7 +12,7 @@ import java.util.Locale;
 
 public class Packet
 {
-    class Measurement
+    static class Measurement
     {
         private final double iRms;
         private final double realPower;
@@ -68,7 +68,7 @@ public class Packet
             channelNo = buffer.get();
             iRms = getDouble(buffer);
             real = getDouble(buffer);
-            channels.put(channelNo,new Measurement(iRms,real));
+            channels.put(channelNo, new Measurement(iRms, real));
         }
     }
 

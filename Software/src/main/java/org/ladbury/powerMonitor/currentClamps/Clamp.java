@@ -2,10 +2,10 @@ package org.ladbury.powerMonitor.currentClamps;
 
 public class Clamp
 {
-    private String clampName;
-    private int maxCurrent;
-    private  double samplingResistor;
-    private  int turnsFactor;
+    private final String clampName;
+    private final int maxCurrent;
+    private final double samplingResistor;
+    private final int turnsFactor;
     private  double scale;
     private  double offset;
 

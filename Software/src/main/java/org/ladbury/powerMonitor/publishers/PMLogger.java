@@ -20,10 +20,10 @@ public class PMLogger extends Thread
     }
 
     private static class LogMsg {
-        String time;
-        String level;
-        String logMsg;
-        String location;
+        final String time;
+        final String level;
+        final String logMsg;
+        final String location;
 
 
         LogMsg(String logMsg){

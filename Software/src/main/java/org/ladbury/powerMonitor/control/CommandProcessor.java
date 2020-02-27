@@ -20,7 +20,7 @@ public class CommandProcessor extends Thread
     final LinkedBlockingQueue<String> commandQ;
     final LinkedBlockingQueue<String> loggingQ;
     final Commands commands;
-    final MQTTHandler mqqtHandler;
+    final MQTTHandler mqttHandler;
     final Gson gson;
 
     // Constructor
@@ -29,7 +29,7 @@ public class CommandProcessor extends Thread
         this.commandQ = commandQ;
         this.loggingQ = logQ;
         this.commands = new Commands(this);
-        this.mqqtHandler = Main.getMqttHandler();
+        this.mqttHandler = Main.getMqttHandler();
         this.gson = new Gson();
     }
 
@@ -45,6 +45,7 @@ public class CommandProcessor extends Thread
         return gson.toJson(response);
     }
 
+    @SuppressWarnings("SpellCheckingInspection")
     String setCircuit(Command command)
     {
         Circuit circuit;
@@ -59,6 +60,7 @@ public class CommandProcessor extends Thread
                 elements = data.split(" ");
                 if (elements.length >= 2) {
                     switch (elements[0].toLowerCase()) {
+                        //noinspection SpellCheckingInspection
                         case "displayname": {
                             if (elements[1].equalsIgnoreCase("")) {
                                 response = new CommandResponse(command, "Error", "Invalid name", "setCircuit");
@@ -89,11 +91,11 @@ public class CommandProcessor extends Thread
                             if (elements[1].equalsIgnoreCase("true"))
                             { //enable monitoring
                                 circuit.setMonitoring(true);
-                                Main.enableCollection(circuit);
+                                Main.getCircuitCollector().enableCollection(circuit);
                             }else //disable monitoring
                             {
                                 circuit.setMonitoring(false);
-                                Main.disableCollection(circuit);
+                                Main.getCircuitCollector().disableCollection(circuit);
                             }
                             break;
                         }
@@ -216,6 +218,8 @@ public class CommandProcessor extends Thread
                 return gson.toJson(circuitPowerData);
             } else{
                 response = new CommandResponse(command, "Info", "No data available", "getCircuitPowerData");
+                return gson.toJson(response);
+
             }
         }
         response = new CommandResponse(command, "Error", "invalid key", "getCircuitPowerData");
@@ -235,6 +239,7 @@ public class CommandProcessor extends Thread
                 return gson.toJson(circuitEnergyData);
             } else{
                 response = new CommandResponse(command, "Info", "No data available", "getCircuitEnergyData");
+                return gson.toJson(response);
             }
         }
         response = new CommandResponse(command, "Error", "invalid key", "getCircuitEnergyData");
@@ -255,7 +260,7 @@ public class CommandProcessor extends Thread
         }
         loggingQ.add("CommandProcessor: processing " + command.toString());
         json = commands.callCommand(command);
-        mqqtHandler.publishToBroker(mqqtHandler.getResponseTopic(), json);
+        mqttHandler.publishToBroker(mqttHandler.getResponseTopic(), json);
         return false;
     }
 

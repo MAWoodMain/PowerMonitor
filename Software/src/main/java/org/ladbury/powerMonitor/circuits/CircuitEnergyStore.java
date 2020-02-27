@@ -7,7 +7,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import static java.time.Instant.now;
 
-public class CircuitEnergyStore
+class CircuitEnergyStore
 {
     private long accumulationCount;
     private double energyAccumulator;
@@ -20,7 +20,7 @@ public class CircuitEnergyStore
 
     private int latestBucketFilled;
 
-    public CircuitEnergyStore(Circuit circuit, int bucketIntervalMins, LinkedBlockingQueue<String> loggingQ)
+    CircuitEnergyStore(Circuit circuit, int bucketIntervalMins, LinkedBlockingQueue<String> loggingQ)
     {
         this.circuit = circuit;
         this.loggingQ = loggingQ;
@@ -34,7 +34,7 @@ public class CircuitEnergyStore
         resetEnergyAccumulation();
     }
 
-    public synchronized void resetAllEnergyData()
+    synchronized void resetAllEnergyData()
     {
         for (int j = 0; j < bucketsPerDay; j++) {
             energyBuckets[j] = 0.0;
@@ -45,19 +45,19 @@ public class CircuitEnergyStore
         latestBucketFilled = -1;
     }
 
-    public synchronized void resetEnergyAccumulation()
+    synchronized void resetEnergyAccumulation()
     {
         accumulationCount = 0;
         energyAccumulator = 0.0;
     }
 
-    public synchronized void accumulate(double power)
+    synchronized void accumulate(double power)
     {
         accumulationCount += 1;
         energyAccumulator += power;
     }
 
-    public void updateEnergyBucket(int bucketIndex)
+    void updateEnergyBucket(int bucketIndex)
     {
         energyBuckets[bucketIndex] = (accumulationCount>0) ? energyAccumulator / accumulationCount : 0.0; //average avoiding divide by zero
         //double lastBucketValue = (bucketIndex >= 1) ? energyBuckets[bucketIndex - 1] : 0.0; // avoid issue with first bucket (index 0)
@@ -65,18 +65,19 @@ public class CircuitEnergyStore
         double wattHours = energyBuckets[bucketIndex] * ((double)bucketIntervalMins) / 60.0;
         energyMetrics[bucketIndex] = new MetricReading(wattHours, now(), Metric.WATT_HOURS);
         latestBucketFilled = bucketIndex;
+        /*
         loggingQ.add("CircuitEnergyStore: updated EnergyBucket "+ bucketIndex +
                 " for circuitData "+ circuit.getDisplayName() +
-                "Value "+ wattHours );
+                "Value "+ wattHours );*/
         resetEnergyAccumulation();
     }
 
-    public MetricReading getLatestEnergyMetric()
+    MetricReading getLatestEnergyMetric()
     {
         return (energyMetrics[latestBucketFilled]);
     }
 
-    public MetricReading getCumulativeEnergyForToday()
+    MetricReading getCumulativeEnergyForToday()
     {
         double total = 0.0;
         for (int bucketIndex = 0; bucketIndex <= latestBucketFilled; bucketIndex++) {

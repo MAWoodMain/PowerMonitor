@@ -7,10 +7,10 @@ import java.time.Instant;
 public class CircuitEnergyData
 {
     String time;
-    String device;
-    int channel;
-    String circuitTag;
-    CircuitEnergyReadings readings;
+    final String device;
+    final int channel;
+    final String circuitTag;
+    final CircuitEnergyReadings readings;
     CircuitEnergyData()
     {
         device = Main.getMqttHandler().getClientID();

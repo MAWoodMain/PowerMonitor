@@ -8,17 +8,17 @@ import java.util.concurrent.*;
 import static java.time.LocalDateTime.now;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public class EnergyBucketFiller
+class EnergyBucketFiller
 {
     private final long intervalInMins;
-    private Integer bucketToFill;
+    private int bucketToFill;
     private final LinkedBlockingQueue<String> loggingQ;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final ScheduledExecutorService dailyReset = Executors.newScheduledThreadPool(1);
     private final boolean publishEnergy;
     private final CircuitCollector circuitCollector;
 
-    public EnergyBucketFiller(long intervalInMins,
+    EnergyBucketFiller(int intervalInMins,
                               boolean publishEnergy,
                               CircuitCollector circuitCollector,
                               LinkedBlockingQueue<String> loggingQ)
@@ -30,7 +30,7 @@ public class EnergyBucketFiller
         this.circuitCollector = circuitCollector;
     }
 
-    public void start()
+    void start()
     {
         loggingQ.add("EnergyBucketFiller: start");
         try {

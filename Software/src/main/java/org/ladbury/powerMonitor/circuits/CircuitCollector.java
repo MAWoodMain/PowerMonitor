@@ -1,46 +1,56 @@
 package org.ladbury.powerMonitor.circuits;
 
 import com.google.gson.Gson;
+import org.ladbury.powerMonitor.Main;
 import org.ladbury.powerMonitor.metrics.*;
+import org.ladbury.powerMonitor.monitors.CurrentMonitor;
+import org.ladbury.powerMonitor.monitors.RealPowerMonitor;
+import org.ladbury.powerMonitor.monitors.VoltageMonitor;
+import org.ladbury.powerMonitor.monitors.VoltageSenseConfig;
+import org.ladbury.powerMonitor.packets.STM8PacketCollector;
 import org.ladbury.powerMonitor.publishers.MQTTHandler;
 
 import javax.naming.OperationNotSupportedException;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
 
 public class CircuitCollector extends Thread
 {
-    final MQTTHandler mqttHandler;
-
-    // run control variables
-    private final Map<Circuit, PowerMetricCalculator> circuitMap;
-    private final LinkedBlockingQueue<String> loggingQ;
+    private static final int MONITOR_BUFFER_SIZE = 1000;
+    private final MQTTHandler mqttHandler;
     private final HashMap<Circuit, CircuitEnergyStore> storeMap = new HashMap<>();
     private final HashMap<Circuit, CircuitPowerData> circuitPowerDataMap = new HashMap<>();
     private final HashMap<Circuit, Boolean> publishPowerMap = new HashMap<>();
     private final HashMap<Circuit, Boolean> publishEnergyMap = new HashMap<>();
-    private final int bucketIntervalMins;
+    private final HashMap<Circuit, PowerMetricCalculator> circuitMap = new HashMap<>();
+    private final LinkedBlockingQueue<String> loggingQ;
+    private final EnergyBucketFiller bucketFiller;
+    private int bucketIntervalMins;
+    private long samplingIntervalMilliSeconds;
     private final Gson gson;
+    private  STM8PacketCollector packetCollector;
+    private  VoltageMonitor vm;
 
     /**
-     * MQTTHandler   Constructor
+     * CircuitCollector   Constructor
      */
-    public CircuitCollector(Map<Circuit, PowerMetricCalculator> circuitMap,
+    public CircuitCollector(long samplingIntervalMilliSeconds,
+                            int energyAccumulationIntervalMins,
                             MQTTHandler publisher,
-                            int bucketIntervalMins,
                             LinkedBlockingQueue<String> loggingQ
     )
     {
-        this.circuitMap = circuitMap;
         this.loggingQ = loggingQ;
         this.mqttHandler = publisher;
-        this.bucketIntervalMins = bucketIntervalMins;
+        this.bucketIntervalMins = energyAccumulationIntervalMins;
         this.gson = new Gson();
-        //this.energyStore = energyStore;
+        this.samplingIntervalMilliSeconds = 1000;
+        bucketFiller = new EnergyBucketFiller(getEnergyAccumulationIntervalMins(), true, this, loggingQ);
+
     }
 
     // Getters and Setters
@@ -48,20 +58,62 @@ public class CircuitCollector extends Thread
     {
         publishPowerMap.put(circuit, publish);
     }
-
     public boolean getPowerPublishing(Circuit circuit)
     {
         return publishPowerMap.get(circuit);
     }
-
     public void setEnergyPublishing(Circuit circuit, boolean publish)
     {
         publishEnergyMap.put(circuit, publish);
     }
-
     public boolean getEnergyPublishing(Circuit circuit)
     {
         return publishEnergyMap.get(circuit);
+    }
+
+    public void enableCollection(Circuit circuit)
+    {
+        Main.getCircuits().setMonitoring(circuit.getChannelNumber(),true);
+        circuitMap.put(
+                circuit,
+                new PowerMetricCalculator(vm,
+                        new CurrentMonitor(MONITOR_BUFFER_SIZE,
+                                Main.getClamps().getClamp(circuit.getClampName()),
+                                circuit.getChannelNumber(),
+                                packetCollector),
+                        new RealPowerMonitor(MONITOR_BUFFER_SIZE,
+                                VoltageSenseConfig.UK9V,
+                                Main.getClamps().getClamp(circuit.getClampName()),
+                                circuit.getChannelNumber(),
+                                packetCollector)));
+        loggingQ.add("Monitoring circuitData " + circuit.getDisplayName());
+    }
+
+    public void disableCollection(Circuit circuit)
+    {
+        Main.getCircuits().setMonitoring(circuit.getChannelNumber(),false);
+        circuitMap.remove(circuit);
+        loggingQ.add("Not monitoring circuitData " + circuit.getDisplayName());
+    }
+
+    public synchronized int getEnergyAccumulationIntervalMins()
+    {
+        return bucketIntervalMins;
+    }
+
+    public synchronized void setEnergyAccumulationIntervalMins(int bucketIntervalMins)
+    {
+        this.bucketIntervalMins = bucketIntervalMins;
+    }
+
+    public synchronized long getSamplingIntervalMilliSeconds()
+    {
+        return samplingIntervalMilliSeconds;
+    }
+
+    public synchronized void setSamplingIntervalMilliSeconds(long samplingIntervalMilliSeconds)
+    {
+        this.samplingIntervalMilliSeconds = samplingIntervalMilliSeconds;
     }
 
     public MetricReading getLatestMetricReading(Circuit circuit, Metric metric)
@@ -124,6 +176,19 @@ public class CircuitCollector extends Thread
         CircuitEnergyStore circuitEnergyStore = storeMap.get(circuit);
         MetricReading energy;
 
+        // Start packet collection
+        loggingQ.add("Enabling PacketCollector");
+        try {
+            packetCollector = new STM8PacketCollector(getSamplingIntervalMilliSeconds());
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(5);
+        }
+        //packetCollector.addPacketEventListener(System.out::println);
+        loggingQ.add("Enabling VoltageMonitor ");
+        vm = new VoltageMonitor(MONITOR_BUFFER_SIZE, VoltageSenseConfig.UK9V, packetCollector);
+        // Enable interpretation for required circuits
+
         if (circuitEnergyStore != null) {
             try {
                 energy = circuitEnergyStore.getLatestEnergyMetric();
@@ -140,7 +205,7 @@ public class CircuitCollector extends Thread
         return circuitEnergyData;
     }
 
-    public void publishEnergyMetricsForCircuits()
+    void publishEnergyMetricsForCircuits()
     {
         // called whenever energy buckets have been filled by EnergyBucketFiller
         for (Circuit circuit : circuitMap.keySet()) {
@@ -152,14 +217,14 @@ public class CircuitCollector extends Thread
         }
     }
 
-    public void fillAllEnergyBuckets(int bucketToFill)
+    void fillAllEnergyBuckets(int bucketToFill)
     {
         for (Circuit circuit : circuitMap.keySet()) {
             storeMap.get(circuit).updateEnergyBucket(bucketToFill);
         }
     }
 
-    public void resetAllEnergyBuckets()
+    void resetAllEnergyBuckets()
     {
         for (Circuit circuit : circuitMap.keySet()) {
             storeMap.get(circuit).resetAllEnergyData();
@@ -171,23 +236,25 @@ public class CircuitCollector extends Thread
     //
 
     /**
-     * run  The main publishers loop
+     * run  The main collection loop
      */
     @Override
     public void run()
     {
         boolean firstNoDataReport = true;
         long startTime;
+
         try {
             // wait for first readings to be ready
-            Thread.sleep(2010);
+            Thread.sleep(3000);
         } catch (InterruptedException ignored) {
         }
         for (Circuit circuit : circuitMap.keySet()) {
-            this.storeMap.put(circuit, new CircuitEnergyStore(circuit, bucketIntervalMins, loggingQ));
+            this.storeMap.put(circuit, new CircuitEnergyStore(circuit, getEnergyAccumulationIntervalMins(), loggingQ));
             this.circuitPowerDataMap.put(circuit,new CircuitPowerData(circuit));
         }
         //loggingQ.add("CircuitCollector: storeMap - " + storeMap.toString());
+         bucketFiller.start();
 
         while (!Thread.interrupted()) {
             startTime = System.currentTimeMillis();
@@ -217,15 +284,14 @@ public class CircuitCollector extends Thread
             }
 
             //Frequency
-            while (startTime + 1000 > System.currentTimeMillis()) {
+            while (startTime + getSamplingIntervalMilliSeconds() > System.currentTimeMillis()) {
                 // wait half the remaining time
                 try {
-                    Thread.sleep(Math.max(0, ((startTime + 1000) - System.currentTimeMillis()) / 2));
+                    Thread.sleep(Math.max(0, ((startTime + getSamplingIntervalMilliSeconds()) - System.currentTimeMillis()) / 2));
                 } catch (InterruptedException ignore) {
                 }
             }
         }
         loggingQ.add("CircuitCollector: Interrupted, exiting");
-        System.exit(0);
     }
 }

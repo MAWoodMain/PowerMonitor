@@ -6,7 +6,7 @@
 
     <groupId>org.ladbury.powermonitor</groupId>
     <artifactId>Software</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.3-SNAPSHOT</version>
 
     <build>
         <plugins>
