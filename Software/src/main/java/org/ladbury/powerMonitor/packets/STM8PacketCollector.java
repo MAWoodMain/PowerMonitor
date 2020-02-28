@@ -18,7 +18,7 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
     private long extractionPeriod;
 
     private final Serial serial;
-
+    private final SerialConfig config;
 
     static
     {
@@ -29,13 +29,7 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
         PACKET_LENGTH = START_SEQUENCE.length+10+1+9*2*10;
     }
 
-
-    public STM8PacketCollector() throws IOException
-    {
-        this(1000);
-    }
-
-    public STM8PacketCollector(long extractionPeriod) throws IOException
+    public STM8PacketCollector(long extractionPeriod)
     {
         this.extractionPeriod = extractionPeriod;
         this.bytes = new ArrayList<>();
@@ -43,7 +37,7 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
         this.listeners = new ArrayList<>();
         this.serial = SerialFactory.createInstance();
 
-        SerialConfig config = new SerialConfig();
+        config = new SerialConfig();
         config.device("/dev/ttyS0") //config.device(SerialPort.getDefaultPort()) /dev/ttyAMA0 didn't work
                 .baud(Baud._230400)
                 .dataBits(DataBits._8)
@@ -51,9 +45,6 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
                 .parity(Parity.NONE)
                 .flowControl(FlowControl.NONE);
         serial.addListener(this);
-        serial.open(config);
-
-        this.start();
     }
     @Override
     public void run()
@@ -61,6 +52,13 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
         long time;
         List<Packet> newPackets;
         super.run();
+        try {
+            serial.open(config);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(5);
+        }
+
         while(!Thread.interrupted())
         {
             //process list of serial bytes accumulated for period

@@ -32,7 +32,7 @@ public class CircuitCollector extends Thread
     private int bucketIntervalMins;
     private long samplingIntervalMilliSeconds;
     private final Gson gson;
-    private  STM8PacketCollector packetCollector;
+    private  final STM8PacketCollector packetCollector;
     private  VoltageMonitor vm;
 
     /**
@@ -48,9 +48,9 @@ public class CircuitCollector extends Thread
         this.mqttHandler = publisher;
         this.bucketIntervalMins = energyAccumulationIntervalMins;
         this.gson = new Gson();
-        this.samplingIntervalMilliSeconds = 1000;
+        this.samplingIntervalMilliSeconds = samplingIntervalMilliSeconds;
         bucketFiller = new EnergyBucketFiller(getEnergyAccumulationIntervalMins(), true, this, loggingQ);
-
+        packetCollector = new STM8PacketCollector(getSamplingIntervalMilliSeconds());
     }
 
     // Getters and Setters
@@ -176,19 +176,6 @@ public class CircuitCollector extends Thread
         CircuitEnergyStore circuitEnergyStore = storeMap.get(circuit);
         MetricReading energy;
 
-        // Start packet collection
-        loggingQ.add("Enabling PacketCollector");
-        try {
-            packetCollector = new STM8PacketCollector(getSamplingIntervalMilliSeconds());
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(5);
-        }
-        //packetCollector.addPacketEventListener(System.out::println);
-        loggingQ.add("Enabling VoltageMonitor ");
-        vm = new VoltageMonitor(MONITOR_BUFFER_SIZE, VoltageSenseConfig.UK9V, packetCollector);
-        // Enable interpretation for required circuits
-
         if (circuitEnergyStore != null) {
             try {
                 energy = circuitEnergyStore.getLatestEnergyMetric();
@@ -249,6 +236,13 @@ public class CircuitCollector extends Thread
             Thread.sleep(3000);
         } catch (InterruptedException ignored) {
         }
+        // Start packet collection
+        loggingQ.add("Enabling PacketCollector");
+        packetCollector.start();
+        //packetCollector.addPacketEventListener(System.out::println);
+        loggingQ.add("Enabling VoltageMonitor ");
+        vm = new VoltageMonitor(MONITOR_BUFFER_SIZE, VoltageSenseConfig.UK9V, packetCollector);
+        // Enable interpretation for required circuits
         for (Circuit circuit : circuitMap.keySet()) {
             this.storeMap.put(circuit, new CircuitEnergyStore(circuit, getEnergyAccumulationIntervalMins(), loggingQ));
             this.circuitPowerDataMap.put(circuit,new CircuitPowerData(circuit));
@@ -293,5 +287,10 @@ public class CircuitCollector extends Thread
             }
         }
         loggingQ.add("CircuitCollector: Interrupted, exiting");
+        try {
+            packetCollector.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
