@@ -48,7 +48,7 @@ public class CircuitCollector extends Thread
         this.bucketIntervalMins = energyAccumulationIntervalMins;
         this.gson = new Gson();
         this.samplingIntervalMilliSeconds = samplingIntervalMilliSeconds;
-        bucketFiller = new EnergyBucketFiller(getEnergyAccumulationIntervalMins(), true, this, loggingQ);
+        bucketFiller = new EnergyBucketFiller(getEnergyAccumulationIntervalMins(),this);
         packetCollector = new STM8PacketCollector(getSamplingIntervalMilliSeconds());
         vm = new VoltageMonitor(MONITOR_BUFFER_SIZE, VoltageSenseConfig.UK9V, packetCollector);
     }
@@ -83,14 +83,18 @@ public class CircuitCollector extends Thread
         loggingQ.add("Not monitoring circuitData " + circuit.getDisplayName());
     }
 
-    public synchronized int getEnergyAccumulationIntervalMins()
+    public int getEnergyAccumulationIntervalMins()
     {
         return bucketIntervalMins;
     }
 
-    public synchronized void setEnergyAccumulationIntervalMins(int bucketIntervalMins)
+    public void setEnergyAccumulationIntervalMins(int bucketIntervalMins)
     {
         this.bucketIntervalMins = bucketIntervalMins;
+        if (bucketIntervalMins!=bucketFiller.getIntervalInMins())
+        {
+            bucketFiller.stopBucketFillScheduler();
+        }
     }
 
     public synchronized long getSamplingIntervalMilliSeconds()
@@ -239,7 +243,7 @@ public class CircuitCollector extends Thread
             this.channelPowerDataMap.put(channel,new CircuitPowerData(circuit));
         }
         //loggingQ.add("CircuitCollector: storeMap - " + storeMap.toString());
-         bucketFiller.start();
+         bucketFiller.startScheduledTasks();
 
         while (!Thread.interrupted()) {
             startTime = System.currentTimeMillis();

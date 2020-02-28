@@ -1,5 +1,7 @@
 package org.ladbury.powerMonitor.circuits;
 
+import org.ladbury.powerMonitor.Main;
+
 import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -10,50 +12,42 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 class EnergyBucketFiller
 {
-    private final long intervalInMins;
+    private long intervalInMins;
     private int bucketToFill;
     private final LinkedBlockingQueue<String> loggingQ;
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService bucketFillScheduler = Executors.newScheduledThreadPool(1);
     private final ScheduledExecutorService dailyReset = Executors.newScheduledThreadPool(1);
-    private final boolean publishEnergy;
     private final CircuitCollector circuitCollector;
+    private final Runnable filler;
+    private final Runnable resetter;
 
-    EnergyBucketFiller(int intervalInMins,
-                              boolean publishEnergy,
-                              CircuitCollector circuitCollector,
-                              LinkedBlockingQueue<String> loggingQ)
+    EnergyBucketFiller(int intervalInMins, CircuitCollector circuitCollector)
     {
         this.intervalInMins = intervalInMins;
         this.bucketToFill = 0;
-        this.publishEnergy = publishEnergy;
-        this.loggingQ = loggingQ;
+        this.loggingQ = Main.getLoggingQ();
         this.circuitCollector = circuitCollector;
+        // Define functions to be called by timers
+        filler = () -> {
+            //fill buckets now
+            this.circuitCollector.fillAllEnergyBuckets(bucketToFill);
+            this.circuitCollector.publishEnergyMetricsForCircuits(); // publishing decided on a per circuit basis
+            //loggingQ.add("EnergyBucketFiller: bucket(s) " + bucketToFill.toString() + " filled ");
+            bucketToFill += 1;
+        };
+        resetter = () -> {
+            //fill buckets now
+            circuitCollector.resetAllEnergyBuckets();
+            bucketToFill = 0;
+            loggingQ.add("EnergyBucketFiller: buckets reset");
+        };
     }
+    public long getIntervalInMins(){return intervalInMins;}
 
-    void start()
+    void startScheduledTasks()
     {
         loggingQ.add("EnergyBucketFiller: start");
         try {
-            //
-            // Define functions to be called by timers
-            //
-            final Runnable filler = () -> {
-                //fill buckets now
-                circuitCollector.fillAllEnergyBuckets(bucketToFill);
-                if (publishEnergy) {
-                    circuitCollector.publishEnergyMetricsForCircuits();
-                }
-                //loggingQ.add("EnergyBucketFiller: bucket(s) " + bucketToFill.toString() + " filled ");
-                bucketToFill += 1;
-            };
-
-            final Runnable resetter = () -> {
-                //fill buckets now
-                circuitCollector.resetAllEnergyBuckets();
-                bucketToFill = 0;
-                loggingQ.add("EnergyBucketFiller: buckets reset");
-            };
-
             //work out when to start
             LocalDateTime localNow = now(ZoneId.of("Europe/London"));
             LocalDateTime todayMidnight = localNow.truncatedTo(ChronoUnit.DAYS); //start of today
@@ -62,11 +56,8 @@ class EnergyBucketFiller
                 nextCall = nextCall.plusMinutes(intervalInMins);
                 bucketToFill += 1;
             }
-
-            //loggingQ.add("EnergyBucketFiller: schedule bucketToFill = " + bucketToFill.toString() + "First call " + nextCall.toString());
-
             //schedule the bucket filler
-            scheduler.scheduleAtFixedRate(
+            bucketFillScheduler.scheduleAtFixedRate(
                     filler,
                     localNow.until(nextCall, ChronoUnit.SECONDS),
                     intervalInMins * 60, //convert to seconds
@@ -87,4 +78,43 @@ class EnergyBucketFiller
             //e.printStackTrace();
         }
     }
+    void stopBucketFillScheduler()
+    {
+        bucketFillScheduler.shutdown();
+        boolean shutdown = false;
+        while (!shutdown){
+            try {
+                shutdown = bucketFillScheduler.awaitTermination(10, SECONDS);
+            } catch (InterruptedException e) {
+                shutdown = true;
+            }
+        }
+        loggingQ.add("EnergyBucketFiller: stopped bucket fill scheduler");
+    }
+    void rescheduleBucketFiller(long intervalInMins)
+    {
+        this.intervalInMins = intervalInMins;
+        stopBucketFillScheduler();
+        try {
+            //work out when to start
+            LocalDateTime localNow = now(ZoneId.of("Europe/London"));
+            LocalDateTime todayMidnight = localNow.truncatedTo(ChronoUnit.DAYS); //start of today
+            LocalDateTime nextCall = todayMidnight;
+            while (nextCall.isBefore(localNow)) {
+                nextCall = nextCall.plusMinutes(intervalInMins);
+                bucketToFill += 1;
+            }
+            //schedule the bucket filler
+            bucketFillScheduler.scheduleAtFixedRate(
+                    filler,
+                    localNow.until(nextCall, ChronoUnit.SECONDS),
+                    intervalInMins * 60, //convert to seconds
+                    SECONDS);
+            loggingQ.add("EnergyBucketFiller: bucket filling rescheduled");
+        } catch (Exception e) {
+            loggingQ.add("EnergyBucketFiller: Exception - " + Arrays.toString(e.getStackTrace()));
+            //e.printStackTrace();
+        }
+    }
+
 }
