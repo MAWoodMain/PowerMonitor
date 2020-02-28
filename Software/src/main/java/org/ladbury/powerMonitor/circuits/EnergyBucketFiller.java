@@ -44,28 +44,32 @@ class EnergyBucketFiller
     }
     public long getIntervalInMins(){return intervalInMins;}
 
+    private long calculateInitialDelayAndSetBucket()
+    {
+        //work out when to start
+        LocalDateTime localNow = now(ZoneId.of("Europe/London"));
+        LocalDateTime nextCall = localNow.truncatedTo(ChronoUnit.DAYS); //start of today
+        while (nextCall.isBefore(localNow)) {
+            nextCall = nextCall.plusMinutes(intervalInMins);
+            bucketToFill += 1;
+        }
+        return localNow.until(nextCall, ChronoUnit.SECONDS);
+    }
     void startScheduledTasks()
     {
         loggingQ.add("EnergyBucketFiller: start");
         try {
-            //work out when to start
-            LocalDateTime localNow = now(ZoneId.of("Europe/London"));
-            LocalDateTime todayMidnight = localNow.truncatedTo(ChronoUnit.DAYS); //start of today
-            LocalDateTime nextCall = todayMidnight;
-            while (nextCall.isBefore(localNow)) {
-                nextCall = nextCall.plusMinutes(intervalInMins);
-                bucketToFill += 1;
-            }
             //schedule the bucket filler
             bucketFillScheduler.scheduleAtFixedRate(
                     filler,
-                    localNow.until(nextCall, ChronoUnit.SECONDS),
+                    calculateInitialDelayAndSetBucket(),
                     intervalInMins * 60, //convert to seconds
                     SECONDS);
 
             //Work out when to reset
+            LocalDateTime localNow = now(ZoneId.of("Europe/London"));
+            LocalDateTime todayMidnight = localNow.truncatedTo(ChronoUnit.DAYS); //start of today
             LocalDateTime tomorrowMidnight = todayMidnight.plusDays(1); //start of tomorrow
-
             //schedule reset at tomorrow midnight
             dailyReset.scheduleAtFixedRate(
                     resetter,
@@ -75,7 +79,6 @@ class EnergyBucketFiller
             loggingQ.add("EnergyBucketFiller: both tasks scheduled");
         } catch (Exception e) {
             loggingQ.add("EnergyBucketFiller: Exception - " + Arrays.toString(e.getStackTrace()));
-            //e.printStackTrace();
         }
     }
     void stopBucketFillScheduler()
@@ -96,25 +99,15 @@ class EnergyBucketFiller
         this.intervalInMins = intervalInMins;
         stopBucketFillScheduler();
         try {
-            //work out when to start
-            LocalDateTime localNow = now(ZoneId.of("Europe/London"));
-            LocalDateTime todayMidnight = localNow.truncatedTo(ChronoUnit.DAYS); //start of today
-            LocalDateTime nextCall = todayMidnight;
-            while (nextCall.isBefore(localNow)) {
-                nextCall = nextCall.plusMinutes(intervalInMins);
-                bucketToFill += 1;
-            }
             //schedule the bucket filler
             bucketFillScheduler.scheduleAtFixedRate(
                     filler,
-                    localNow.until(nextCall, ChronoUnit.SECONDS),
+                    calculateInitialDelayAndSetBucket(),
                     intervalInMins * 60, //convert to seconds
                     SECONDS);
             loggingQ.add("EnergyBucketFiller: bucket filling rescheduled");
         } catch (Exception e) {
             loggingQ.add("EnergyBucketFiller: Exception - " + Arrays.toString(e.getStackTrace()));
-            //e.printStackTrace();
         }
     }
-
 }

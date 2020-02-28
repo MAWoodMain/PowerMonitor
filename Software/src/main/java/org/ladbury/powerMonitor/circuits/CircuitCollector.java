@@ -94,7 +94,8 @@ public class CircuitCollector extends Thread
         if (bucketIntervalMins!=bucketFiller.getIntervalInMins())
         {
             bucketFiller.stopBucketFillScheduler();
-        }
+            bucketFiller.rescheduleBucketFiller(bucketIntervalMins);
+        } // else it's already OK
     }
 
     public synchronized long getSamplingIntervalMilliSeconds()
