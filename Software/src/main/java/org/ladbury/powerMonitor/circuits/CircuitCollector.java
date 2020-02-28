@@ -70,6 +70,7 @@ public class CircuitCollector extends Thread
     {
         return publishEnergyMap.get(circuit);
     }
+    public boolean isMonitoring(Circuit circuit){return circuitMap.containsKey(circuit);}
 
     public void enableCollection(Circuit circuit)
     {

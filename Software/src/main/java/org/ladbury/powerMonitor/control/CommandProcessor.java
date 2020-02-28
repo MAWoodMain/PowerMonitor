@@ -54,87 +54,82 @@ public class CommandProcessor extends Thread
         String[] elements;
         Clamp clamp;
         int channel = Main.getCircuits().getChannelFromInput(command.getKey());
-        if (Circuits.validChannel(channel)) {
-            circuit = Main.getCircuits().getCircuit(channel);
-            if (data != null) {
-                elements = data.split(" ");
-                if (elements.length >= 2) {
-                    switch (elements[0].toLowerCase()) {
-                        //noinspection SpellCheckingInspection
-                        case "displayname": {
-                            if (elements[1].equalsIgnoreCase("")) {
-                                response = new CommandResponse(command, "Error", "Invalid name", "setCircuit");
-                                return gson.toJson(response);
-                            } else //TODO ought to check name doesn't exist already
-                            {
-                                String newName = elements[1];
-                                for (int i = 2; i<elements.length; i++) {
-                                    newName = newName + " "+ elements[i];
-                                }
-                                Main.getCircuits().setCircuitName(channel,newName);
-                            }
-                            break;
-                        }
-                        case "clampname": {
-                            clamp = Main.getClamps().getClamp(elements[1]);
-                            if (clamp != null)
-                            {
-                                Main.getCircuits().setClampName(channel, clamp.getClampName());
-                            } else
-                            {
-                                response = new CommandResponse(command, "Error", "Invalid Clamp", "setCircuit");
-                                return gson.toJson(response);
-                            }
-                            break;
-                        }
-                        case "monitor": {
-                            if (elements[1].equalsIgnoreCase("true"))
-                            { //enable monitoring
-                                circuit.setMonitoring(true);
-                                Main.getCircuitCollector().enableCollection(circuit);
-                            }else //disable monitoring
-                            {
-                                circuit.setMonitoring(false);
-                                Main.getCircuitCollector().disableCollection(circuit);
-                            }
-                            break;
-                        }
-                        case "publishpower": {
-                            if (elements[1].equalsIgnoreCase("true")) { //enable monitoring
-                                circuit.setPublishPower (true);
-                                Main.getCircuitCollector().setPowerPublishing(circuit,true);
-                            } else //disable monitoring
-                            {
-                                circuit.setPublishPower(false);
-                                Main.getCircuitCollector().setPowerPublishing(circuit,false);
-                            }
-                            break;
-                        }
-                        case "publishenergy": {
-                            if (elements[1].equalsIgnoreCase("true")) { //enable monitoring
-                                circuit.setPublishEnergy(true);
-                                Main.getCircuitCollector().setEnergyPublishing(circuit,true);
-                            } else //disable monitoring
-                            {
-                                circuit.setPublishEnergy(false);
-                                Main.getCircuitCollector().setEnergyPublishing(circuit,false);
-                            }
-                            break;
-                        }
-                        default: {
-                            response = new CommandResponse(command, "Error", "not supported", "setCircuit");
-                            return gson.toJson(response);
-                        }
-                    }
-                    return gson.toJson(circuit);
-                } //also insufficient data drop through
-            } //no data
+        if (!Circuits.validChannel(channel)) {
+            response = new CommandResponse(command, "Error", "invalid key", "setCircuit");
+            return gson.toJson(response);
+        }
+        if (data == null) {
+            response = new CommandResponse(command, "Error", "null data", "setCircuit");
+            return gson.toJson(response);
+
+        }
+        elements = data.split(" ");
+        if (elements.length < 2) {
             response = new CommandResponse(command, "Error", "insufficient data", "setCircuit");
             return gson.toJson(response);
         }
-        response = new CommandResponse(command, "Error", "invalid key", "setCircuit");
-        return gson.toJson(response);
-    }
+        // required parameters all present
+        circuit = Main.getCircuits().getCircuit(channel);
+        switch (elements[0].toLowerCase()) {
+            //noinspection SpellCheckingInspection
+            case "displayname": {
+                if (elements[1].equalsIgnoreCase("")) {
+                    response = new CommandResponse(command, "Error", "Invalid name", "setCircuit");
+                    return gson.toJson(response);
+                } else //TODO ought to check name doesn't exist already
+                {
+                    String newName = elements[1];
+                    for (int i = 2; i < elements.length; i++) {
+                        newName = newName + " " + elements[i];
+                    }
+                    Main.getCircuits().setCircuitName(channel, newName);
+                }
+                break;
+            }
+            case "clampname": {
+                clamp = Main.getClamps().getClamp(elements[1]);
+                if (clamp != null) {
+                    Main.getCircuits().setClampName(channel, clamp.getClampName());
+                } else {
+                    response = new CommandResponse(command, "Error", "Invalid Clamp", "setCircuit");
+                    return gson.toJson(response);
+                }
+                break;
+            }
+            case "monitor": {
+                boolean monitor = elements[1].equalsIgnoreCase("true");
+                circuit.setMonitoring(monitor);
+                if (monitor != Main.getCircuitCollector().isMonitoring(circuit))
+                {
+                    if (monitor){
+                         Main.getCircuitCollector().enableCollection(circuit);
+                    }
+                    else{
+                        Main.getCircuitCollector().disableCollection(circuit);
+                    }
+                } // else nothing more to do.
+                break;
+            }
+            case "publishpower": {
+                boolean publishPower = elements[1].equalsIgnoreCase("true");
+                    circuit.setPublishPower(publishPower);
+                    Main.getCircuitCollector().setPowerPublishing(circuit, publishPower);
+                break;
+            }
+            case "publishenergy": {
+                boolean publishEnergy = elements[1].equalsIgnoreCase("true");
+                circuit.setPublishEnergy(publishEnergy);
+                Main.getCircuitCollector().setEnergyPublishing(circuit, publishEnergy);
+                break;
+            }
+            default: {
+                response = new CommandResponse(command, "Error", "not supported", "setCircuit");
+                return gson.toJson(response);
+            }
+        }
+        return gson.toJson(circuit);
+    } //also insufficient data drop through
+
 
     String getClamp(Command command)
     {
@@ -216,7 +211,7 @@ public class CommandProcessor extends Thread
             circuitPowerData = Main.getCircuitCollector().getLatestCircuitPowerData(circuit);
             if (circuitPowerData != null) {
                 return gson.toJson(circuitPowerData);
-            } else{
+            } else {
                 response = new CommandResponse(command, "Info", "No data available", "getCircuitPowerData");
                 return gson.toJson(response);
 
@@ -237,7 +232,7 @@ public class CommandProcessor extends Thread
             circuitEnergyData = Main.getCircuitCollector().getCircuitEnergy(circuit);
             if (circuitEnergyData != null) {
                 return gson.toJson(circuitEnergyData);
-            } else{
+            } else {
                 response = new CommandResponse(command, "Info", "No data available", "getCircuitEnergyData");
                 return gson.toJson(response);
             }
