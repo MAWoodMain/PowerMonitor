@@ -85,18 +85,14 @@ public class Main
         commandProcessor.start();
 
         //loggingQ.add("Enabling CircuitCollector");
-        circuitCollector = new CircuitCollector(
-                samplingIntervalMilliSeconds,
-                energyAccumulationIntervalMins,
-                mqttHandler,
-                getLoggingQ());
+        circuitCollector = new CircuitCollector(samplingIntervalMilliSeconds, energyAccumulationIntervalMins);
         //circuits has initial values set to monitor the whole house but no other circuits
         //additional circuits can be set to monitor via the mqtt commands
         for( Circuit circuit : circuits.getCircuits()){
             if (circuit.isMonitored())
                 circuitCollector.enableCollection(circuit);
-                circuitCollector.setPowerPublishing(circuit,true);
-                circuitCollector.setEnergyPublishing(circuit,true);
+                circuit.setPublishPower(true);
+                circuit.setPublishEnergy(true);
         }
         circuitCollector.start();
     }

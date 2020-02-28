@@ -111,15 +111,11 @@ public class CommandProcessor extends Thread
                 break;
             }
             case "publishpower": {
-                boolean publishPower = elements[1].equalsIgnoreCase("true");
-                    circuit.setPublishPower(publishPower);
-                    Main.getCircuitCollector().setPowerPublishing(circuit, publishPower);
+                circuit.setPublishPower(elements[1].equalsIgnoreCase("true"));
                 break;
             }
             case "publishenergy": {
-                boolean publishEnergy = elements[1].equalsIgnoreCase("true");
-                circuit.setPublishEnergy(publishEnergy);
-                Main.getCircuitCollector().setEnergyPublishing(circuit, publishEnergy);
+                circuit.setPublishEnergy(elements[1].equalsIgnoreCase("true"));
                 break;
             }
             default: {
