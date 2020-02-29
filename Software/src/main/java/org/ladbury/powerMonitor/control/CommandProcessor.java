@@ -156,12 +156,12 @@ public class CommandProcessor extends Thread
                 if (clamp != null) {
                     if (elements[0].equalsIgnoreCase("offset")) {
                         clamp.setOffset(value);
-                        Main.getClamps().setClamp(command.getKey(), clamp);
+                        //Main.getClamps().setClamp(command.getKey(), clamp);
                         return gson.toJson(clamp);
                     } else {
                         if (elements[0].equalsIgnoreCase("scale")) {
                             clamp.setScale(value);
-                            Main.getClamps().setClamp(command.getKey(), clamp);
+                            //Main.getClamps().setClamp(command.getKey(), clamp);
                             return gson.toJson(clamp);
                         }
                     }

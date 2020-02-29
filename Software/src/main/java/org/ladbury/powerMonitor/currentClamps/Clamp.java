@@ -25,13 +25,28 @@ public class Clamp
     public int getMaxCurrent() {return this.maxCurrent;}
     public double getSamplingResistor() {return this.samplingResistor;}
     public int getTurnsFactor() {return turnsFactor;}
+    public double getScale()
+    {
+        return scale;
+    }
+    public double getOffset()
+    {
+        return offset;
+    }
+
     public double scaleValue(double value)
     {
-        return scale *(turnsFactor/samplingResistor)*value;
+        double result = value;
+        result *= getScale();
+        result *= getTurnsFactor();
+        result /= getSamplingResistor();
+        return result;
     }
     public double offsetValue(double value)
     {
-        return value + offset;
+        double result = value;
+        result += getOffset();
+        return result;
     }
 
     // Setters, Other fields are read only

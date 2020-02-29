@@ -2,10 +2,10 @@ package org.ladbury.powerMonitor.currentClamps;
 
 public class Clamps
 {
-    public final int NUMBER_CLAMP_TYPES = 10;
-    private final Clamp[] clamps = new Clamp[NUMBER_CLAMP_TYPES];
+    private static final int NUMBER_CLAMP_TYPES = 10;
+    private static final Clamp[] clamps = new Clamp[NUMBER_CLAMP_TYPES];
 
-    public Clamps()
+    static
     {
         clamps[0] = new Clamp("SCT013_5A1V",5,372.0, 1800, 1.0913432471, -0.0069045);
         clamps[1] = new Clamp("SCT013_10A1V",10,186.0, 1800, 1, 0);
@@ -16,7 +16,11 @@ public class Clamps
         clamps[6] = new Clamp("SCT013_50A1V",50,37.2, 1800, 1, 0);
         clamps[7] = new Clamp("SCT013_60A1V",60,31.0, 1800, 1, 0);
         clamps[8] = new Clamp("SCT013_70A1V",70,26.6, 1800, 1, 0);
-        clamps[9] = new Clamp("SCT013_100A1V",100,22.0, 1800, 1, 0);
+        clamps[9] = new Clamp("SCT013_100A1V",100,22.0, 1800, 1.31, 0);
+    }
+
+    public Clamps()
+    {
     }
 
     private int getClampIndex(String clampName)
