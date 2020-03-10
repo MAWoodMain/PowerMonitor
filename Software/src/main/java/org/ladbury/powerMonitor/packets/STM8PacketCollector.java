@@ -104,49 +104,53 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
 
     private Collection<byte[]> extractPackets(Collection<Byte> rawData)
     {
-        Iterator<Byte> it = rawData.iterator();
-        byte item;
-        int tracker = 0;
-        boolean found = false;
-        byte[] packet = new byte[PACKET_LENGTH];
         Collection<byte[]> packets = new ArrayList<>();
-        while(it.hasNext())
-        {
-            item = it.next();
-            if(found)
-            {
-                if (tracker >= PACKET_LENGTH)
-                {
-                    // reached end of packet
-                    tracker = 0;
-                    found = false;
-                    packets.add(packet.clone());
-                } else
-                {
-                    packet[tracker] = item;
-                    // remove consumed characters
-                    it.remove();
-                    tracker++;
-                }
-            } else
-            {
-                if(tracker >= START_SEQUENCE.length)
-                {
-                    // end of start sequence start of data
-                    found = true;
-                    tracker = 0;
-                    packet[tracker] = item;
-                    tracker++;
-                    // remove consumed characters
-                    it.remove();
-                } else if(item == START_SEQUENCE[tracker])
-                {
-                    tracker++;
-                    it.remove();
-                }
-            }
+        boolean sequenceValid;
+        int dataIdx = 0;
 
+        /* Unbox Byte array to byte array */
+        byte[] data = new byte[rawData.size()];
+        for(Byte b: rawData) data[dataIdx++] = b;
+
+        Arrays.setAll(rawData.toArray(), n -> data[n]);
+        do {
+            /* Matches first char of START_SEQUENCE */
+            if(data[dataIdx] == START_SEQUENCE[0])
+            {
+                /* Look ahead and verify sequence, assume valid until error */
+                sequenceValid = true;
+                for(int sequenceIdx = 1; sequenceIdx < START_SEQUENCE.length; sequenceIdx++)
+                {
+                    /* If invalid char found */
+                    if(data[dataIdx + sequenceIdx] != START_SEQUENCE[sequenceIdx])
+                    {
+                        /* If any out of turn character appear reject start sequence match */
+                        sequenceValid = false;
+                        break;
+                    }
+                }
+                /* If start sequence was validated and there is enough data left to finish a packet */
+                if(sequenceValid && ((dataIdx + START_SEQUENCE.length + PACKET_LENGTH) <= data.length))
+                {
+                    /* Skip past start sequence */
+                    dataIdx += START_SEQUENCE.length;
+                    /* Copy out the packet */
+                    packets.add(Arrays.copyOfRange(data, dataIdx, dataIdx + PACKET_LENGTH));
+                    /* Skip the consumed packet */
+                    dataIdx += PACKET_LENGTH;
+                }
+                else if (sequenceValid)
+                {
+                    /* Partial packet on the end of the raw data, skip to end */
+                    dataIdx = data.length;
+                }
+
+            }
+            /* Always increment to ensure loop concludes */
+            dataIdx++;
         }
+        while(dataIdx < data.length);
+
         return packets;
     }
 
