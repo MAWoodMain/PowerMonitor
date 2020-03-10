@@ -111,8 +111,9 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
         /* Unbox Byte array to byte array */
         byte[] data = new byte[rawData.size()];
         for(Byte b: rawData) data[dataIdx++] = b;
+        /* Reset index */
+        dataIdx = 0;
 
-        Arrays.setAll(rawData.toArray(), n -> data[n]);
         do {
             /* Matches first char of START_SEQUENCE */
             if(data[dataIdx] == START_SEQUENCE[0])
