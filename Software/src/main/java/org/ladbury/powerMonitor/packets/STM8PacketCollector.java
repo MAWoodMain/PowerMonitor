@@ -50,7 +50,7 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
     public void run()
     {
         long time;
-        List<Packet> newPackets;
+        List<Packet> newPackets = new ArrayList<>();
         super.run();
         try {
             serial.open(config);
@@ -71,9 +71,10 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
                     bytes.addAll(incomingBytes);
                     incomingBytes.clear();
                 }
-                newPackets = new ArrayList<>();
+                newPackets.clear();
                 Instant sampleStart = Instant.now().minusMillis(extractionPeriod);
-                                Collection<byte[]> rawPackets = extractPackets(bytes);
+                Collection<byte[]> rawPackets = extractPackets(bytes);
+                bytes.clear();
                 for(byte[] packet:rawPackets)
                 {
                     sampleStart = sampleStart.plusMillis(extractionPeriod/rawPackets.size());
@@ -81,7 +82,7 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
                     {
                         newPackets.add(new Packet(packet, sampleStart)); // full serial packet without start sequence
                     } catch (IllegalArgumentException ignored) {}
-                                    }
+                }
                 alertPacketListeners(newPackets);
 
             }
