@@ -54,7 +54,7 @@ public class MQTTHandler implements MqttCallback
         }
         broker = PROTOCOL + "://" + brokerAddress + ":" + PORT;
         //set up client id
-        this.clientID = "PMon10";
+        clientID = "PMon10";
         if (clientname != null) {
             if (clientname.equals("")) {
                 clientname = clientID;
@@ -75,6 +75,11 @@ public class MQTTHandler implements MqttCallback
         connOpts.setCleanSession(true);
         connOpts.setUserName(USERNAME);
         connOpts.setPassword(PASSWORD.toCharArray());
+        connOpts.setAutomaticReconnect(true);
+        if (!connectToBroker()){ System.exit(1); }
+    }
+    private boolean connectToBroker()
+    {
         System.out.println("Connecting MQTTHandler to broker: " + broker);
         // make connection to MQTT broker
         try {
@@ -84,13 +89,14 @@ public class MQTTHandler implements MqttCallback
             mqttClient.setCallback(this);
             mqttClient.subscribe(cmndTopic + "/#");
             loggingQ.add("MQTTHandler: Subscribed to <" + cmndTopic + ">");
+            return true;
         } catch (Exception e)
         {
             e.printStackTrace();
-            System.out.println("broker: "+broker + " Addr param" +brokerAddr + " Full addr: "+ brokerAddress);
+            System.out.println("Couldn't connect to broker: "+broker + " Addr param" +brokerAddress + " Full addr: "+ brokerAddress);
         }
+        return false;
     }
-
     public String getTopic()
     {
         return topic;
@@ -136,7 +142,6 @@ public class MQTTHandler implements MqttCallback
         } catch (MqttException me)
         {
             handleMQTTException(me);
-            System.exit(1);
         }
     }
 
@@ -224,6 +229,7 @@ public class MQTTHandler implements MqttCallback
         } catch (MqttException me)
         {
             handleMQTTException(me);
+            connectToBroker(); // will retry on next message if fails
         }
     }
 
