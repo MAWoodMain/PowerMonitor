@@ -36,9 +36,13 @@ class CircuitEnergyStore
 
     synchronized void resetAllEnergyData()
     {
-        for (int j = 0; j < bucketsPerDay; j++) {
-            energyBuckets[j] = 0.0;
-            energyMetrics[j] = null;
+        try {
+            for (int j = 0; j < bucketsPerDay; j++) {
+                energyBuckets[j] = 0.0;
+                energyMetrics[j] = null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         accumulationCount = 0;
         energyAccumulator = 0;
@@ -59,12 +63,16 @@ class CircuitEnergyStore
 
     void updateEnergyBucket(int bucketIndex)
     {
-        energyBuckets[bucketIndex] = (accumulationCount>0) ? energyAccumulator / accumulationCount : 0.0; //average avoiding divide by zero
-        //double lastBucketValue = (bucketIndex >= 1) ? energyBuckets[bucketIndex - 1] : 0.0; // avoid issue with first bucket (index 0)
-        //double currentBucketValue = energyBuckets[bucketIndex];
-        double wattHours = energyBuckets[bucketIndex] * ((double)bucketIntervalMins) / 60.0;
-        energyMetrics[bucketIndex] = new MetricReading(wattHours, now(), Metric.WATT_HOURS);
-        latestBucketFilled = bucketIndex;
+        try {
+            energyBuckets[bucketIndex] = (accumulationCount>0) ? energyAccumulator / accumulationCount : 0.0; //average avoiding divide by zero
+            //double lastBucketValue = (bucketIndex >= 1) ? energyBuckets[bucketIndex - 1] : 0.0; // avoid issue with first bucket (index 0)
+            //double currentBucketValue = energyBuckets[bucketIndex];
+            double wattHours = energyBuckets[bucketIndex] * ((double)bucketIntervalMins) / 60.0;
+            energyMetrics[bucketIndex] = new MetricReading(wattHours, now(), Metric.WATT_HOURS);
+            latestBucketFilled = bucketIndex;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         /*
         loggingQ.add("CircuitEnergyStore: updated EnergyBucket "+ bucketIndex +
                 " for circuitData "+ circuit.getDisplayName() +
@@ -80,9 +88,13 @@ class CircuitEnergyStore
     MetricReading getCumulativeEnergyForToday()
     {
         double total = 0.0;
-        for (int bucketIndex = 0; bucketIndex <= latestBucketFilled; bucketIndex++) {
-            if (energyMetrics[bucketIndex] != null)
-                if (energyMetrics[bucketIndex].getValue() > 0.0) total += energyMetrics[bucketIndex].getValue();
+        try {
+            for (int bucketIndex = 0; bucketIndex <= latestBucketFilled; bucketIndex++) {
+                if (energyMetrics[bucketIndex] != null)
+                    if (energyMetrics[bucketIndex].getValue() > 0.0) total += energyMetrics[bucketIndex].getValue();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return new MetricReading(total / 1000, now(), Metric.KILOWATT_HOURS);
     }
