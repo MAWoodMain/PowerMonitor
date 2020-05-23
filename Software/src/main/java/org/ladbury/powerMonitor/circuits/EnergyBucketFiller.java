@@ -9,6 +9,7 @@ import java.util.concurrent.*;
 
 import static java.time.LocalDateTime.now;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.ladbury.powerMonitor.Main.getHeapGrowth;
 
 class EnergyBucketFiller
 {
@@ -29,17 +30,21 @@ class EnergyBucketFiller
         this.circuitCollector = circuitCollector;
         // Define functions to be called by timers
         filler = () -> {
+            loggingQ.add("Heap growth before fill = "+ getHeapGrowth());
             //fill buckets now
             this.circuitCollector.fillAllEnergyBuckets(bucketToFill);
             this.circuitCollector.publishEnergyMetricsForCircuits(); // publishing decided on a per circuit basis
             //loggingQ.add("EnergyBucketFiller: bucket(s) " + bucketToFill.toString() + " filled ");
             bucketToFill += 1;
+            loggingQ.add("Heap growth after fill = "+ getHeapGrowth());
         };
         resetter = () -> {
             //fill buckets now
+            loggingQ.add("Heap growth before reset = "+ getHeapGrowth());
             circuitCollector.resetAllEnergyBuckets();
             bucketToFill = 0;
             loggingQ.add("EnergyBucketFiller: buckets reset");
+            loggingQ.add("Heap growth after reset = "+ getHeapGrowth());
         };
     }
     public long getIntervalInMins(){return intervalInMins;}

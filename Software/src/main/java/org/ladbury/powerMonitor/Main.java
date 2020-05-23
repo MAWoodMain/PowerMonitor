@@ -11,6 +11,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class Main
 {
+    private static long initialHeapSize;
+    private static long currentHeapSize;
     private static MQTTHandler mqttHandler;
     private static final LinkedBlockingQueue<String> commandQ = new LinkedBlockingQueue<>();
     private static final LinkedBlockingQueue<String> loggingQ = new LinkedBlockingQueue<>();
@@ -19,6 +21,9 @@ public class Main
     private static CircuitCollector circuitCollector;
 
     // Getters
+    public static long getInitialHeapSize() {return initialHeapSize;}
+    public static long getCurrentHeapSize() {return currentHeapSize;}
+    public static long getHeapGrowth() {return getCurrentHeapSize()-getInitialHeapSize();}
     public static MQTTHandler getMqttHandler()
     {
         return mqttHandler;
@@ -35,7 +40,7 @@ public class Main
     public static Clamps getClamps(){return clamps;}
     public static CircuitCollector getCircuitCollector() {return circuitCollector;}
     //Setters
-
+    public static void setCurrentHeapSize(){currentHeapSize = Runtime.getRuntime().totalMemory();}
     @SuppressWarnings("SpellCheckingInspection")
     private static void help()
     {
@@ -52,9 +57,9 @@ public class Main
     public static void main(String[] argv)
     {
         //Initialise variables
+        initialHeapSize = Runtime.getRuntime().totalMemory();
         int energyAccumulationIntervalMins = 5; // Minutes
         long samplingIntervalMilliSeconds = 1000; // Milliseconds
-
         //Handle arguments
         Args args = new Args();
         JCommander.newBuilder()
@@ -81,6 +86,7 @@ public class Main
         logger.start();
         //loggingQ.add("Enabled Logger");
         //loggingQ.add("Enabling CommandProcessor");
+        loggingQ.add("Initial heap size = "+getInitialHeapSize());
         CommandProcessor commandProcessor = new CommandProcessor(getCommandQ(), getLoggingQ());
         commandProcessor.start();
 
@@ -95,5 +101,6 @@ public class Main
                 circuit.setPublishEnergy(true);
         }
         circuitCollector.start();
+        loggingQ.add("Heap growth after Main = "+ getHeapGrowth());
     }
 }
