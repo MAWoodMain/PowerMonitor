@@ -32,24 +32,24 @@ class EnergyBucketFiller
         // Define functions to be called by timers
         filler = () -> {
             Main.setCurrentHeapSize();
-            loggingQ.add("Heap growth before fill = "+ getCurrentHeapSize());
+            loggingQ.add("Heap used before fill = "+ getCurrentHeapSize());
             //fill buckets now
             this.circuitCollector.fillAllEnergyBuckets(bucketToFill);
             this.circuitCollector.publishEnergyMetricsForCircuits(); // publishing decided on a per circuit basis
             //loggingQ.add("EnergyBucketFiller: bucket(s) " + bucketToFill.toString() + " filled ");
             bucketToFill += 1;
             Main.setCurrentHeapSize();
-            loggingQ.add("Heap growth after fill = "+ getCurrentHeapSize());
+            loggingQ.add("Heap used after fill = "+ getCurrentHeapSize());
         };
         resetter = () -> {
             //fill buckets now
             Main.setCurrentHeapSize();
-            loggingQ.add("Heap growth before reset = "+ getCurrentHeapSize());
+            loggingQ.add("Heap used before reset = "+ getCurrentHeapSize());
             circuitCollector.resetAllEnergyBuckets();
             bucketToFill = 0;
             loggingQ.add("EnergyBucketFiller: buckets reset");
             Main.setCurrentHeapSize();
-            loggingQ.add("Heap growth after reset = "+ getCurrentHeapSize());
+            loggingQ.add("Heap used after reset = "+ getCurrentHeapSize());
         };
     }
     public long getIntervalInMins(){return intervalInMins;}

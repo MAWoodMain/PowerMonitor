@@ -40,7 +40,9 @@ public class Main
     public static Clamps getClamps(){return clamps;}
     public static CircuitCollector getCircuitCollector() {return circuitCollector;}
     //Setters
-    public static void setCurrentHeapSize(){currentHeapSize = Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();}
+    public static void setCurrentHeapSize(){
+        Runtime.getRuntime().gc();
+        currentHeapSize = Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();}
     @SuppressWarnings("SpellCheckingInspection")
     private static void help()
     {
@@ -104,6 +106,6 @@ public class Main
         }
         circuitCollector.start();
         setCurrentHeapSize();
-        loggingQ.add("Heap growth after Main = "+ getCurrentHeapSize());
+        loggingQ.add("Heap used after Main = "+ getCurrentHeapSize());
     }
 }
