@@ -22,7 +22,10 @@ public class Main
 
     // Getters
     public static long getInitialHeapSize() {return initialHeapSize;}
-    public static long getCurrentHeapSize() {return currentHeapSize;}
+    public static long getCurrentHeapSize() {
+        setCurrentHeapSize();
+        return currentHeapSize;
+    }
     public static long getHeapGrowth() {return getCurrentHeapSize()-getInitialHeapSize();}
     public static MQTTHandler getMqttHandler()
     {
