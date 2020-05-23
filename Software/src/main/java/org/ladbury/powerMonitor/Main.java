@@ -22,10 +22,7 @@ public class Main
 
     // Getters
     public static long getInitialHeapSize() {return initialHeapSize;}
-    public static long getCurrentHeapSize() {
-        setCurrentHeapSize();
-        return currentHeapSize;
-    }
+    public static long getCurrentHeapSize() {return currentHeapSize;}
     public static long getHeapGrowth() {return getCurrentHeapSize()-getInitialHeapSize();}
     public static MQTTHandler getMqttHandler()
     {
@@ -43,7 +40,7 @@ public class Main
     public static Clamps getClamps(){return clamps;}
     public static CircuitCollector getCircuitCollector() {return circuitCollector;}
     //Setters
-    public static void setCurrentHeapSize(){currentHeapSize = Runtime.getRuntime().totalMemory();}
+    public static void setCurrentHeapSize(){currentHeapSize = Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();}
     @SuppressWarnings("SpellCheckingInspection")
     private static void help()
     {
@@ -61,6 +58,7 @@ public class Main
     {
         //Initialise variables
         initialHeapSize = Runtime.getRuntime().totalMemory();
+        setCurrentHeapSize();
         int energyAccumulationIntervalMins = 5; // Minutes
         long samplingIntervalMilliSeconds = 1000; // Milliseconds
         //Handle arguments
@@ -90,6 +88,7 @@ public class Main
         //loggingQ.add("Enabled Logger");
         //loggingQ.add("Enabling CommandProcessor");
         loggingQ.add("Initial heap size = "+getInitialHeapSize());
+        loggingQ.add("current heap size start of main = "+getCurrentHeapSize());
         CommandProcessor commandProcessor = new CommandProcessor(getCommandQ(), getLoggingQ());
         commandProcessor.start();
 
@@ -104,6 +103,7 @@ public class Main
                 circuit.setPublishEnergy(true);
         }
         circuitCollector.start();
-        loggingQ.add("Heap growth after Main = "+ getHeapGrowth());
+        setCurrentHeapSize();
+        loggingQ.add("Heap growth after Main = "+ getCurrentHeapSize());
     }
 }
