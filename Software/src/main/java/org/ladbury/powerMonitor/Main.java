@@ -41,7 +41,6 @@ public class Main
     public static CircuitCollector getCircuitCollector() {return circuitCollector;}
     //Setters
     public static void setCurrentHeapSize(){
-        Runtime.getRuntime().gc();
         currentHeapSize = Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();}
     @SuppressWarnings("SpellCheckingInspection")
     private static void help()
@@ -89,8 +88,8 @@ public class Main
         logger.start();
         //loggingQ.add("Enabled Logger");
         //loggingQ.add("Enabling CommandProcessor");
-        loggingQ.add("Initial heap size = "+getInitialHeapSize());
-        loggingQ.add("current heap size start of main = "+getCurrentHeapSize());
+        loggingQ.add("#"+getInitialHeapSize()+"#Initial heap size");
+        loggingQ.add("#"+getCurrentHeapSize()+"#current heap size start of main");
         CommandProcessor commandProcessor = new CommandProcessor(getCommandQ(), getLoggingQ());
         commandProcessor.start();
 
@@ -106,6 +105,7 @@ public class Main
         }
         circuitCollector.start();
         setCurrentHeapSize();
-        loggingQ.add("Heap used after Main = "+ getCurrentHeapSize());
+        loggingQ.add("#"+getCurrentHeapSize()+"#Heap used after Main");
+        Runtime.getRuntime().gc();
     }
 }
