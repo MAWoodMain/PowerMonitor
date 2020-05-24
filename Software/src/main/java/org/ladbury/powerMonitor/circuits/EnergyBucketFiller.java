@@ -30,29 +30,29 @@ class EnergyBucketFiller
         this.circuitCollector = circuitCollector;
         // Define functions to be called by timers
         filler = () -> {
-            Runtime.getRuntime().gc();
-            Main.setCurrentHeapSize();
-            loggingQ.add("#"+ getCurrentHeapSize()+"#Heap used before fill");
+            //Runtime.getRuntime().gc();
+            //Main.setCurrentHeapSize();
+            //loggingQ.add("#"+ getCurrentHeapSize()+"#Heap used before fill");
             //fill buckets now
             this.circuitCollector.fillAllEnergyBuckets(bucketToFill);
             this.circuitCollector.publishEnergyMetricsForCircuits(); // publishing decided on a per circuit basis
             //loggingQ.add("EnergyBucketFiller: bucket(s) " + bucketToFill.toString() + " filled ");
             bucketToFill += 1;
-            Main.setCurrentHeapSize();
-            loggingQ.add("#"+ getCurrentHeapSize()+"#Heap used after fill");
-            Runtime.getRuntime().gc();
+            //Main.setCurrentHeapSize();
+            //loggingQ.add("#"+ getCurrentHeapSize()+"#Heap used after fill");
+            //Runtime.getRuntime().gc();
         };
         resetter = () -> {
             //fill buckets now
-            Runtime.getRuntime().gc();
+            //Runtime.getRuntime().gc();
             Main.setCurrentHeapSize();
             loggingQ.add("#"+ getCurrentHeapSize()+"#Heap used before reset");
             circuitCollector.resetAllEnergyBuckets();
             bucketToFill = 0;
             loggingQ.add("EnergyBucketFiller: buckets reset");
-            Main.setCurrentHeapSize();
-            loggingQ.add( "#"+getCurrentHeapSize()+"#Heap used after reset");
-            Runtime.getRuntime().gc();
+            //Main.setCurrentHeapSize();
+            //loggingQ.add( "#"+getCurrentHeapSize()+"#Heap used after reset");
+            Runtime.getRuntime().gc(); //once per day garbage collection
         };
     }
     public long getIntervalInMins(){return intervalInMins;}
