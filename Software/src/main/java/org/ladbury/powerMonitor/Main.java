@@ -1,6 +1,7 @@
 package org.ladbury.powerMonitor;
 
 import com.beust.jcommander.JCommander;
+import org.ladbury.powerMonitor.PMhealth.MemoryMonitor;
 import org.ladbury.powerMonitor.circuits.*;
 import org.ladbury.powerMonitor.control.CommandProcessor;
 import org.ladbury.powerMonitor.currentClamps.Clamps;
@@ -11,19 +12,16 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class Main
 {
-    private static long initialHeapSize;
-    private static long currentHeapSize;
     private static MQTTHandler mqttHandler;
     private static final LinkedBlockingQueue<String> commandQ = new LinkedBlockingQueue<>();
     private static final LinkedBlockingQueue<String> loggingQ = new LinkedBlockingQueue<>();
     private static final Circuits circuits= new Circuits();
     private static final Clamps clamps = new Clamps();
     private static CircuitCollector circuitCollector;
+    private static MemoryMonitor memoryMonitor;
 
     // Getters
-    public static long getInitialHeapSize() {return initialHeapSize;}
-    public static long getCurrentHeapSize() {return currentHeapSize;}
-    public static long getHeapGrowth() {return getCurrentHeapSize()-getInitialHeapSize();}
+    public static MemoryMonitor getMemoryMonitor(){return memoryMonitor;}
     public static MQTTHandler getMqttHandler()
     {
         return mqttHandler;
@@ -39,9 +37,6 @@ public class Main
     public static Circuits getCircuits(){return circuits;}
     public static Clamps getClamps(){return clamps;}
     public static CircuitCollector getCircuitCollector() {return circuitCollector;}
-    //Setters
-    public static void setCurrentHeapSize(){
-        currentHeapSize = Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();}
     @SuppressWarnings("SpellCheckingInspection")
     private static void help()
     {
@@ -58,8 +53,6 @@ public class Main
     public static void main(String[] argv)
     {
         //Initialise variables
-        initialHeapSize = Runtime.getRuntime().totalMemory();
-        setCurrentHeapSize();
         int energyAccumulationIntervalMins = 5; // Minutes
         long samplingIntervalMilliSeconds = 1000; // Milliseconds
         //Handle arguments
@@ -88,8 +81,9 @@ public class Main
         logger.start();
         //loggingQ.add("Enabled Logger");
         //loggingQ.add("Enabling CommandProcessor");
-        loggingQ.add("#"+getInitialHeapSize()+"#Initial heap size");
-        loggingQ.add("#"+getCurrentHeapSize()+"#current heap size start of main");
+        loggingQ.add("#"+getMemoryMonitor().getTotalHeapSize()+"#Initial heap size");
+        loggingQ.add("#"+getMemoryMonitor().getCurrentHeapSize()+"#current heap size start of main");
+        memoryMonitor = new MemoryMonitor(5);
         CommandProcessor commandProcessor = new CommandProcessor(getCommandQ(), getLoggingQ());
         commandProcessor.start();
 
@@ -104,8 +98,7 @@ public class Main
                 circuit.setPublishEnergy(true);
         }
         circuitCollector.start();
-        setCurrentHeapSize();
-        loggingQ.add("#"+getCurrentHeapSize()+"#Heap used after Main");
+        loggingQ.add("#"+getMemoryMonitor().getCurrentHeapSize()+"#Heap used after Main");
         Runtime.getRuntime().gc();
     }
 }
