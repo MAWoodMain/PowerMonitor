@@ -1,15 +1,18 @@
 package org.ladbury.powerMonitor.circuits;
 
 import org.ladbury.powerMonitor.Main;
+import org.ladbury.powerMonitor.publishers.PMLogger;
+
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Level;
 
 public class Circuits
 {
     public static final int MIN_CHANNEL_NUMBER = 1;
     public static final int MAX_CHANNEL_NUMBER = 9;
     private final ArrayList<Circuit> circuits = new ArrayList<>();
-    private final LinkedBlockingQueue<String> loggingQ;
+    private final PMLogger logger;
 
     public Circuits()
     {
@@ -23,7 +26,7 @@ public class Circuits
         circuits.add(new Circuit("Outside Plugs", 7, "SCT013_20A1V", false));
         circuits.add(new Circuit("Cooker", 8, "SCT013_30A1V", false));
         circuits.add(new Circuit("Whole House", 9, "SCT013_100A1V", true));
-        loggingQ = Main.getLoggingQ();
+        logger = Main.getLogger();
     }
 
     public static boolean validChannel(int channel)
@@ -63,7 +66,7 @@ public class Circuits
     {
         int channel;
         if (input == null) {
-            loggingQ.add("getChannelFromInput: null input");
+            logger.add("getChannelFromInput: null input", Level.WARNING,this.getClass().getName());
             return -1;
         }
         try {

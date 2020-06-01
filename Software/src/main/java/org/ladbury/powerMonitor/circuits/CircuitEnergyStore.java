@@ -1,7 +1,9 @@
 package org.ladbury.powerMonitor.circuits;
 
+import org.ladbury.powerMonitor.Main;
 import org.ladbury.powerMonitor.metrics.Metric;
 import org.ladbury.powerMonitor.metrics.MetricReading;
+import org.ladbury.powerMonitor.publishers.PMLogger;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -15,15 +17,15 @@ class CircuitEnergyStore
     private final MetricReading[] energyMetrics;
     private final int bucketIntervalMins;
     private final int bucketsPerDay;
-    private final LinkedBlockingQueue<String> loggingQ;
+    private final PMLogger logger;
     private final Circuit circuit;
 
     private int latestBucketFilled;
 
-    CircuitEnergyStore(Circuit circuit, int bucketIntervalMins, LinkedBlockingQueue<String> loggingQ)
+    CircuitEnergyStore(Circuit circuit, int bucketIntervalMins)
     {
         this.circuit = circuit;
-        this.loggingQ = loggingQ;
+        this.logger = Main.getLogger();
         this.accumulationCount = 0;
         this.energyAccumulator = 0.0;
         this.bucketsPerDay = 60 * 24 / bucketIntervalMins;
@@ -74,9 +76,9 @@ class CircuitEnergyStore
             e.printStackTrace();
         }
         /*
-        loggingQ.add("CircuitEnergyStore: updated EnergyBucket "+ bucketIndex +
+        logger.add("CircuitEnergyStore: updated EnergyBucket "+ bucketIndex +
                 " for circuitData "+ circuit.getDisplayName() +
-                "Value "+ wattHours );*/
+                "Value "+ wattHours, Level.INFO, this.getClass().getClassName() );*/
         resetEnergyAccumulation();
     }
 

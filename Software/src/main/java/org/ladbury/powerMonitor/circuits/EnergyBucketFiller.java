@@ -1,11 +1,13 @@
 package org.ladbury.powerMonitor.circuits;
 
 import org.ladbury.powerMonitor.Main;
+import org.ladbury.powerMonitor.publishers.PMLogger;
 
 import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.concurrent.*;
+import java.util.logging.Level;
 
 import static java.time.LocalDateTime.now;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -14,7 +16,7 @@ class EnergyBucketFiller
 {
     private long intervalInMins;
     private int bucketToFill;
-    private final LinkedBlockingQueue<String> loggingQ;
+    private final PMLogger logger;
     private final ScheduledExecutorService bucketFillScheduler = Executors.newScheduledThreadPool(1);
     private final ScheduledExecutorService dailyReset = Executors.newScheduledThreadPool(1);
     private final CircuitCollector circuitCollector;
@@ -25,7 +27,7 @@ class EnergyBucketFiller
     {
         this.intervalInMins = intervalInMins;
         this.bucketToFill = 0;
-        this.loggingQ = Main.getLoggingQ();
+        this.logger = Main.getLogger();
         this.circuitCollector = circuitCollector;
         // Define functions to be called by timers
         filler = () -> {
@@ -38,10 +40,10 @@ class EnergyBucketFiller
         resetter = () -> {
             //fill buckets now
             //Runtime.getRuntime().gc();
-            loggingQ.add("#"+ Main.getMemoryMonitor().getCurrentHeapSize()+"#Heap used before reset");
+            logger.add("#"+ Main.getMemoryMonitor().getCurrentHeapSize()+"#Heap used before reset", Level.INFO, this.getClass().getName());
             circuitCollector.resetAllEnergyBuckets();
             bucketToFill = 0;
-            loggingQ.add("EnergyBucketFiller: buckets reset");
+            logger.add("Buckets reset", Level.INFO, this.getClass().getName());
             Runtime.getRuntime().gc(); //once per day garbage collection
         };
     }
@@ -60,7 +62,7 @@ class EnergyBucketFiller
     }
     void startScheduledTasks()
     {
-        loggingQ.add("EnergyBucketFiller: start");
+        logger.add("Start", Level.INFO, this.getClass().getName());
         try {
             //schedule the bucket filler
             bucketFillScheduler.scheduleAtFixedRate(
@@ -79,9 +81,9 @@ class EnergyBucketFiller
                     localNow.until(tomorrowMidnight, ChronoUnit.SECONDS),
                     TimeUnit.DAYS.toSeconds(1),
                     SECONDS);
-            loggingQ.add("EnergyBucketFiller: both tasks scheduled");
+            logger.add("Both tasks scheduled", Level.FINE, this.getClass().getName());
         } catch (Exception e) {
-            loggingQ.add("EnergyBucketFiller: Exception - " + Arrays.toString(e.getStackTrace()));
+            logger.add("Exception - " + Arrays.toString(e.getStackTrace()), Level.SEVERE, this.getClass().getName());
         }
     }
     void stopBucketFillScheduler()
@@ -95,7 +97,7 @@ class EnergyBucketFiller
                 shutdown = true;
             }
         }
-        loggingQ.add("EnergyBucketFiller: stopped bucket fill scheduler");
+        logger.add("Stopped bucket fill scheduler", Level.INFO, this.getClass().getName());
     }
     void rescheduleBucketFiller(long intervalInMins)
     {
@@ -108,9 +110,9 @@ class EnergyBucketFiller
                     calculateInitialDelayAndSetBucket(),
                     intervalInMins * 60, //convert to seconds
                     SECONDS);
-            loggingQ.add("EnergyBucketFiller: bucket filling rescheduled");
+            logger.add("Bucket filling rescheduled every "+intervalInMins+ "Mins", Level.CONFIG, this.getClass().getName());
         } catch (Exception e) {
-            loggingQ.add("EnergyBucketFiller: Exception - " + Arrays.toString(e.getStackTrace()));
+            logger.add("Exception - " + Arrays.toString(e.getStackTrace()), Level.SEVERE, this.getClass().getName());
         }
     }
 }

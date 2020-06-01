@@ -10,24 +10,26 @@ import org.ladbury.powerMonitor.currentClamps.Clamp;
 import org.ladbury.powerMonitor.metrics.Metric;
 import org.ladbury.powerMonitor.metrics.MetricReading;
 import org.ladbury.powerMonitor.publishers.MQTTHandler;
+import org.ladbury.powerMonitor.publishers.PMLogger;
 
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Level;
 
 import static java.lang.Double.parseDouble;
 
 public class CommandProcessor extends Thread
 {
     final LinkedBlockingQueue<String> commandQ;
-    final LinkedBlockingQueue<String> loggingQ;
+    final PMLogger logger;
     final Commands commands;
     final MQTTHandler mqttHandler;
     final Gson gson;
 
     // Constructor
-    public CommandProcessor(LinkedBlockingQueue<String> commandQ, LinkedBlockingQueue<String> logQ)
+    public CommandProcessor(LinkedBlockingQueue<String> commandQ)
     {
         this.commandQ = commandQ;
-        this.loggingQ = logQ;
+        this.logger = Main.getLogger();
         this.commands = new Commands(this);
         this.mqttHandler = Main.getMqttHandler();
         this.gson = new Gson();
@@ -246,10 +248,10 @@ public class CommandProcessor extends Thread
                 command.getSubject() == null ||
                 command.getKey() == null ||
                 command.getData() == null) {
-            loggingQ.add("CommandProcessor: processJSON - contained nulls");
+            logger.add("CommandProcessor: processJSON - contained nulls", Level.WARNING, this.getClass().getName());
             return false;
         }
-        loggingQ.add("CommandProcessor: processing " + command.toString());
+        logger.add("CommandProcessor: processing " + command.toString(),Level.INFO, this.getClass().getName());
         json = commands.callCommand(command);
         mqttHandler.publishToBroker(mqttHandler.getResponseTopic(), json);
         return false;
@@ -267,12 +269,12 @@ public class CommandProcessor extends Thread
         try {
             while (!(interrupted() || exit)) {
                 commandString = commandQ.take();
-                loggingQ.add("CommandProcessor: <" + commandString + "> arrived");
+                logger.add("CommandProcessor: <" + commandString + "> arrived",Level.INFO, this.getClass().getName());
                 //exit = processCommandString(commandString);
                 exit = processJSONCommandString(commandString);
                 Thread.sleep(10);
             }
-            loggingQ.add("CommandProcessor: Exiting");
+            logger.add("CommandProcessor: Exiting", Level.INFO, this.getClass().getName());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

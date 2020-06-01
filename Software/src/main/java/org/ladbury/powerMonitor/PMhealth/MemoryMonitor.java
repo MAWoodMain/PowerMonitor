@@ -3,17 +3,20 @@ package org.ladbury.powerMonitor.PMhealth;
 import com.google.gson.Gson;
 import org.ladbury.powerMonitor.Main;
 import org.ladbury.powerMonitor.publishers.MQTTHandler;
+import org.ladbury.powerMonitor.publishers.PMLogger;
 
 import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.logging.Level;
+
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class MemoryMonitor
 {
     private long intervalInMins;
-    private final LinkedBlockingQueue<String> loggingQ;
+    private final PMLogger logger;
     private final ScheduledExecutorService memoryCheckScheduler = Executors.newScheduledThreadPool(1);
     private final Runnable memoryChecker;
     private final MQTTHandler publisher = Main.getMqttHandler();
@@ -23,11 +26,11 @@ public class MemoryMonitor
     public MemoryMonitor(int intervalInMins)
     {
         this.intervalInMins = intervalInMins;
-        this.loggingQ = Main.getLoggingQ();
+        this.logger = Main.getLogger();
         this.gson = new Gson();
         // Define functions to be called by timers
         memoryChecker = () -> {
-            loggingQ.add("#"+ getCurrentHeapSize()+"#Current heap size");
+            logger.add("#"+ getCurrentHeapSize()+"#Current heap size", Level.INFO,this.getClass().getName());
             publisher.publishToBroker(publisher.getTelemetryTopic(),gson.toJson(new MemoryData()));
         };
         startScheduledTasks();
@@ -39,7 +42,7 @@ public class MemoryMonitor
 
     void startScheduledTasks()
     {
-        loggingQ.add("MemoryMonitor: start");
+        logger.add("Start", Level.INFO,this.getClass().getName());
         try {
             //schedule the bucket filler
             memoryCheckScheduler.scheduleAtFixedRate(
@@ -48,7 +51,7 @@ public class MemoryMonitor
                     getIntervalInMins() * 60, //convert to seconds
                     SECONDS);
         } catch (Exception e) {
-            loggingQ.add("MemoryMonitor: Exception - " + Arrays.toString(e.getStackTrace()));
+            logger.add("Exception - " + Arrays.toString(e.getStackTrace()), Level.SEVERE,this.getClass().getName());
         }
     }
     void stopMemoryMonitorScheduler()
@@ -62,7 +65,7 @@ public class MemoryMonitor
                 shutdown = true;
             }
         }
-        loggingQ.add("MemoryMonitor: stopped memory monitoring");
+        logger.add("Stopped memory monitoring", Level.INFO,this.getClass().getName());
     }
     void rescheduleMemoryMonitor(long intervalInMins)
     {
@@ -75,9 +78,9 @@ public class MemoryMonitor
                     2,
                     intervalInMins * 60, //convert to seconds
                     SECONDS);
-            loggingQ.add("MemoryMonitor: Memory monitoring rescheduled");
+            logger.add("Memory monitoring rescheduled every "+intervalInMins+" Mins", Level.CONFIG,this.getClass().getName());
         } catch (Exception e) {
-            loggingQ.add("MemoryMonitor: Exception - " + Arrays.toString(e.getStackTrace()));
+            logger.add("Exception - " + Arrays.toString(e.getStackTrace()), Level.SEVERE,this.getClass().getName());
         }
     }
 }

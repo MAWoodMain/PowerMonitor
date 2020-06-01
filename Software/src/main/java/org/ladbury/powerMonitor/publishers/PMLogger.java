@@ -9,14 +9,21 @@ import java.util.logging.Level;
 
 public class PMLogger extends Thread
 {
-    String msg;
-    final LinkedBlockingQueue<String> loggingQ;
-    final Gson gson ;
+    private String msg;
+    private final LinkedBlockingQueue<String> loggingQ;
+    private final Gson gson;
+    private Level loggingLevel;
 
-    public PMLogger(LinkedBlockingQueue<String> logQ)
+
+    public PMLogger(Level loggingLevel)
     {
-        this.loggingQ = logQ;
+        this.loggingQ = new LinkedBlockingQueue<>();
         this.gson = new Gson();
+        this.loggingLevel = loggingLevel;
+    }
+    public void setLoggingLevel(Level level)
+    {
+        loggingLevel = level;
     }
 
     private static class LogMsg {
@@ -46,7 +53,9 @@ public class PMLogger extends Thread
         }
     }
     public void add( String msg, Level level, String location){
-        loggingQ.add(new LogMsg(msg, level, location).toString());
+        if (level.intValue()>= loggingLevel.intValue()) {
+            loggingQ.add(new LogMsg(msg, level, location).toString());
+        }
     }
     //
     // Runnable implementation

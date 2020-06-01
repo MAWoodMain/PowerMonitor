@@ -2,9 +2,11 @@ package org.ladbury.powerMonitor.publishers;
 
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.ladbury.powerMonitor.Main;
 
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Level;
 
 
 @SuppressWarnings("SpellCheckingInspection")
@@ -29,21 +31,20 @@ public class MQTTHandler implements MqttCallback
 
     private final MqttClient mqttClient;
     private final MqttConnectOptions connOpts;
+    private final PMLogger logger;
 
     private long noMessagesSentOK;
 
     // run control variables
-    final LinkedBlockingQueue<String> loggingQ;
     final LinkedBlockingQueue<String> commandQ;
     /**
      * MQTTHandler   Constructor
      */
     public MQTTHandler( String brokerAddr,
                         String clientname,
-                        LinkedBlockingQueue<String> loggingQ,
                         LinkedBlockingQueue<String> commandQ) throws MqttException
     {
-        this.loggingQ = loggingQ;
+        this.logger = Main.getLogger();
         this.commandQ = commandQ;
         noMessagesSentOK = 0;
         if (brokerAddr != null) {
@@ -85,10 +86,10 @@ public class MQTTHandler implements MqttCallback
         try {
             mqttClient.connect(connOpts);
             System.out.println("MQTTHandler Connected");
-            loggingQ.add("MQTTHandler Connected");
+            logger.add("Connected", Level.INFO,this.getClass().getName());
             mqttClient.setCallback(this);
             mqttClient.subscribe(cmndTopic + "/#");
-            loggingQ.add("MQTTHandler: Subscribed to <" + cmndTopic + ">");
+            logger.add("Subscribed to <" + cmndTopic + ">", Level.INFO,this.getClass().getName());
             return true;
         } catch (Exception e)
         {
@@ -158,11 +159,11 @@ public class MQTTHandler implements MqttCallback
     public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception
     {
         String payload = new String(mqttMessage.getPayload(), StandardCharsets.UTF_8);
-        loggingQ.add("MQTT msg received Topic: " + topic + " Message: " + payload);
-        System.out.println("MQTT msg received Topic: " + topic + " Message: " +payload);
+        logger.add("msg received Topic: " + topic + " Message: " + payload, Level.INFO,this.getClass().getName());
+        System.out.println("msg received Topic: " + topic + " Message: " +payload);
         if (topic.equalsIgnoreCase(cmndTopic))
         {
-            loggingQ.add("MQTT msg is command, adding to queue");
+            logger.add("msg is command, adding to queue", Level.INFO,this.getClass().getName());
             commandQ.add(payload);
         }
     }

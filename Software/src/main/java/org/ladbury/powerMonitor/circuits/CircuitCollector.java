@@ -9,6 +9,7 @@ import org.ladbury.powerMonitor.monitors.VoltageMonitor;
 import org.ladbury.powerMonitor.monitors.VoltageSenseConfig;
 import org.ladbury.powerMonitor.packets.STM8PacketCollector;
 import org.ladbury.powerMonitor.publishers.MQTTHandler;
+import org.ladbury.powerMonitor.publishers.PMLogger;
 
 import javax.naming.OperationNotSupportedException;
 import java.io.IOException;
@@ -16,6 +17,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Level;
 
 
 public class CircuitCollector extends Thread
@@ -25,7 +27,7 @@ public class CircuitCollector extends Thread
     private final HashMap<Integer, CircuitEnergyStore> channelStoreMap = new HashMap<>();
     private final HashMap<Integer, CircuitPowerData> channelPowerDataMap = new HashMap<>();
     private final HashMap<Integer, PowerMetricCalculator> channelMap = new HashMap<>();
-    private final LinkedBlockingQueue<String> loggingQ;
+    private final PMLogger logger;
     private final EnergyBucketFiller bucketFiller;
     private final Gson gson;
     private final STM8PacketCollector packetCollector;
@@ -42,7 +44,7 @@ public class CircuitCollector extends Thread
                             int energyAccumulationIntervalMins
     )
     {
-        this.loggingQ = Main.getLoggingQ();
+        this.logger = Main.getLogger();
         this.mqttHandler = Main.getMqttHandler();
         this.circuits = Main.getCircuits();
         this.bucketIntervalMins = energyAccumulationIntervalMins;
@@ -72,7 +74,7 @@ public class CircuitCollector extends Thread
                                 Main.getClamps().getClamp(circuit.getClampName()),
                                 circuit.getChannelNumber(),
                                 packetCollector)));
-        loggingQ.add("Monitoring circuitData " + circuit.getDisplayName());
+        logger.add("Monitoring circuitData " + circuit.getDisplayName(), Level.CONFIG,this.getClass().getName());
     }
 
     public void disableCollection(Circuit circuit)
@@ -80,7 +82,7 @@ public class CircuitCollector extends Thread
         int channel =  circuit.getChannelNumber();
         circuits.setMonitoring(channel,false);
         channelMap.remove(channel);
-        loggingQ.add("Not monitoring circuitData " + circuit.getDisplayName());
+        logger.add("Not monitoring circuitData " + circuit.getDisplayName(), Level.CONFIG,this.getClass().getName());
     }
 
     public int getEnergyAccumulationIntervalMins()
@@ -136,7 +138,7 @@ public class CircuitCollector extends Thread
         CircuitEnergyStore circuitEnergyStore = channelStoreMap.get(channel);
         if (circuitEnergyStore != null) {
             circuitEnergyStore.accumulate(circuitPowerData.readings.realPower);
-        } else loggingQ.add("CircuitCollector: null circuitEnergyStore for - " + circuit.getDisplayName());
+        } else logger.add("null circuitEnergyStore for - " + circuit.getDisplayName(), Level.WARNING,this.getClass().getName());
         // These not needed to accumulate energy so leave them until after accumulation in case of exceptions
         circuitPowerData.readings.apparentPower = channelMap.get(channel).getAverageBetween(Metric.VA, readingTimeMinusInterval, readingTime).getValue();
         circuitPowerData.readings.reactivePower = channelMap.get(channel).getAverageBetween(Metric.VAR, readingTimeMinusInterval, readingTime).getValue();
@@ -180,7 +182,7 @@ public class CircuitCollector extends Thread
             circuitEnergyData.readings.energy = energy.getValue();
             circuitEnergyData.readings.cumulativeEnergy = circuitEnergyStore.getCumulativeEnergyForToday().getValue();
         } else {
-            loggingQ.add("CircuitCollector: null circuitEnergyStore for - " + circuit.getDisplayName());
+            logger.add("CircuitCollector: null circuitEnergyStore for - " + circuit.getDisplayName(), Level.WARNING,this.getClass().getName());
         }
         return circuitEnergyData;
     }
@@ -232,15 +234,15 @@ public class CircuitCollector extends Thread
         } catch (InterruptedException ignored) {
         }
         // Start packet collection
-        loggingQ.add("Enabling PacketCollector");
+        logger.add("Enabling PacketCollector", Level.INFO,this.getClass().getName());
         packetCollector.start();
         //packetCollector.addPacketEventListener(System.out::println);
-        loggingQ.add("Enabling VoltageMonitor ");
+        logger.add("Enabling VoltageMonitor ", Level.INFO,this.getClass().getName());
         // Enable interpretation for required circuits
         Circuit circuit;
         for (Integer channel : channelMap.keySet()) {
             circuit = circuits.getCircuit(channel);
-            this.channelStoreMap.put(channel, new CircuitEnergyStore(circuit, getEnergyAccumulationIntervalMins(), loggingQ));
+            this.channelStoreMap.put(channel, new CircuitEnergyStore(circuit, getEnergyAccumulationIntervalMins()));
             this.channelPowerDataMap.put(channel,new CircuitPowerData(circuit));
         }
         //loggingQ.add("CircuitCollector: storeMap - " + storeMap.toString());
@@ -261,9 +263,9 @@ public class CircuitCollector extends Thread
                     }
                 } catch (InvalidDataException | OperationNotSupportedException e) {
                     if (firstNoDataReport) {
-                        loggingQ.add("no data for circuitData: " +
+                        logger.add("no data for circuitData: " +
                                 circuit.getDisplayName() +
-                                Arrays.toString(e.getStackTrace())
+                                Arrays.toString(e.getStackTrace()), Level.INFO,this.getClass().getName()
                         );
                         System.out.println("no data for circuitData: " +
                                 circuit.getDisplayName() +
@@ -283,7 +285,7 @@ public class CircuitCollector extends Thread
                 }
             }
         }
-        loggingQ.add("CircuitCollector: Interrupted, exiting");
+        logger.add("Interrupted, exiting", Level.INFO,this.getClass().getName());
         try {
             packetCollector.close();
         } catch (IOException e) {
