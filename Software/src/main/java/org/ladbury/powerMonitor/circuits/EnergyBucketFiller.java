@@ -34,12 +34,11 @@ class EnergyBucketFiller
             //fill buckets now
             this.circuitCollector.fillAllEnergyBuckets(bucketToFill);
             this.circuitCollector.publishEnergyMetricsForCircuits(); // publishing decided on a per circuit basis
-            //loggingQ.add("EnergyBucketFiller: bucket(s) " + bucketToFill.toString() + " filled ");
+            logger.add("Bucket(s) " + bucketToFill + " filled ", Level.FINE, this.getClass().getName());
             bucketToFill += 1;
         };
         resetter = () -> {
             //fill buckets now
-            //Runtime.getRuntime().gc();
             logger.add("#"+ Main.getMemoryMonitor().getCurrentHeapSize()+"#Heap used before reset", Level.INFO, this.getClass().getName());
             circuitCollector.resetAllEnergyBuckets();
             bucketToFill = 0;

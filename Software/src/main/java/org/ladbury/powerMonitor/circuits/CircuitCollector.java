@@ -245,7 +245,7 @@ public class CircuitCollector extends Thread
             this.channelStoreMap.put(channel, new CircuitEnergyStore(circuit, getEnergyAccumulationIntervalMins()));
             this.channelPowerDataMap.put(channel,new CircuitPowerData(circuit));
         }
-        //loggingQ.add("CircuitCollector: storeMap - " + storeMap.toString());
+        logger.add("CircuitCollector: storeMap - " + channelStoreMap.toString(), Level.FINE, this.getClass().getName());
          bucketFiller.startScheduledTasks();
 
         while (!Thread.interrupted()) {
