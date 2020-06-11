@@ -92,10 +92,10 @@ public class Main
         // set up & start support processes
         logger.start();
         logger.add("Enabled Logger", Level.INFO,Main.class.getName());
-        //logger.add("Enabling CommandProcessor", Level.INFO, Main.class.getName());
+        logger.add("Enabling CommandProcessor", Level.FINE, Main.class.getName());
+        memoryMonitor = new MemoryMonitor(5);
         logger.add("#"+getMemoryMonitor().getTotalHeapSize()+"#Initial heap size", Level.INFO, Main.class.getName());
         logger.add("#"+getMemoryMonitor().getCurrentHeapSize()+"#current heap size start of main", Level.INFO,Main.class.getName());
-        memoryMonitor = new MemoryMonitor(5);
         CommandProcessor commandProcessor = new CommandProcessor(getCommandQ());
         commandProcessor.start();
 
