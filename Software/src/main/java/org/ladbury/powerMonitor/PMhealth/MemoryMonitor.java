@@ -31,7 +31,7 @@ public class MemoryMonitor
         // Define functions to be called by timers
         memoryChecker = () -> {
             logger.add("#"+ getCurrentHeapSize()+"#Current heap size", Level.INFO,this.getClass().getName());
-            publisher.publishToBroker(publisher.getTelemetryTopic(),gson.toJson(new MemoryData()));
+            publisher.publishToBroker(publisher.getTelemetryTopic()+ "/" + "internal",gson.toJson(new MemoryData()));
         };
         startScheduledTasks();
     }
