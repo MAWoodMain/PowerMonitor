@@ -11,7 +11,7 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
     private static final byte[] START_SEQUENCE;
     private static final int PACKET_LENGTH;
     private final List<Byte> incomingBytes;
-    private final List<Byte> bytes;
+    private List<Byte> bytes;
 
     private final Collection<PacketEventListener> listeners;
 
@@ -63,28 +63,37 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
         {
             //process list of serial bytes accumulated for period
             time = System.currentTimeMillis();
-            if(incomingBytes.size() > 0)
-            {
-                synchronized (incomingBytes)
-                {
-                    //System.err.println(incomingBytes.toString()); //debug for log
-                    bytes.addAll(incomingBytes);
-                    incomingBytes.clear();
-                }
-                newPackets.clear();
-                Instant sampleStart = Instant.now().minusMillis(extractionPeriod);
-                Collection<byte[]> rawPackets = extractPackets(bytes);
-                bytes.clear();
-                for(byte[] packet:rawPackets)
-                {
-                    sampleStart = sampleStart.plusMillis(extractionPeriod/rawPackets.size());
-                    try
-                    {
-                        newPackets.add(new Packet(packet, sampleStart)); // full serial packet without start sequence
-                    } catch (IllegalArgumentException ignored) {}
-                }
-                alertPacketListeners(newPackets);
 
+            try {
+                if(incomingBytes.size() > 0)
+                {
+                    synchronized (incomingBytes)
+                    {
+                        //System.err.println(incomingBytes.toString()); //debug for log
+                        bytes.addAll(incomingBytes);
+                        incomingBytes.clear();
+                    }
+                    newPackets.clear();
+                    Instant sampleStart = Instant.now().minusMillis(extractionPeriod);
+                    Collection<byte[]> rawPackets = extractPackets(bytes);
+                    bytes.clear();
+                    for(byte[] packet:rawPackets)
+                    {
+                        sampleStart = sampleStart.plusMillis(extractionPeriod/rawPackets.size());
+                        try
+                        {
+                            newPackets.add(new Packet(packet, sampleStart)); // full serial packet without start sequence
+                        } catch (IllegalArgumentException ignored) {}
+                    }
+                    alertPacketListeners(newPackets);
+
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                if (this.bytes == null) {
+                    this.bytes = new ArrayList<>();
+                    System.err.println( "Null bytes in STM8PacketCollector");
+                }
             }
             //accumulate packets for the period (assume top half of while is short time)
             while(time + extractionPeriod > System.currentTimeMillis())
@@ -102,7 +111,7 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
         for(PacketEventListener listener:listeners) listener.handleNewPackets(newPackets);
     }
 
-    private Collection<byte[]> extractPackets(Collection<Byte> rawData)
+    private Collection<byte[]> extractPackets(Collection<Byte> rawData)throws NullPointerException
     {
         Collection<byte[]> packets = new ArrayList<>();
         boolean sequenceValid;
@@ -110,7 +119,7 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
 
         /* Unbox Byte array to byte array */
         byte[] data = new byte[rawData.size()];
-        for(Byte b: rawData) data[dataIdx++] = b;
+        for(Byte b: rawData) if(b!=null) data[dataIdx++] = b;
         /* Reset index */
         dataIdx = 0;
 
