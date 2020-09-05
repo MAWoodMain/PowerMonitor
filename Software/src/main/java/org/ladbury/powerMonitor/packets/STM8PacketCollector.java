@@ -92,7 +92,7 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
                 e.printStackTrace();
                 if (this.bytes == null) {
                     this.bytes = new ArrayList<>();
-                    System.err.println( "Null bytes in STM8PacketCollector");
+                    System.err.println( "Null 'this.bytes' in STM8PacketCollector, recreated");
                 }
             }
             //accumulate packets for the period (assume top half of while is short time)
@@ -119,7 +119,9 @@ public class STM8PacketCollector extends Thread implements SerialDataEventListen
 
         /* Unbox Byte array to byte array */
         byte[] data = new byte[rawData.size()];
-        for(Byte b: rawData) if(b!=null) data[dataIdx++] = b;
+        for(Byte b: rawData)
+            if(b!=null) data[dataIdx++] = b;
+            else System.err.println( "Null b in STM8PacketCollector");
         /* Reset index */
         dataIdx = 0;
 
