@@ -5,7 +5,7 @@ After=network.target
 [Service]
 WorkingDirectory=/var/opt/PowerMonitor
 SyslogIdentifier=PowerMonitor
-ExecStart=/bin/sh -c "exec sudo java -jar /opt/PowerMonitor/Software/deployment/PowerMonitor.jar"
+ExecStart=/bin/sh -c "exec sudo java -Xms50m -jar /opt/PowerMonitor/Software/deployment/PowerMonitor.jar -m 10.0.128.20 -i 5 -c PMon10"
 User=root
 Type=simple
 

@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module type="JAVA_MODULE" version="4">
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="true">
-    <exclude-output />
+<module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
+    <output url="file://$MODULE_DIR$/Software/target/classes" />
+    <output-test url="file://$MODULE_DIR$/Software/target/test-classes" />
     <content url="file://$MODULE_DIR$/Software">
-      <sourceFolder url="file://$MODULE_DIR$/Software/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Software/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Software/src/main/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/Software/src/test/java" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/Software/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="com.pi4j:pi4j-core:1.2-SNAPSHOT" level="project" />
     <orderEntry type="library" name="org.eclipse.paho.client.mqttv3-1.1.1-sources" level="project" />
+    <orderEntry type="library" name="Maven: org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.1" level="project" />
+    <orderEntry type="library" name="Maven: com.pi4j:pi4j-core:1.2" level="project" />
+    <orderEntry type="library" name="Maven: com.beust:jcommander:1.78" level="project" />
+    <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.8.6" level="project" />
   </component>
 </module>

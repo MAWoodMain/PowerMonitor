@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Class-Path: org.eclipse.paho.client.mqttv3-1.1.1.jar  pi4j-core-1.2.jar jcommander-1.78.jar gson-2.8.6.jar
+Main-Class: org.ladbury.powerMonitor.Main
+
